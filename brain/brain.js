@@ -1,0 +1,12 @@
+'use strict';
+const express = require('express');
+const app = express();
+
+app.set('title', 'Bot Brain Interface');
+app.set('views', './dashboard/views');
+app.set('view engine', 'pug');
+
+let router = require('./router.js');
+app.use(router);
+
+app.listen(3000, () => console.log('Bot brain listening on port 3000!'))
