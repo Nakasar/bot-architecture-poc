@@ -11,8 +11,26 @@ router.use((req, res, next) => {
 
 // Bot Brain main endpoit
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Bot Brain Interface', mainTitle: "Bot Brain Interface" });
+  res.json({ success: true, message: 'Entry of Bot Brain Interface API. /dashboard for admin interface, /nlp for a natural language conversation post, /command for a command post.' });
 });
+
+// NLP conversation entry point.
+router.post('/nlp', (req, res) => {
+  let phrase = req.body.phrase || req.query.phrase;
+  if (!phrase) {
+    return res.json({ success: false, message: 'No phrase string to analyze in body.'})
+  }
+  res.status(501).json({ success: false, message: 'Phrase analyzed (not implemented).', source: req.body.phrase });
+})
+
+// Command handling entry point.
+router.post('/command', (req, res) => {
+  let command = req.body.command || req.query.command;
+  if (!command) {
+    return res.json({ success: false, message: 'No command string to parse in body.'})
+  }
+  res.status(501).json({ success: false, message: 'Entry of Bot Brain Interface API. /dashboard for admin interface, /nlp for a natural language conversation post, /command for a command post.', source: req.body.command });
+})
 
 // Routing dashboard requests
 router.use('/dashboard', dashboardRouter);
