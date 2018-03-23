@@ -13,6 +13,54 @@ function loadSkillsFromFolder() {
       });
   }
 
+  function listDependencies (packageFilePath) {
+    let pack = require(packageFilePath);
+    let dependencies = [];
+    for (let mod in pack.dependencies) {
+      dependencies.push(mod + "@" + pack.dependencies[mod]);
+    }
+
+    return dependencies;
+  }
+
+  function preloadSkills(skillsDirectory, skillsToLoad) {
+    let dependencies = [];
+
+    let npm = require('npm');
+    // Build dependencies list
+    for (let skill of skillsToLoad) {
+      try {
+        require(skillsDirectory + "/" + skill);
+      } catch (e) {
+        console.log(`> [WARNING] Could not load skill, add its dependencies.`);
+
+        dependencies = dependencies.concat(listDependencies("./skills/" + skill + "/package.json"));
+      }
+    }
+
+
+    if (dependencies.length > 0) {
+      npm.load({loaded: false}, function (err) {
+        console.log(`> [INFO] Installing missing dependencies: ${dependencies.join(", ")}`);
+        let toInstall = dependencies;
+        npm.commands.install(dependencies, (error, data) => {
+          if (error) {
+            console.log(`\x1b[31m> [ERROR] Could not load dependencies.\x1b[0m`);
+            console.log(error.stack);
+          }
+          console.log(`\x1b[32m> [INFO] All missing dependencies installed.\x1b[0m`);
+          loadSkills(skillsToLoad)
+        })
+
+        if (err) {
+          console.log(`> [INFO] Plugins preloaded: ${err}`);
+        }
+      });
+    } else {
+      loadSkills(skillsToLoad)
+    }
+  }
+
   let skillsDirectory;
   let skillsFolders;
   try {
