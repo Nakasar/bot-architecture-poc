@@ -4,7 +4,8 @@
   "description": "Bot main system.",
   "main": "brain.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon brain.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,8 @@
   "homepage": "https://github.com/Nakasar/bot-architecture-poc#readme",
   "dependencies": {
     "express": "^4.16.3",
-    "pug": "^2.0.3"
+    "pug": "^2.0.3",
+    "recastai": "^3.7.0",
+    "save": "^2.3.2"
   }
 }
