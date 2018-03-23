@@ -2,24 +2,24 @@ let commands = {
   'thanks': {
     cmd: 'thanks',
     execute: sayThanks,
-    expected_args: null
+    expected_args: []
   },
   'greets': {
     cmd: 'greets',
     execute: sayHello,
-    expected_args: null
+    expected_args: []
   }
 };
 let intents = {
   'greetings-say-hello': {
     slug: 'say-hello',
     handle: handleHello,
-    expected_entities: null
+    expected_entities: []
   },
   'greetings-say-thank': {
     slug: 'say-thanks',
     handle: handleThanks,
-    expected_entities: null
+    expected_entities: []
   }
 };
 let dependencies = [];

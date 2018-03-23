@@ -31,10 +31,6 @@ function loadSkillsFromFolder() {
   let skillsToLoad = skillsFolders;
 
   loadSkills(skillsToLoad);
-  console.log("               ");
-  console.log(`> [INFO] Loaded Skills: ${skills.list.join(", ")}`);
-  console.log(`> [INFO] Plugged Intents: ${intents.list.join(", ")}`);
-  console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
 }
 
 /**
@@ -133,6 +129,11 @@ function loadSkills(skillsToLoad) {
       console.log(e);
     }
   }
+
+  console.log("               ");
+  console.log(`> [INFO] Loaded Skills: ${skills.list.join(", ")}`);
+  console.log(`> [INFO] Plugged Intents: ${intents.list.join(", ")}`);
+  console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
 };
 
 function handleIntent(intentName) {
@@ -143,6 +144,7 @@ function handleIntent(intentName) {
         return resolve({ success: true, message: response.message });
       });
     } else {
+      console.log(`> [WARNING] Intent "\x1b[4m${intentName}\x1b[0m" is not handled.`);
       return resolve({ success: true, message: `I can't handle your intention, yet I think it is *${intentName}*. Maybe it was disabled :/` });
     }
   })
@@ -154,8 +156,8 @@ function handleCommand(commandName, params = {}) {
     if (commands.has(commandName)) {
       let command = commands.get(commandName);
       let allParametersFound = true;
-      console.log(command.expected_args)
-      for (var expectedParam in command.expected_args) {
+
+      for (var expectedParam of command.expected_args) {
         if (!Object.keys(params).includes(expectedParam)) {
           allParametersFound = false;
         }
@@ -187,4 +189,4 @@ exports.commands = commands;
 exports.intents = intents;
 
 
-loadSkillsFromFolder()
+loadSkillsFromFolder();

@@ -2,7 +2,7 @@ let commands = {
   analyze : {
     cmd: 'analyze',
     execute: analyzeText,
-    expected_args: 'phrase'
+    expected_args: ['phrase']
   }
 }
 let intents = {};
