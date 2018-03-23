@@ -20,15 +20,15 @@ router.post('/nlp', (req, res) => {
   if (!phrase) {
     return res.json({ success: false, message: 'No phrase string to analyze in body.'})
   }
-  hub.startSkill('analyze', phrase).then((response) => {
-    if (!response.analyzed.intent) {
+  hub.handleCommand('analyze', { phrase: phrase }).then((response) => {
+    if (!response.response.intent) {
       return res.json({ success: response.success, message: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/`, source: req.body.phrase });
     }
     let entities = "\nHere are the entities I found:";
-    for (let entity in response.analyzed.entities) {
-      entities += `\n*${entity}* for raw "_${response.analyzed.entities[entity][0].raw}_"`
+    for (let entity in response.response.entities) {
+      entities += `\n*${entity}* for raw "_${response.response.entities[entity][0].raw}_"`
     }
-    hub.startSkill(response.analyzed.intent, "").then((response) => {
+    hub.handleIntent(response.response.intent).then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
       console.log(error.stack)

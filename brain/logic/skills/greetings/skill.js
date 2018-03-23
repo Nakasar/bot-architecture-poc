@@ -13,12 +13,12 @@ let commands = {
 let intents = {
   'greetings-say-hello': {
     slug: 'say-hello',
-    command: 'greets',
+    handle: handleHello,
     expected_entities: null
   },
   'greetings-say-thank': {
     slug: 'say-thanks',
-    command: 'thanks',
+    handle: handleThanks,
     expected_entities: null
   }
 };
@@ -40,6 +40,14 @@ function sayHello() {
   return new Promise((resolve, reject) => {
     return resolve({
       message: "Hello o/"
-    })
-  })
+    });
+  });
+}
+
+function handleHello() {
+  return sayHello();
+}
+
+function handleThanks() {
+  return sayThanks();
 }

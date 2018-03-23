@@ -1,8 +1,41 @@
 'use strict';
 
-// TODO: Automated load of skills in folder /skills
-let skillsToLoad = ['nlp', 'greetings', 'zze'];
+/**
+  Load skills from skills folder (on bot start).
+*/
+function loadSkillsFromFolder() {
+  const fs = require('fs');
+  const path = require('path');
 
+  function getDirectories(srcpath) {
+      return fs.readdirSync(srcpath).filter(function(file) {
+          return fs.statSync(path.join(srcpath, file)).isDirectory();
+      });
+  }
+
+  let skillsDirectory;
+  let skillsFolders;
+  try {
+    skillsDirectory = "./logic/skills";
+    console.log(`> [INFO] Loading skills directory: "\x1b[4m${skillsDirectory}\x1b[0m"...`);
+    skillsFolders = getDirectories(skillsDirectory)
+    console.log(`> [INFO] Skills folders found: \x1b[33m${skillsFolders.join(", ")}\x1b[0m.`);
+  } catch(e) {
+    console.log(e.stack);
+  }
+
+  /**
+    Load skills on module require (bot start).
+  */
+  // TODO: Automated load of skills in folder /skills
+  let skillsToLoad = skillsFolders;
+
+  loadSkills(skillsToLoad);
+  console.log("               ");
+  console.log(`> [INFO] Loaded Skills: ${skills.list.join(", ")}`);
+  console.log(`> [INFO] Plugged Intents: ${intents.list.join(", ")}`);
+  console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
+}
 
 /**
   List running skills.
@@ -21,6 +54,9 @@ let skills = {
   },
   get: function(skillName) {
     return this.skills[skillName];
+  },
+  has: function(skillName) {
+    return this.list.includes(skillName);
   }
 };
 
@@ -41,6 +77,9 @@ let commands = {
   },
   get: function(commandWord) {
     return this.commands[commandWord];
+  },
+  has: function(commandWord) {
+    return this.list.includes(commandWord);
   }
 };
 
@@ -61,6 +100,9 @@ let intents = {
   },
   get: function(intentName) {
     return this.intents[intentName];
+  },
+  has: function(intentName) {
+    return this.list.includes(intentName);
   }
 };
 
@@ -70,7 +112,7 @@ let intents = {
 
   Store commands and intents into memory : skills, commands and intents.
 */
-function loadSkills() {
+function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Loading skills...`);
   for (let skillName of skillsToLoad) {
     console.log(`\tLoading skill "${skillName}"...`);
@@ -79,7 +121,7 @@ function loadSkills() {
       skills.add(skillName, skill);
       for (let intentName in skill.intents) {
         let intent = skill.intents[intentName];
-        intents.add(intent.slug, skill);
+        intents.add(intent.slug, intent);
       }
       for (let commandName in skill.commands) {
         let command = skill.commands[commandName];
@@ -91,39 +133,58 @@ function loadSkills() {
       console.log(e);
     }
   }
-}
+};
 
-exports.startSkill = function(skillName, phrase = undefined, analyzed = undefined) {
+function handleIntent(intentName) {
   return new Promise((resolve, reject) => {
-    switch (skillName) {
-      case "analyze":
-        commands.get("analyze").execute(phrase).then((analyzed) => {
-          return resolve({ success: true, analyzed: analyzed, message: 'Phrase analyzed.', source: phrase });
-        }).catch((err) => {
-          return reject({ success: false, message: `Unknown error with nlp skill.` });
-        })
-        break;
-      case "say-thanks":
-        commands.get("thanks").execute().then((response) => {
-          return resolve({ success: true, message: response.message });
-        })
-        break;
-      default:
-        return resolve({ success: true, message: `I have no skill with this name: *${skillName}*. Maybe it was disabled :/` });
-        break;
+    console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
+    if (intents.has(intentName)) {
+      intents.get(intentName).handle().then((response) => {
+        return resolve({ success: true, message: response.message });
+      });
+    } else {
+      return resolve({ success: true, message: `I can't handle your intention, yet I think it is *${intentName}*. Maybe it was disabled :/` });
     }
   })
 };
+
+function handleCommand(commandName, params = {}) {
+  return new Promise((resolve, reject) => {
+    console.log(`> [INFO] Handling command "\x1b[4m${commandName}\x1b[0m"`)
+    if (commands.has(commandName)) {
+      let command = commands.get(commandName);
+      let allParametersFound = true;
+      console.log(command.expected_args)
+      for (var expectedParam in command.expected_args) {
+        if (!Object.keys(params).includes(expectedParam)) {
+          allParametersFound = false;
+        }
+      }
+
+      if (!allParametersFound) {
+        return resolve({ success: true, message: `I can't execute ${commandName} because you didn't specified enough parameters. I am awaiting : \`${command.expected_args}\`.` });
+      }
+
+      command.execute(params).then((response) => {
+        return resolve({ success: true, message: response.message, response: response });
+      });
+    } else {
+      return resolve({ success: true, message: `I can't handle your because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` });
+    }
+  })
+};
+
+function handlePhrase() {
+
+};
+
+exports.handleIntent = handleIntent;
+exports.handleCommand = handleCommand;
+exports.handlePhrase = handlePhrase;
 
 exports.skills = skills;
 exports.commands = commands;
 exports.intents = intents;
 
-/**
-  Load skills on module require (bot start).
-*/
-loadSkills();
-console.log("               ");
-console.log(`> [INFO] Loaded Skills: ${skills.list.join(", ")}`);
-console.log(`> [INFO] Plugged Intents: ${intents.list.join(", ")}`);
-console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
+
+loadSkillsFromFolder()

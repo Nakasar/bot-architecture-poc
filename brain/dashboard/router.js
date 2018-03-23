@@ -10,12 +10,11 @@ router.use((req, res, next) => {
 
 // Dashboard index
 router.get('/', (req, res) => {
-  console.log(hub.skills.skills)
   res.render('index',{
     title: 'Dashboard - Bot',
     message: 'Welcome to administration panel of this amazing Bot.',
     mainTitle: "Bot Brain Dashboard",
-    skills: hub.skills.list
+    skills: hub.skills.skills
   });
 });
 

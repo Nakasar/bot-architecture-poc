@@ -30,15 +30,19 @@ html
             .card-body
               #skills
                 if skills
-                  each skill, index in skills
-                    - let headId = `skill-heading-${index}`
-                    - let bodyId = `skill-body-${index}`
+                  each skill, skillName in skills
+                    - let headId = `skill-heading-${skillName}`
+                    - let bodyId = `skill-body-${skillName}`
                     .card
                       .card-header(id=headId)
                         h5.mb-0
-                          button.btn.btn-link(data-toggle="collapse" data-target='#'+bodyId aria-expanded="true" aria-controls=bodyId)= skill
+                          button.btn.btn-link(data-toggle="collapse" data-target='#'+bodyId aria-expanded="true" aria-controls=bodyId)= skillName
                       .collapse(id=bodyId, aria-labelledby=headId, data-parent="#skills")
-                        .card-body= skill
+                        .card-body
+                          if skill.commands
+                            ul.list-group
+                              each command, commandName in skill.commands
+                                li.list-group-item= commandName
         .col-sm
           .card#sandbox
             .card-header
