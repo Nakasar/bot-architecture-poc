@@ -2,7 +2,7 @@
 const express = require('express');
 let router = express.Router();
 let dashboardRouter = require('./dashboard/router');
-let skillRouter = require('./logic/skill_splitter');
+let hub = require('./logic/hub');
 
 // Main middleware
 router.use((req, res, next) => {
@@ -20,7 +20,7 @@ router.post('/nlp', (req, res) => {
   if (!phrase) {
     return res.json({ success: false, message: 'No phrase string to analyze in body.'})
   }
-  skillRouter.startSkill('nlp', phrase).then((response) => {
+  hub.startSkill('analyze', phrase).then((response) => {
     if (!response.analyzed.intent) {
       return res.json({ success: response.success, message: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/`, source: req.body.phrase });
     }
@@ -28,7 +28,7 @@ router.post('/nlp', (req, res) => {
     for (let entity in response.analyzed.entities) {
       entities += `\n*${entity}* for raw "_${response.analyzed.entities[entity][0].raw}_"`
     }
-    skillRouter.startSkill(response.analyzed.intent, "").then((response) => {
+    hub.startSkill(response.analyzed.intent, "").then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
       console.log(error.stack)

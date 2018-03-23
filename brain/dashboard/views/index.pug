@@ -2,29 +2,65 @@ html
   head
     title= title
     
-    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css", integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7", crossorigin="anonymous")
-    
-    script(src="https://code.jquery.com/jquery-2.2.4.js", integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=", crossorigin="anonymous")
-    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js", integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS", crossorigin="anonymous")
-  
+    link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css", integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm", crossorigin="anonymous")
+      
+      
+    script(defer, src="https://use.fontawesome.com/releases/v5.0.8/js/regular.js", integrity="sha384-t7yHmUlwFrLxHXNLstawVRBMeSLcXTbQ5hsd0ifzwGtN7ZF7RZ8ppM7Ldinuoiif", crossorigin="anonymous")
+    script(defer, src="https://use.fontawesome.com/releases/v5.0.8/js/fontawesome.js", integrity="sha384-7ox8Q2yzO/uWircfojVuCQOZl+ZZBg2D2J5nkpLqzH1HY0C1dHlTKIbpRz/LG23c", crossorigin="anonymous")
   body
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light
+      a.navbar-brand(href="#") Bot dashboard
+      button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
+        span.navbar-toggler-icon
+      .collapse.navbar-collapse#navbarSupportedContent
+        ul.navbar-nav.mr-auto
+          li.nav-item.active
+            a.nav-link(href="#") Portail
+              span.sr-only (current)
     main.container  
       h1= mainTitle
       if message
         p= message
       
-      div#sandbox
-        form#chat-form
-          div.form-group
-            label(for='chat') Chat:
-            input#chat.form-control(type='text' placeholder='Say something here...' name='chat')
-          button.btn.btn-primary(type='submit') Send
-        
-        div#bot-response
-          ul.list-group
-            li.list-group-item.text-muted#source
-            li.list-group-item#message(style='white-space: pre-wrap;')
-      
-      
+      .row
+        .col-sm
+          .card#informations
+            .card-header
+              h5.mb-0 Loaded Skills
+            .card-body
+              #skills
+                if skills
+                  each skill, index in skills
+                    - let headId = `skill-heading-${index}`
+                    - let bodyId = `skill-body-${index}`
+                    .card
+                      .card-header(id=headId)
+                        h5.mb-0
+                          button.btn.btn-link(data-toggle="collapse" data-target='#'+bodyId aria-expanded="true" aria-controls=bodyId)= skill
+                      .collapse(id=bodyId, aria-labelledby=headId, data-parent="#skills")
+                        .card-body= skill
+        .col-sm
+          .card#sandbox
+            .card-header
+              h5.mb-0 Chat
+            .card-body
+              form#chat-form
+                .form-group
+                  .input-group.mb-3
+                    input#chat.form-control(type='text' placeholder='Say something here...' name='chat')
+                    .input-group-append
+                      button.btn.btn-primary(type='submit', aria-label="Send message")
+                        i.far.fa-comments
+              
+              #bot-response
+                ul.list-group
+                  li.list-group-item.text-muted#source
+                  li.list-group-item#message(style='white-space: pre-wrap;')
+                
+    script(src="https://code.jquery.com/jquery-3.3.1.js", integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=", crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js", integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q", crossorigin="anonymous")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js", integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl", crossorigin="anonymous")
+    
+    
     script
       include dashboard.js

@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
+const hub = require('../logic/hub');
 let router = express.Router();
-
 
 // Dashboard middleware
 router.use((req, res, next) => {
@@ -10,7 +10,13 @@ router.use((req, res, next) => {
 
 // Dashboard index
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Dashboard - Bot', message: 'Welcome to administration panel of this amazing Bot.', mainTitle: "Bot Brain Dashboard" });
+  console.log(hub.skills.skills)
+  res.render('index',{
+    title: 'Dashboard - Bot',
+    message: 'Welcome to administration panel of this amazing Bot.',
+    mainTitle: "Bot Brain Dashboard",
+    skills: hub.skills.list
+  });
 });
 
 // Dashboard 404 Error
