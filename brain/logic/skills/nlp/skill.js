@@ -26,8 +26,16 @@ function analyzeText(phrase = "") {
     client.analyseText(phrase).then((res) => {
       analyzed = { };
       analyzed.intent = res.intent() ? res.intent().slug : null;
-      analyzed.entities = res.entities || {};
+      analyzed.entities = {};
+      for (let entityName in res.entities) {
+        analyzed.entities[entityName] = []
+        for (let entity of res.entities[entityName]) {
+          analyzed.entities[entityName].push(entity.raw);
+        }
+      }
+
       analyzed.message = res.intent() ? `I think your intent is *${res.intent().slug}*.` : `I did'nt found any intent in this sentence.`;
+
       return resolve(analyzed);
     })
   })

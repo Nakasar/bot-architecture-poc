@@ -25,12 +25,7 @@ router.post('/nlp', (req, res) => {
       return res.json({ success: response.success, message: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/`, source: req.body.phrase });
     }
 
-    let entities = "\nHere are the entities I found:";
-    for (let entity in response.response.entities) {
-      entities += `\n*${entity}* for raw "_${response.response.entities[entity][0].raw}_"`
-    }
-
-    hub.handleIntent(response.response.intent).then((response) => {
+    hub.handleIntent(response.response.intent, response.response.entities).then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
       console.log(error.stack)

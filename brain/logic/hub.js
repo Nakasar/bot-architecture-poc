@@ -139,11 +139,21 @@ function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
 };
 
-function handleIntent(intentName) {
+function handleIntent(intentName, entities = {}) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
     if (intents.has(intentName) && intents.get(intentName).active) {
-      intents.get(intentName).handle().then((response) => {
+      let intent = intents.get(intentName);
+      let foundAllEntities = true;
+      
+      for (let entity of intent.expected_entities) {
+        if (!Object.keys(entities).includes(entity)) {
+          foundAllEntities = false;
+          return resolve({ success: false, message: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` });
+        }
+      }
+
+      intent.handle(entities).then((response) => {
         return resolve({ success: true, message: response.message });
       });
     } else {

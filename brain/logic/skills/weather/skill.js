@@ -5,7 +5,13 @@ let commands = {
     expected_args: ['location']
   }
 }
-let intents = {};
+let intents = {
+  'weather-weather': {
+    slug: 'weather',
+    handle: handleWeather,
+    expected_entities: ['location']
+  }
+};
 let dependencies = ['request'];
 
 exports.commands = commands;
@@ -47,6 +53,11 @@ function getWeather(phrase) {
           });
         }
       }
-    })
-  })
+    });
+  });
 };
+
+function handleWeather({ location: location = "" }) {
+  let finalLocation = location[0];
+  return getWeather(finalLocation);
+}

@@ -68,3 +68,80 @@ Skill Services are external microservices that may (or may not) by accessible by
 
 ### Skills
 Skills are small scripts executed by the brain node server. They expose their commands and intents. Skills are automatically loaded by the bot on startup, and may be added at runtime, or removed/disabled.
+
+Here is an example of skill fetching weather on a personnal weather API service:
+
+```javascript
+// Defining the skill
+// Commands the skill can execute.
+let commands = {
+  weather : {
+    cmd: 'weather',
+    execute: getWeather,
+    expected_args: ['location']
+  }
+};
+// intents the skill understands.
+let intents = {
+  'weather-weather': {
+    slug: 'weather',
+    handle: handleWeather,
+    expected_entities: ['location']
+  }
+};
+// dependencies of the skill.
+let dependencies = ['request'];
+
+// Exposing the skill definition.
+exports.commands = commands;
+exports.intents = intents;
+exports.dependencies = dependencies;
+
+// Skill logic begins here. You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+const request = require('request');
+
+const serviceURL = "http://localhost:5012";
+
+function getWeather(phrase) {
+  return new Promise((resolve, reject) => {
+
+    let location = phrase;
+    if (location.length <= 0) {
+      return resolve({
+        message: `I need a location (like \`Kayl, lu\`).`
+      });
+    }
+
+    console.log(`> [INFO] {weather} - Get weather for "${location}".`);
+    request({
+      baseUrl: serviceURL,
+      uri: '/weather',
+      qs: {
+        location: location
+      },
+      json: true,
+      callback: (err, res, body) => {
+        if (!err && body && body.success) {
+          let weatherMessage = `Here is the current weather for *${body.weather.name}*:`
+          weatherMessage += `\nSky: ${body.weather.weather[0].main}`;
+          resolve({
+            message: weatherMessage
+          });
+        } else {
+          resolve({
+            message: "I couldn't load weather for this location :/"
+          });
+        }
+      }
+    });
+  });
+};
+
+// An intent handler might just redirect to a command handler.
+function handleWeather({ location: location = "" }) {
+  let finalLocation = location[0];
+  return getWeather(finalLocation);
+}
+
+// You may define other logic function unexposed here. Try to keep the skill code slim.
+```
