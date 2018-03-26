@@ -12,6 +12,18 @@ router.use((req, res, next) => {
 router.get('/', (req, res) => {
   res.render('index', {
     title: 'Dashboard - Bot',
+    nav_link: 'nav-portal',
+    message: 'Welcome to administration panel of this amazing Bot.',
+    mainTitle: "Bot Brain Dashboard",
+    skills: hub.skills.skills
+  });
+});
+
+// Dashboard Skills administration
+router.get('/skills', (req, res) => {
+  res.render('index', {
+    title: 'Skills - Bot',
+    nav_link: 'nav-skills',
     message: 'Welcome to administration panel of this amazing Bot.',
     mainTitle: "Bot Brain Dashboard",
     skills: hub.skills.skills

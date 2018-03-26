@@ -1,0 +1,11 @@
+nav.navbar.navbar-expand-lg.navbar-light.bg-light
+  a.navbar-brand(href="#") Bot dashboard
+  button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
+    span.navbar-toggler-icon
+  .collapse.navbar-collapse#navbarSupportedContent
+    ul.navbar-nav.mr-auto
+      li.nav-item(class=(nav_link === "nav-portal" ? "active" : null))
+        a.nav-link(href="/dashboard") Portail
+          span.sr-only (current)
+      li.nav-item(class=(nav_link === "nav-skills" ? "active" : null))
+        a.nav-link(href="/dashboard/skills") Skills
