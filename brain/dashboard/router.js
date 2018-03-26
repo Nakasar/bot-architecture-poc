@@ -21,7 +21,7 @@ router.get('/', (req, res) => {
 
 // Dashboard Skills administration
 router.get('/skills', (req, res) => {
-  res.render('index', {
+  res.render('skills', {
     title: 'Skills - Bot',
     nav_link: 'nav-skills',
     message: 'Welcome to administration panel of this amazing Bot.',
