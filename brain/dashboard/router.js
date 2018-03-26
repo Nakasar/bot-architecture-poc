@@ -10,13 +10,29 @@ router.use((req, res, next) => {
 
 // Dashboard index
 router.get('/', (req, res) => {
-  res.render('index',{
+  res.render('index', {
     title: 'Dashboard - Bot',
     message: 'Welcome to administration panel of this amazing Bot.',
     mainTitle: "Bot Brain Dashboard",
     skills: hub.skills.skills
   });
 });
+
+// Activate/Deactivate skills.
+router.post('/skills/:skill/:status', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    if (req.params.status === "on") {
+      hub.activateSkill(req.params.skill);
+      return res.json({ success: true, message: `Skill ${req.params.skill} activated.`});
+    } else if (req.params.status === "off") {
+      hub.deactivateSkill(req.params.skill);
+      return res.json({ success: true, message: `Skill ${req.params.skill} deactivated.`});
+    }
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+})
 
 // Dashboard 404 Error
 router.get('*', (req, res) => {

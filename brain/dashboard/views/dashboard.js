@@ -58,6 +58,58 @@ $('#chat-form').submit((event) => {
   }
 });
 
+function activateSkill(event) {
+  let skill = $(event.target).data('skill');
+  if (skill) {
+    console.log("Activate " + skill);
+
+    $.ajax({
+      type: "POST",
+      url: `/dashboard/skills/${skill}/on`,
+      dataType: 'json',
+      success: function(json) {
+        console.log(json)
+        $(event.target).removeClass("skill-activate btn-outline-success");
+        $(event.target).addClass("skill-deactivate btn-outline-danger");
+        $(event.target).text("Deactivate");
+        $(event.target).off('click');
+        $(event.target).click(deactivateSkill);
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
+  }
+};
+
+function deactivateSkill(event) {
+  let skill = $(event.target).data('skill');
+  if (skill) {
+    console.log("Deactivate " + skill);
+
+    $.ajax({
+      type: "POST",
+      url: `/dashboard/skills/${skill}/off`,
+      dataType: 'json',
+      success: function(json) {
+        console.log(json)
+        $(event.target).removeClass("skill-deactivate btn-outline-danger");
+        $(event.target).addClass("skill-activate btn-outline-success");
+        $(event.target).text("Activate");
+        $(event.target).off('click');
+        $(event.target).click(activateSkill);
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
+  }
+}
+
+$('.skill-activate').click(activateSkill);
+
+$('.skill-deactivate').click(deactivateSkill);
+
 function formatText(text) {
   // Remove html tags.
   let formatted = text.replace(/<(.|\n)*?>/, "");

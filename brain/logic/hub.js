@@ -115,13 +115,16 @@ function loadSkills(skillsToLoad) {
     try {
       let skill = require(`./skills/${skillName}/skill`);
       skills.add(skillName, skill);
+      skills.get(skillName).active = true;
       for (let intentName in skill.intents) {
         let intent = skill.intents[intentName];
+        intent.active = true;
         intents.add(intent.slug, intent);
       }
       for (let commandName in skill.commands) {
         let command = skill.commands[commandName];
-        commands.add(command.cmd, command)
+        command.active = true;
+        commands.add(command.cmd, command);
       }
       console.log(`\t..."${skillName}" successfully loaded`);
     } catch(e) {
@@ -139,7 +142,7 @@ function loadSkills(skillsToLoad) {
 function handleIntent(intentName) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
-    if (intents.has(intentName)) {
+    if (intents.has(intentName) && intents.get(intentName).active) {
       intents.get(intentName).handle().then((response) => {
         return resolve({ success: true, message: response.message });
       });
@@ -154,25 +157,14 @@ function handleCommand(commandName, phrase = "") {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling command "\x1b[4m${commandName}\x1b[0m"`)
 
-    if (commands.has(commandName)) {
+    if (commands.has(commandName) && commands.get(commandName).active) {
       let command = commands.get(commandName);
-      // let allParametersFound = true;
-      //
-      // for (var expectedParam of command.expected_args) {
-      //   if (!Object.keys(params).includes(expectedParam)) {
-      //     allParametersFound = false;
-      //   }
-      // }
-      //
-      // if (!allParametersFound) {
-      //   return resolve({ success: true, message: `I can't execute ${commandName} because you didn't specified enough parameters. I am awaiting : \`${command.expected_args}\`.` });
-      // }
 
       command.execute(phrase).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
     } else {
-      return resolve({ success: true, message: `I can't handle your because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` });
+      return resolve({ success: true, message: `I can't handle your command because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` });
     }
   })
 };
@@ -181,9 +173,34 @@ function handlePhrase() {
 
 };
 
+function activateSkill(skillName) {
+  skills.get(skillName).active = true;
+  let skill = skills.get(skillName);
+  for (let intentName in skill.intents) {
+    skill.intents[intentName].active = true;
+  }
+  for (let commandName in skill.commands) {
+    skill.commands[commandName].active = true;
+  }
+};
+
+function deactivateSkill(skillName) {
+  skills.get(skillName).active = false;
+  let skill = skills.get(skillName);
+  for (let intentName in skill.intents) {
+    skill.intents[intentName].active = false;
+  }
+  for (let commandName in skill.commands) {
+    skill.commands[commandName].active = false;
+  }
+}
+
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
 exports.handlePhrase = handlePhrase;
+
+exports.activateSkill = activateSkill;
+exports.deactivateSkill = deactivateSkill;
 
 exports.skills = skills;
 exports.commands = commands;
