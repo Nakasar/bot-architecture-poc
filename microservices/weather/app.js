@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const request = require('request');
+const secret = require('./secret');
 
 const weatherServiceUrl = "http://api.openweathermap.org/data/2.5/weather";
 
@@ -16,7 +17,7 @@ app.get('/weather', (req, res, next) => {
     request({
       uri: weatherServiceUrl,
       qs: {
-        appid: '6be46422ddeb7ed9e6e6061f0722efa2',
+        appid: secret.appid,
         q: location
       },
       json: true,

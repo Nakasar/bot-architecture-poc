@@ -12,9 +12,10 @@ exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
 
-const recastai = require('recastai')
+const recastai = require('recastai');
+const secret = require('./secret');
 
-const client = new recastai.request('ffde2e6e88745852df01e71e55e60e81', 'en')
+const client = new recastai.request(secret.recastai_token, 'en');
 
 function analyzeText(phrase = "") {
   return new Promise((resolve, reject) => {
