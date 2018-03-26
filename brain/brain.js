@@ -15,4 +15,4 @@ app.use(bodyParser.json())
 let router = require('./router.js');
 app.use(router);
 
-app.listen(3000, () => console.log('\n\x1b[36m> [INFO] Bot brain listening on port 3000!\x1b[0m'))
+app.listen(8080, () => console.log('\n\x1b[36m> [INFO] Bot brain listening on port 8080!\x1b[0m'))
