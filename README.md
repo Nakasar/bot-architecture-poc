@@ -1,6 +1,8 @@
 # PoC : Bot Architecture
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
+## Install & Usage
+
 ## Architecture
 ![Diagram of Architecture](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/PoC%20Bot%20Architecture%20Diagram.png)
 
@@ -97,7 +99,10 @@ exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
 
-// Skill logic begins here. You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+/*
+  Skill logic begins here.
+  You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+*/
 const request = require('request');
 
 const serviceURL = "http://localhost:5012";
