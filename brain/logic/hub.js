@@ -150,24 +150,25 @@ function handleIntent(intentName) {
   })
 };
 
-function handleCommand(commandName, params = {}) {
+function handleCommand(commandName, phrase = "") {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling command "\x1b[4m${commandName}\x1b[0m"`)
+
     if (commands.has(commandName)) {
       let command = commands.get(commandName);
-      let allParametersFound = true;
+      // let allParametersFound = true;
+      //
+      // for (var expectedParam of command.expected_args) {
+      //   if (!Object.keys(params).includes(expectedParam)) {
+      //     allParametersFound = false;
+      //   }
+      // }
+      //
+      // if (!allParametersFound) {
+      //   return resolve({ success: true, message: `I can't execute ${commandName} because you didn't specified enough parameters. I am awaiting : \`${command.expected_args}\`.` });
+      // }
 
-      for (var expectedParam of command.expected_args) {
-        if (!Object.keys(params).includes(expectedParam)) {
-          allParametersFound = false;
-        }
-      }
-
-      if (!allParametersFound) {
-        return resolve({ success: true, message: `I can't execute ${commandName} because you didn't specified enough parameters. I am awaiting : \`${command.expected_args}\`.` });
-      }
-
-      command.execute(params).then((response) => {
+      command.execute(phrase).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
     } else {

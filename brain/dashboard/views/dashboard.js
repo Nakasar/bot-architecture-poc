@@ -5,29 +5,57 @@ $('#chat-form').submit((event) => {
     return;
   }
 
-  console.log("Message sent: " + message);
+  if (message.startsWith("!")) {
+    // Send to commad endpoint.
+    console.log("Message sent to Command: " + message.substring(1));
 
-  $.ajax({
-    type: "POST",
-    url: "/nlp",
-    data: { phrase: message },
-    dataType: 'json',
-    success: function(json) {
-      console.log(json)
-      $("#chat").val('');
-      $("#bot-response #source").text(json.source)
-      $("#bot-response #message").html(formatText(json.message));
-    },
-    error: function(err) {
-      $("#chat").val('');
-      if (json = err.responseJSON) {
-        $("#bot-response #source").text(json.source);
+    $.ajax({
+      type: "POST",
+      url: "/command",
+      data: { command: message.substring(1) },
+      dataType: 'json',
+      success: function(json) {
+        console.log(json)
+        $("#chat").val('');
+        $("#bot-response #source").text(json.source)
         $("#bot-response #message").html(formatText(json.message));
-      } else {
-        console.log(err)
+      },
+      error: function(err) {
+        $("#chat").val('');
+        if (json = err.responseJSON) {
+          $("#bot-response #source").text(json.source);
+          $("#bot-response #message").html(formatText(json.message));
+        } else {
+          console.log(err)
+        }
       }
-    }
-  })
+    });
+  } else {
+    // Send to NLP endpoint.
+    console.log("Message sent to NLP: " + message);
+
+    $.ajax({
+      type: "POST",
+      url: "/nlp",
+      data: { phrase: message },
+      dataType: 'json',
+      success: function(json) {
+        console.log(json)
+        $("#chat").val('');
+        $("#bot-response #source").text(json.source)
+        $("#bot-response #message").html(formatText(json.message));
+      },
+      error: function(err) {
+        $("#chat").val('');
+        if (json = err.responseJSON) {
+          $("#bot-response #source").text(json.source);
+          $("#bot-response #message").html(formatText(json.message));
+        } else {
+          console.log(err)
+        }
+      }
+    });
+  }
 });
 
 function formatText(text) {

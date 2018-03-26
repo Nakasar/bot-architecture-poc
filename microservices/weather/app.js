@@ -17,7 +17,7 @@ app.get('/weather', (req, res, next) => {
       uri: weatherServiceUrl,
       qs: {
         appid: '6be46422ddeb7ed9e6e6061f0722efa2',
-        q: 'Kayl,lu'
+        q: location
       },
       json: true,
       callback: (err, response, body) => {
@@ -38,7 +38,11 @@ app.get('/weather', (req, res, next) => {
   }
 });
 
-app.listen(5000, () => {
+app.get('*', (req, res, next) => {
+  return res.status(404).json({ success: false, message: "404" });
+})
+
+app.listen(5012, () => {
   console.log('\n\x1b[36m> [INFO] Weather microservice listening on port 5000!\x1b[0m')
   console.log("> [INFO] Will use external service for weather: " + weatherServiceUrl);
 });

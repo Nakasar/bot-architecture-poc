@@ -20,6 +20,7 @@
   "dependencies": {
     "express": "^4.16.3",
     "pug": "^2.0.3",
-    "recastai": "^3.7.0"
+    "recastai": "^3.7.0",
+    "request": "^2.85.0"
   }
 }
