@@ -1,12 +1,15 @@
 'use strict';
 const express = require('express');
 const hub = require('../logic/hub');
+const path = require('path');
 let router = express.Router();
 
 // Dashboard middleware
 router.use((req, res, next) => {
   next();
 });
+
+router.use('/static', express.static(path.join(__dirname, './public')));
 
 // Dashboard index
 router.get('/', (req, res) => {
@@ -36,10 +39,10 @@ router.post('/skills/:skill/:status', (req, res) => {
   if (hub.skills.has(req.params.skill)) {
     if (req.params.status === "on") {
       hub.activateSkill(req.params.skill);
-      return res.json({ success: true, message: `Skill ${req.params.skill} activated.`});
-    } else if (req.params.status === "off") {
+      return res.json({ success: true, message: `Skill ${req.params.skill} activated.`, active: true });
+    } else {
       hub.deactivateSkill(req.params.skill);
-      return res.json({ success: true, message: `Skill ${req.params.skill} deactivated.`});
+      return res.json({ success: true, message: `Skill ${req.params.skill} deactivated.`, active: false });
     }
   } else {
     return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});

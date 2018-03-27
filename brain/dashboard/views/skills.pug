@@ -1,5 +1,48 @@
 extends layout
 
 block content
-  h1= title
-  p.lead= message
+  h1 Skills
+  
+  .list-group
+    if skills
+      each skill, skillName in skills
+        .list-group-item.flex-column.align-items-start(id="skill-"+skillName)
+          .d-flex.w-100.justify-content-between
+            h4.mb-1.capitalized= skillName
+            div
+              a.action.mb-1(role="button" title=( skill.active ? "Deactivate skill" : "Activate skill") aria-label=( skill.active ? "Deactivate skill" : "Activate skill") class=( skill.active ? "text-success" : "text-danger") data-skill=skillName data-active=(`${skill.active}`) onClick="skillToggle(this)")
+                if skill.active
+                  i.fas.fa-toggle-on
+                else
+                  i.fas.fa-toggle-off
+              a.action.displayer(role="button" title="Display skill." style="margin-left: 1em;" onClick=`toggleSkillDetail('${skillName}');`)
+                i.fas.fa-caret-down
+          .collapse(id="detail-"+skillName)
+            h5 Intents
+            if skill.intents && Object.keys(skill.intents).length > 0
+              each intent, intentName in skill.intents
+                .list-group-flush
+                  .list-group-item-light.flex-column.align-items-start
+                    .d-flex.w-100.justify-content-between
+                      div
+                        span= intentName
+                        em= ` (${intent.slug})`
+                      a.action.mb-1(role="button" title="Configure intent." data-skill=skillName data-type="intent" data-command=intentName)
+                        i.fas.fa-pencil-alt
+            else
+              p.font-weight-light.font-italic There are no intents associated with this skill.
+            h5 Commands
+            if skill.commands && Object.keys(skill.commands).length > 0
+              each command, commandName in skill.commands
+                .list-group-flush
+                  .list-group-item-light.flex-column.align-items-start
+                    .d-flex.w-100.justify-content-between
+                      div
+                        span= commandName
+                      a.action.mb-1(role="button" title="Configure command." data-skill=skillName data-type="command" data-command=commandName)
+                        i.fas.fa-pencil-alt
+            else
+              p.font-weight-light.font-italic There are no commands for this skill.
+
+  script
+    include ../public/js/skills.js
