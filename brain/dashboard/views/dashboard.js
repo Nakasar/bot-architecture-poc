@@ -65,7 +65,7 @@ function activateSkill(event) {
 
     $.ajax({
       type: "POST",
-      url: `/dashboard/skills/${skill}/on`,
+      url: `/skills/${skill}/on`,
       dataType: 'json',
       success: function(json) {
         console.log(json)
@@ -89,7 +89,7 @@ function deactivateSkill(event) {
 
     $.ajax({
       type: "POST",
-      url: `/dashboard/skills/${skill}/off`,
+      url: `/skills/${skill}/off`,
       dataType: 'json',
       success: function(json) {
         console.log(json)

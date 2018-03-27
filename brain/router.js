@@ -52,7 +52,67 @@ router.post('/command', (req, res) => {
     console.log(error.stack);
     return res.json({ success: false, message: 'Unkown error while handling command.', source: commad });
   });
-})
+});
+
+// Reload skills.
+router.post('/skills/:skill/reload', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    hub.reloadSkill(req.params.skill).then(() => {
+      return res.json({ success: true, message: `Skill ${req.params.skill} reloaded.`})
+    }).catch(() => {
+      return res.json({ success: false, message: `Could not reload Skill ${req.params.skill}.`})
+    });
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+});
+
+// Get skill code
+router.get('/skills/:skill/edit', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    hub.getSkillCode(req.params.skill).then((code) => {
+      return res.json({ success: true, message: `Code of Skill ${req.params.skill} retrieved.`, code: code })
+    }).catch(() => {
+      return res.json({ success: false, message: `Could not get code of Skill ${req.params.skill}.`})
+    });
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+});
+
+// Update skill code
+router.put('/skills/:skill/edit', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    hub.saveSkillCode(req.params.skill, req.body.code).then(() => {
+      return res.json({ success: true, message: `Code of Skill ${req.params.skill} saved, skill reloaded successfully.` })
+    }).catch(() => {
+      return res.json({ success: false, message: `Could not save code of Skill ${req.params.skill}.`})
+    });
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+});
+
+// Activate/Deactivate skills.
+router.post('/skills/:skill/:status', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    if (req.params.status === "on") {
+      hub.activateSkill(req.params.skill);
+      return res.json({ success: true, message: `Skill ${req.params.skill} activated.`, active: true });
+    } else if (req.params.status === "off") {
+      hub.deactivateSkill(req.params.skill);
+      return res.json({ success: true, message: `Skill ${req.params.skill} deactivated.`, active: false });
+    } else {
+      return res.json({ success: false, message: `Wrong status code : on or off.`});
+    }
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+});
 
 // Routing dashboard requests
 router.use('/dashboard', dashboardRouter);

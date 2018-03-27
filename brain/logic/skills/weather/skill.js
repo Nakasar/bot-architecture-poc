@@ -42,7 +42,7 @@ function getWeather(phrase) {
       json: true,
       callback: (err, res, body) => {
         if (!err && body && body.success) {
-          let weatherMessage = `That's the weather for *${body.weather.name}*:`
+          let weatherMessage = `Here's the weather for *${body.weather.name}*:`
           weatherMessage += `\nSky: ${body.weather.weather[0].main}`;
           resolve({
             message: weatherMessage

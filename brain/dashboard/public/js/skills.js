@@ -8,7 +8,7 @@ function skillToggle(skillButton) {
     $.ajax({
       type: "POST",
       baseUrl: 'http://localhost;8080',
-      url: `/dashboard/skills/${skill}/${status ? "off" : "on"}`,
+      url: `/skills/${skill}/${status ? "off" : "on"}`,
       dataType: 'json',
       success: function(json) {
         if (json.active) {
@@ -73,7 +73,7 @@ function reloadSkill(skillButton) {
       $.ajax({
         type: "POST",
         baseUrl: 'http://localhost;8080',
-        url: `/dashboard/skills/${skill}/reload`,
+        url: `/skills/${skill}/reload`,
         dataType: 'json',
         success: function(json) {
           console.log(json);
@@ -110,7 +110,7 @@ function editSkill(skillButton) {
     $.ajax({
       type: "GET",
       baseUrl: 'http://localhost;8080',
-      url: `/dashboard/skills/${skill}/edit`,
+      url: `/skills/${skill}/edit`,
       dataType: 'json',
       success: function(json) {
         if (json.success) {
@@ -158,7 +158,7 @@ function saveSkillCode(skillButton) {
       $.ajax({
         type: "PUT",
         baseUrl: 'http://localhost;8080',
-        url: `/dashboard/skills/${skill}/edit`,
+        url: `/skills/${skill}/edit`,
         data: { code: code },
         dataType: 'json',
         success: function(json) {

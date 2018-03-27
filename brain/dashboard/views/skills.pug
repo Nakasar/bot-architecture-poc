@@ -17,7 +17,10 @@ block content
           button.btn.btn-success.save(type="button" onClick="saveSkillCode(this)") Save (and reload)
           button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
   
-  h1 Skills
+  .row.justify-content-between
+    h1.col-10 Skills
+    .col-2.align-self-center.text-right
+      button.btn.btn-outline-success(type="action") New Skill
   
   .list-group
     if skills
