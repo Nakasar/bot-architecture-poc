@@ -20,7 +20,7 @@ block content
   .row.justify-content-between
     h1.col-10 Skills
     .col-2.align-self-center.text-right
-      button.btn.btn-outline-success(type="action") New Skill
+      a.btn.btn-outline-success#new-skill(role="button" href="/dashboard/skills/new") New Skill
   
   .list-group
     if skills
