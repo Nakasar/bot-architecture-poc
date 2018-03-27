@@ -60,3 +60,35 @@ function toggleSkillDetail(skillName) {
 
   $(`#detail-${skillName}`).collapse('toggle');
 }
+
+function reloadSkill(skillButton) {
+  let skill = $(skillButton).data('skill');
+
+  if (skill) {
+    $(skillButton).find('[data-fa-i2svg]').toggleClass('fa-spin');
+
+    setTimeout(() => {
+      $.ajax({
+        type: "POST",
+        baseUrl: 'http://localhost;8080',
+        url: `/dashboard/skills/${skill}/reload`,
+        dataType: 'json',
+        success: function(json) {
+          console.log(json);
+          if (json.success) {
+            notifyUser({
+              title: `Skill ${skill} reloaded!`,
+              message: "",
+              type: "info"
+            });
+          }
+          $(skillButton).find('[data-fa-i2svg]').toggleClass('fa-spin');
+        },
+        error: function(err) {
+          console.log(err)
+          $(skillButton).find('[data-fa-i2svg]').toggleClass('fa-spin');
+        }
+      });
+    }, 2000);
+  }
+}

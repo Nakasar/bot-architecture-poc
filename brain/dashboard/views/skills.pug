@@ -10,7 +10,9 @@ block content
           .d-flex.w-100.justify-content-between
             h4.mb-1.capitalized= skillName
             div
-              a.action.mb-1(role="button" title=( skill.active ? "Deactivate skill" : "Activate skill") aria-label=( skill.active ? "Deactivate skill" : "Activate skill") class=( skill.active ? "text-success" : "text-danger") data-skill=skillName data-active=(`${skill.active}`) onClick="skillToggle(this)")
+              a.action.mb-1.text-warning(role="button" title="Reload skill" aria-label="Reload skill" data-skill=skillName onClick="reloadSkill(this)")
+                i.fas.fa-sync
+              a.action.mb-1(role="button" title=( skill.active ? "Deactivate skill" : "Activate skill") style="margin-left: 1em;" aria-label=( skill.active ? "Deactivate skill" : "Activate skill") class=( skill.active ? "text-success" : "text-danger") data-skill=skillName data-active=(`${skill.active}`) onClick="skillToggle(this)")
                 if skill.active
                   i.fas.fa-toggle-on
                 else

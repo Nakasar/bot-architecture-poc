@@ -53,6 +53,11 @@ let skills = {
   },
   has: function(skillName) {
     return this.list.includes(skillName);
+  },
+  remove: function(skillName) {
+    if (this.has(skillName)) {
+      delete this.skills[skillName];
+    }
   }
 };
 
@@ -76,6 +81,11 @@ let commands = {
   },
   has: function(commandWord) {
     return this.list.includes(commandWord);
+  },
+  remove: function(commandWord) {
+    if (this.has(commandWord)) {
+      delete this.commands[commandWord];
+    }
   }
 };
 
@@ -99,9 +109,63 @@ let intents = {
   },
   has: function(intentName) {
     return this.list.includes(intentName);
+  },
+  remove: function(intentName) {
+    if (this.has(intentName)) {
+      delete this.intents[intentName];
+    }
   }
 };
 
+function reloadSkill(skillName) {
+  return new Promise((resolve, reject) => {
+    if (skills.has(skillName)) {
+      try {
+        console.log(`> [INFO] Reloading skill \x1b[33m${skillName}\x1b[0m...`);
+
+        console.log(`\tRemoving skill \x1b[33m${skillName}\x1b[0m...`);
+        console.log(`\tRemoving associated Intents...`);
+        let skill = skills.get(skillName);
+        for (let intent in skill.intents) {
+          console.log("\t\tRemoving " + intent);
+          intents.remove(skill.intents[intent].slug);
+        }
+        console.log(`\tRemoving linked Commands...`);
+        for (let command in skill.commands) {
+          console.log("\t\tRemoving " + command);
+          commands.remove(command);
+        }
+        console.log(`\tRemoving skill...`);
+        skills.remove(skillName);
+        console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
+
+        console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
+        skill = require(`./skills/${skillName}/skill`);
+        skills.add(skillName, skill);
+        skills.get(skillName).active = true;
+        for (let intentName in skill.intents) {
+          let intent = skill.intents[intentName];
+          intent.active = true;
+          intents.add(intent.slug, intent);
+        }
+        for (let commandName in skill.commands) {
+          let command = skill.commands[commandName];
+          command.active = true;
+          commands.add(command.cmd, command);
+        }
+        console.log(`\t..."${skillName}" successfully loaded`);
+
+        console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully reloaded.`);
+        resolve();
+      } catch(e) {
+        console.log(e.stack);
+        reject();
+      }
+    } else {
+      reject();
+    }
+  });
+}
 
 /**
   Load skills from /logic/skills folder.
@@ -145,7 +209,7 @@ function handleIntent(intentName, entities = {}) {
     if (intents.has(intentName) && intents.get(intentName).active) {
       let intent = intents.get(intentName);
       let foundAllEntities = true;
-      
+
       for (let entity of intent.expected_entities) {
         if (!Object.keys(entities).includes(entity)) {
           foundAllEntities = false;
@@ -211,6 +275,7 @@ exports.handlePhrase = handlePhrase;
 
 exports.activateSkill = activateSkill;
 exports.deactivateSkill = deactivateSkill;
+exports.reloadSkill = reloadSkill;
 
 exports.skills = skills;
 exports.commands = commands;
