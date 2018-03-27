@@ -54,6 +54,12 @@ router.post('/command', (req, res) => {
   });
 });
 
+// list skills
+router.get('/skills', (req, res) => {
+  let skills = hub.skills.skills;
+  return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
+})
+
 // Reload skills.
 router.post('/skills/:skill/reload', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!

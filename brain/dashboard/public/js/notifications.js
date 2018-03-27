@@ -52,4 +52,4 @@ function dismissNotification(notificationId) {
 }
 
 $("body").append('<div id="notifications" style="z-index: 1000; position: fixed; right: 0; bottom: 10px;"></div>');
-$("head").append('<style>.notification { transition: transform 0.5s; position: relative; right: -100%; }<style>');
+$("head").append('<style>#notifications { min-width: 400px; max-width: 30%; } .notification { transition: transform 0.5s; position: relative; right: -100%; }<style>');

@@ -33,6 +33,14 @@ router.get('/skills', (req, res) => {
   });
 });
 
+// Dashboard Skills administration
+router.get('/skills/new', (req, res) => {
+  res.render('new_skill', {
+    title: 'Add Skill - Bot',
+    nav_link: 'nav-skills'
+  });
+});
+
 // Dashboard 404 Error
 router.get('*', (req, res) => {
   res.status(404).render('error', { code: 404, message: "404 Error : Page Not Found. "});
