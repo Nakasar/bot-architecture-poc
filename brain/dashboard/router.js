@@ -35,7 +35,7 @@ router.get('/skills', (req, res) => {
 
 // Dashboard 404 Error
 router.get('*', (req, res) => {
-  res.status(404).send(`<h1 style="color: brown;">404</h1><p>Page not found :'(</p>`);
+  res.status(404).render('error', { code: 404, message: "404 Error : Page Not Found. "});
 });
 
 // Dashboard error handling (logging)
