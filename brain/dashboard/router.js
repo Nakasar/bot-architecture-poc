@@ -33,7 +33,7 @@ router.get('/skills', (req, res) => {
   });
 });
 
-// Activate/Deactivate skills.
+// Reload skills.
 router.post('/skills/:skill/reload', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
@@ -41,6 +41,20 @@ router.post('/skills/:skill/reload', (req, res) => {
       return res.json({ success: true, message: `Skill ${req.params.skill} reloaded.`})
     }).catch(() => {
       return res.json({ success: false, message: `Could not reload Skill ${req.params.skill}.`})
+    });
+  } else {
+    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+  }
+});
+
+// Get skill code
+router.get('/skills/:skill/edit', (req, res) => {
+  // TODO: move activation/deactivation in a function exposed by hub!
+  if (hub.skills.has(req.params.skill)) {
+    hub.getSkillCode(req.params.skill).then((code) => {
+      return res.json({ success: true, message: `Code of Skill ${req.params.skill} retrieved.`, code: code })
+    }).catch(() => {
+      return res.json({ success: false, message: `Could not get code of Skill ${req.params.skill}.`})
     });
   } else {
     return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});

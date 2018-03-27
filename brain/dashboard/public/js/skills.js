@@ -93,3 +93,30 @@ function reloadSkill(skillButton) {
     }, 2000);
   }
 }
+
+function editSkill(skillButton) {
+  let skill = $(skillButton).data('skill');
+
+  if (skill) {
+    $.ajax({
+      type: "GET",
+      baseUrl: 'http://localhost;8080',
+      url: `/dashboard/skills/${skill}/edit`,
+      dataType: 'json',
+      success: function(json) {
+        console.log(json);
+        if (json.success) {
+          $("#code-modal h5").text(`${skill} / skill.js`);
+          $("#code-modal .code").text(json.code);
+          $("#code-modal .code").each((i, block) => {
+            hljs.highlightBlock(block);
+          });
+          $("#code-modal").modal('show');
+        }
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
+  }
+}

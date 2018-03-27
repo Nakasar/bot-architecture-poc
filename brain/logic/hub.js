@@ -1,22 +1,21 @@
 'use strict';
 
+const skillsDirectory = "./logic/skills";
+
+const fs = require('fs');
+const path = require('path');
+function getDirectories(srcpath) {
+    return fs.readdirSync(srcpath).filter(function(file) {
+        return fs.statSync(path.join(srcpath, file)).isDirectory();
+    });
+}
+
 /**
   Load skills from skills folder (on bot start).
 */
 function loadSkillsFromFolder() {
-  const fs = require('fs');
-  const path = require('path');
-
-  function getDirectories(srcpath) {
-      return fs.readdirSync(srcpath).filter(function(file) {
-          return fs.statSync(path.join(srcpath, file)).isDirectory();
-      });
-  }
-
-  let skillsDirectory;
   let skillsFolders;
   try {
-    skillsDirectory = "./logic/skills";
     console.log(`> [INFO] Loading skills directory: "\x1b[4m${skillsDirectory}\x1b[0m"...`);
     skillsFolders = getDirectories(skillsDirectory)
     console.log(`> [INFO] Skills folders found: \x1b[33m${skillsFolders.join(", ")}\x1b[0m.`);
@@ -269,6 +268,23 @@ function deactivateSkill(skillName) {
   }
 }
 
+function getSkillCode(skillName) {
+  return new Promise((resolve, reject) => {
+    if (skills.has(skillName)) {
+      fs.readFile(skillsDirectory + "/" + skillName + "/skill.js", 'utf8', (err, data) => {
+        if (err) {
+          console.log(err.stack);
+          return reject();
+        }
+        let code = data;
+        return resolve(code);
+      })
+    } else {
+      return reject();
+    }
+  });
+}
+
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
 exports.handlePhrase = handlePhrase;
@@ -276,6 +292,7 @@ exports.handlePhrase = handlePhrase;
 exports.activateSkill = activateSkill;
 exports.deactivateSkill = deactivateSkill;
 exports.reloadSkill = reloadSkill;
+exports.getSkillCode = getSkillCode;
 
 exports.skills = skills;
 exports.commands = commands;

@@ -7,3 +7,9 @@
   position: relative;
   right: -100%;
 }
+
+.code {
+  background: white;
+  border: 0;
+  white-space: pre;
+}

@@ -1,6 +1,28 @@
 extends layout
 
+prepend css
+  link(rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css")
+
+  
+append scripts
+  script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
+
 block content
+  // Modals
+  .modal.fade#code-modal(tabindex="-1" role="dialog" aria-labelledby="code-modal-label" aria-hidden="true")
+    .modal-dialog.modal-lg(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#code-modal-label SkillName / skill.js
+          button.close(type="button", data-dismiss="modal" aria-label="Close")
+        .modal-body
+          form
+            .form-group
+              code.code(contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false") My Code
+        .modal-footer
+          button.btn.btn-success(type="button") Save (and reload)
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+  
   h1 Skills
   
   .list-group
@@ -12,6 +34,8 @@ block content
             div
               a.action.mb-1.text-warning(role="button" title="Reload skill" aria-label="Reload skill" data-skill=skillName onClick="reloadSkill(this)")
                 i.fas.fa-sync
+              a.action.mb-1.text-info(role="button" title="Edit this skill" style="margin-left: 1em;" aria-label="Edit this skill" data-skill=skillName onClick="editSkill(this)")
+                i.fas.fa-edit
               a.action.mb-1(role="button" title=( skill.active ? "Deactivate skill" : "Activate skill") style="margin-left: 1em;" aria-label=( skill.active ? "Deactivate skill" : "Activate skill") class=( skill.active ? "text-success" : "text-danger") data-skill=skillName data-active=(`${skill.active}`) onClick="skillToggle(this)")
                 if skill.active
                   i.fas.fa-toggle-on
