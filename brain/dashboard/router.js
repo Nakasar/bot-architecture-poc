@@ -66,7 +66,7 @@ router.put('/skills/:skill/edit', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
     hub.saveSkillCode(req.params.skill, req.body.code).then(() => {
-      return res.json({ success: true, message: `Code of Skill ${req.params.skill} save, skill reloaded successfully.`, code: code })
+      return res.json({ success: true, message: `Code of Skill ${req.params.skill} saved, skill reloaded successfully.` })
     }).catch(() => {
       return res.json({ success: false, message: `Could not save code of Skill ${req.params.skill}.`})
     });

@@ -138,6 +138,9 @@ function reloadSkill(skillName) {
         skills.remove(skillName);
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
 
+        console.log('> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m');
+        delete require.cache[require.resolve(`./skills/${skillName}/skill`)];
+
         console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
         skill = require(`./skills/${skillName}/skill`);
         skills.add(skillName, skill);
@@ -155,10 +158,10 @@ function reloadSkill(skillName) {
         console.log(`\t..."${skillName}" successfully loaded`);
 
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully reloaded.`);
-        resolve();
+        return resolve();
       } catch(e) {
         console.log(e.stack);
-        reject();
+        return reject();
       }
     } else {
       reject();
@@ -287,7 +290,21 @@ function getSkillCode(skillName) {
 
 function saveSkillCode(skillName, code) {
   return new Promise((resolve, reject) => {
-    reject();
+    console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
+    fs.writeFile(skillsDirectory + "/" + skillName + "/skill.js", code, 'utf8', (err) => {
+      if (err) {
+        console.log(err.stack);
+        return reject();
+      }
+      console.log(`\t... Reload skill.`);
+      reloadSkill(skillName).then(() => {
+        console.log("resolved");
+        return resolve();
+      }).catch((err) => {
+        console.log(err.stack);
+        return reject();
+      });
+    });
   });
 }
 

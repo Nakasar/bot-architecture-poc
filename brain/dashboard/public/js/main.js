@@ -1,6 +1,9 @@
 function notifyUser({ title = "Notification", message = "Here is a notification for you, user!", type = "info", seconds = 10 } = {}) {
   let alertClass;
   switch (type) {
+    case "success":
+      alertClass = "alert-success";
+      break;
     case "info":
       alertClass = "alert-info";
       break;
@@ -36,6 +39,7 @@ function notifyUser({ title = "Notification", message = "Here is a notification 
       }, delay)
     }
   }, 500);
+  return notificationId;
 };
 
 function dismissNotification(notificationId) {

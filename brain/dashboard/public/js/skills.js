@@ -1,3 +1,5 @@
+let editor;
+
 function skillToggle(skillButton) {
   let skill = $(skillButton).data('skill');
   let status = $(skillButton).data('active');
@@ -97,6 +99,13 @@ function reloadSkill(skillButton) {
 function editSkill(skillButton) {
   let skill = $(skillButton).data('skill');
 
+  let notificationId = notifyUser({
+    title: "Retrieving code...",
+    message: `We are retrieving code of ${skill}, please wait.`,
+    type: "info",
+    delay: -1
+  });
+
   if (skill) {
     $.ajax({
       type: "GET",
@@ -104,21 +113,28 @@ function editSkill(skillButton) {
       url: `/dashboard/skills/${skill}/edit`,
       dataType: 'json',
       success: function(json) {
-        console.log(json);
         if (json.success) {
           $("#code-modal h5").text(`${skill} / skill.js`);
           $("#code-modal .save").attr('data-skill', skill);
-          var editor = ace.edit("editor");
+
+          if (editor) {
+            editor.destroy();
+          }
+          editor = ace.edit("editor");
           editor.setTheme("ace/theme/monokai");
           editor.session.setMode("ace/mode/javascript")
-          editor.setValue(json.code);
+          editor.setValue(json.code, -1);
+          editor.session.setValue(json.code, -1);
+          editor.clearSelection();
           editor.resize();
           setTimeout(() => {
+            dismissNotification(notificationId);
             $("#code-modal").modal('show');
-          }, 1000)
+          }, 2000)
         }
       },
       error: function(err) {
+        dismissNotification(notificationId);
         console.log(err)
       }
     });
@@ -127,23 +143,53 @@ function editSkill(skillButton) {
 
 function saveSkillCode(skillButton) {
   let skill = $(skillButton).data('skill');
-  let code = ace.edit('editor').getValue();
-  console.log(code)
-  if (skill) {
-    $.ajax({
-      type: "PUT",
-      baseUrl: 'http://localhost;8080',
-      url: `/dashboard/skills/${skill}/edit`,
-      data: { code: code },
-      dataType: 'json',
-      success: function(json) {
-        console.log(json);
-        if (json.success) {
-        }
-      },
-      error: function(err) {
-        console.log(err)
-      }
+  if (editor) {
+    let code = editor.getValue();
+
+    $("#code-modal").modal('hide');
+    let notificationId = notifyUser({
+      title: `Please wait`,
+      message: `We are saving modifications for skill ${skill}.`,
+      type: "warning",
+      delay: -1
     });
+
+    if (skill) {
+      $.ajax({
+        type: "PUT",
+        baseUrl: 'http://localhost;8080',
+        url: `/dashboard/skills/${skill}/edit`,
+        data: { code: code },
+        dataType: 'json',
+        success: function(json) {
+          dismissNotification(notificationId);
+          console.log(json);
+          if (json.success) {
+            notifyUser({
+              title: `Modification saved!`,
+              message: `The Skill ${skill} was updated and reloaded.`,
+              type: "success",
+              delay: 5
+            });
+          } else {
+            notifyUser({
+              title: `Error`,
+              message: `We could not save and/or reload the skill.`,
+              type: "error",
+              delay: -1
+            });
+          }
+        },
+        error: function(err) {
+          dismissNotification(notificationId);
+          notifyUser({
+            title: `Unkown Error`,
+            message: `The server could not be reached, or responded with a internal error.`,
+            type: "error",
+            delay: -1
+          });
+        }
+      });
+    }
   }
 }

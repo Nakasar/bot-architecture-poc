@@ -31,7 +31,7 @@ exports.dependencies = dependencies;
 function sayThanks() {
   return new Promise((resolve, reject) => {
     return resolve({
-      message: "It's nothing ;)"
+      message: "It's nothing my dear friend :)"
     })
   })
 }
