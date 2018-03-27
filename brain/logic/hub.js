@@ -297,8 +297,7 @@ function saveSkillCode(skillName, code) {
         return reject();
       }
       console.log(`\t... Reload skill.`);
-      reloadSkill(skillName).then(() => {
-        console.log("resolved");
+      reloadSkill(skillName).then(() => {;
         return resolve();
       }).catch((err) => {
         console.log(err.stack);
