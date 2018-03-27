@@ -79,7 +79,8 @@ function reloadSkill(skillButton) {
             notifyUser({
               title: `Skill ${skill} reloaded!`,
               message: "",
-              type: "info"
+              type: "info",
+              seconds: 3
             });
           }
           $(skillButton).find('[data-fa-i2svg]').toggleClass('fa-spin');
