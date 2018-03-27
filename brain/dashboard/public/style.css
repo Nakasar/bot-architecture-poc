@@ -2,12 +2,6 @@
   cursor: pointer;
 }
 
-.notification {
-  transition: transform 0.5s;
-  position: relative;
-  right: -100%;
-}
-
 #editor {
   position: relative;
   top: 0;
