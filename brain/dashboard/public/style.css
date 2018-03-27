@@ -8,8 +8,11 @@
   right: -100%;
 }
 
-.code {
-  background: white;
-  border: 0;
-  white-space: pre;
+#editor {
+  position: relative;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 70vh;
 }

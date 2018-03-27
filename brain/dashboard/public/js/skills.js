@@ -107,11 +107,38 @@ function editSkill(skillButton) {
         console.log(json);
         if (json.success) {
           $("#code-modal h5").text(`${skill} / skill.js`);
-          $("#code-modal .code").text(json.code);
-          $("#code-modal .code").each((i, block) => {
-            hljs.highlightBlock(block);
-          });
-          $("#code-modal").modal('show');
+          $("#code-modal .save").attr('data-skill', skill);
+          var editor = ace.edit("editor");
+          editor.setTheme("ace/theme/monokai");
+          editor.session.setMode("ace/mode/javascript")
+          editor.setValue(json.code);
+          editor.resize();
+          setTimeout(() => {
+            $("#code-modal").modal('show');
+          }, 1000)
+        }
+      },
+      error: function(err) {
+        console.log(err)
+      }
+    });
+  }
+}
+
+function saveSkillCode(skillButton) {
+  let skill = $(skillButton).data('skill');
+  let code = ace.edit('editor').getValue();
+  console.log(code)
+  if (skill) {
+    $.ajax({
+      type: "PUT",
+      baseUrl: 'http://localhost;8080',
+      url: `/dashboard/skills/${skill}/edit`,
+      data: { code: code },
+      dataType: 'json',
+      success: function(json) {
+        console.log(json);
+        if (json.success) {
         }
       },
       error: function(err) {

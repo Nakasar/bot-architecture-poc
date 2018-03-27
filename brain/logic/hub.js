@@ -285,6 +285,12 @@ function getSkillCode(skillName) {
   });
 }
 
+function saveSkillCode(skillName, code) {
+  return new Promise((resolve, reject) => {
+    reject();
+  });
+}
+
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
 exports.handlePhrase = handlePhrase;
@@ -293,6 +299,7 @@ exports.activateSkill = activateSkill;
 exports.deactivateSkill = deactivateSkill;
 exports.reloadSkill = reloadSkill;
 exports.getSkillCode = getSkillCode;
+exports.saveSkillCode = saveSkillCode;
 
 exports.skills = skills;
 exports.commands = commands;

@@ -1,11 +1,7 @@
 extends layout
 
-prepend css
-  link(rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css")
-
-  
 append scripts
-  script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js" type="text/javascript" charset="utf-8")
 
 block content
   // Modals
@@ -16,11 +12,9 @@ block content
           h5.modal-title#code-modal-label SkillName / skill.js
           button.close(type="button", data-dismiss="modal" aria-label="Close")
         .modal-body
-          form
-            .form-group
-              code.code(contenteditable="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false") My Code
+          div#editor function foo(items) {var x = "All this is syntax highlighted";return x;}
         .modal-footer
-          button.btn.btn-success(type="button") Save (and reload)
+          button.btn.btn-success.save(type="button" onClick="saveSkillCode(this)") Save (and reload)
           button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
   
   h1 Skills
