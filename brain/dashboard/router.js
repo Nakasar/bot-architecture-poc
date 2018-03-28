@@ -2,6 +2,9 @@
 const express = require('express');
 const hub = require('../logic/hub');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const config = require('./secret');
+const users = require('../database/controllers/userController');
 let router = express.Router();
 
 // Dashboard middleware
@@ -9,7 +12,55 @@ router.use((req, res, next) => {
   next();
 });
 
+router.get('/setup', (err, res) => {
+  users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
+    return res.json({ success: true, message: "Admin user added.", user: obj.user });
+  }).catch((err) => {
+    return res.json({ success: false, message: "Could not setup admin user." });
+  });
+});
+
 router.use('/static', express.static(path.join(__dirname, './public')));
+
+// Login Page
+router.get('/login', (req, res) => {
+  return res.render('login');
+})
+
+// Login endpoint
+router.post('/login', (req, res) => {
+  console.log("hera");
+  users.sign_in(req.body.user_name, req.body.password).then((obj) => {
+    return res.json({ success: true, message: obj.message, token: obj.token });
+  }).catch((err) => {
+    if (err.message) {
+      return res.json({ success: false, message: err.message });
+    }
+    console.log(err.stack);
+    return res.json({ success: false, message: "Unkown error." });
+  });
+});
+
+// MIDDLEWARE FOR DASHBOARD AUTH
+router.use(function(req, res, next) {
+  return next();
+  
+  let token = req.body.token || req.query.token || req.get("x-access-token");
+
+  if (!token) {
+    return res.redirect('/dashboard/login');
+  }
+
+  // Checking user token.
+  console.log("Verify token: " + token);
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      return res.redirect('/dashboard/login');
+    }
+    console.log(decoded);
+    next();
+  });
+});
 
 // Dashboard index
 router.get('/', (req, res) => {

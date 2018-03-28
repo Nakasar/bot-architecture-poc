@@ -12,6 +12,9 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(bodyParser.json())
 
+let db = require('./database/db');
+db.connect();
+
 let router = require('./router.js');
 app.use(router);
 
