@@ -2,6 +2,14 @@
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
 ## Install & Usage
+- You must have a local installation of [NodeJS](https://nodejs.org) _(Tested for v9.9.0)_ with npm.
+- Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
+- Move into the brain folder: `cd bot-architecture-poc/brain`.
+- Install npm modules with `npm install`.
+- Run the brain with `npm start`.
+- _Optional : run microservices at will using `npm install` and `npm start`._
+
+> You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard).
 
 ## Architecture
 ![Diagram of Architecture](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/PoC%20Bot%20Architecture%20Diagram.png)
