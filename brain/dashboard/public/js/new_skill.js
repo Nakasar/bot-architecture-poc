@@ -8,6 +8,7 @@ class Skill {
     this.dependencies = [];
     this.code = "";
     this.author = undefined;
+    this.secret = {};
   }
 
   generateCode() {
@@ -31,7 +32,7 @@ class Skill {
 // Defining the skill
 // Commands the skill can execute.
 /* <SKILL COMMANDS> */
-let commands = ${commands};
+let commands = ${this.commandString};
 /* </SKILL COMMANDS> */
 
 // intents the skill understands.
@@ -102,6 +103,105 @@ exports.dependencies = dependencies;
     });
   }
 
+  /**
+    Adds the command to the skill and updates editor.
+
+    Params :
+    --------
+    command:
+      {
+        name: String,
+        cmd: String,
+        execute: String
+      }
+  */
+  addCommand(command) {
+    return new Promise((resolve, reject) => {
+      // Checks command validity
+
+      // cmd unicity
+      // Check in the new edited skill
+      for (let com in this.commands) {
+        if (this.commands[com].cmd === command.cmd) {
+          return reject({
+            title: "Command word already used.",
+            message: `The command word must be unique to the bot, or conflicts will arise. (Used in this skill).`
+          });
+        }
+      }
+      // Check in all skills
+      for (let skillName in skills) {
+        for (let com in skills[skillName].commands) {
+          if (skills[skillName].commands[com].cmd === command.cmd) {
+            return reject({
+              title: "Command word  already used.",
+              message: `The command word must be unique to the bot, or conflicts will arise. (Used in skill ${skillName}).`
+            });
+          }
+        }
+      }
+
+      // handler validity
+      const functionRegex = /^[a-zA-Z]{3,40}$/;
+      if (!functionRegex.test(command.execute)) {
+        return reject({
+          title: "Invalid handler name.",
+          message: "The handler name must follow camelLowerCase (and souldn't contain digits)."
+        });
+      }
+
+      // Command is valid
+
+
+      // Add intent to skill and to code
+      this.commands[command.name] = command;
+
+      // Add intent definition
+      this.code = this.code.replace(/let commands = {(.*|\r|\n|\u2028|\u2029){0,}?};/, `let commands = ${this.commandString};`);
+
+      // Add handler
+      let handlerString = `/**
+  Handler for command ${command.name} (!${command.cmd}).
+
+  Params :
+  --------
+    phrase: String
+*/
+function ${command.execute}(phrase) {
+  return new Promise((resolve, reject) => {
+    /*
+      >>> YOUR CODE HERE <<<
+      resolve the handler with a formatted message object.
+    */
+    return resolve({
+      title: "Not implemented",
+      message: "This functionnality is currently not implemented."
+    });
+  });
+}`;
+      this.code = this.code.replace(/\/\* <\/SKILL LOGIC> \*\//, "\n" + handlerString + "\n/* </SKILL LOGIC> */");
+
+      editor.setValue(this.code);
+      editor.session.setValue(this.code);
+      editor.clearSelection();
+
+      return resolve();
+    });
+  }
+
+  /**
+    Adds the intent to the skill and updates editor.
+
+    Params :
+    --------
+    intent:
+      {
+        name: String
+        slug: String
+        handler: String
+        expected_entities: [String]
+      }
+  */
   addIntent(intent) {
     return new Promise((resolve, reject) => {
       // Checks intent validity
@@ -178,7 +278,6 @@ exports.dependencies = dependencies;
       this.code = this.code.replace(/let intents = {(.*|\r|\n|\u2028|\u2029){0,}?};/, `let intents = ${this.intentString};`);
 
       // Add handler
-      // { location: location = "" }
       let paramsString = `{`;
       for (let entity of intent.expected_entities) {
         paramsString += ` '${entity}': ${entity.replace("-", "")} = {}`
@@ -237,6 +336,23 @@ function ${intent.handle}(${paramsString}) {
     }
     intentString += "\n}"
     return intentString;
+  }
+
+  get commandString() {
+    let commandString = "{"
+    for (let commandName in this.commands) {
+      let command = this.commands[commandName];
+      commandString += `
+  '${command.name}': {
+    cmd: "${command.cmd}",
+    execute: ${command.execute}
+  }`;
+      if (Object.keys(this.commands).indexOf(commandName) < Object.keys(this.commands).length - 1) {
+        commandString += ","
+      }
+    }
+    commandString += "\n}"
+    return commandString;
   }
 }
 
@@ -331,13 +447,46 @@ $("#add-intent-form").submit(function(event) {
 });
 
 function addCommand() {
-  notifyUser({
-    title: "Not implemented.",
-    message: "You can't add commands yet.",
-    type: "warning",
-    delay: 2
-  });
+  $("#add-command-alert").empty();
+  $('#add-command-form #command-name').val('');
+  $('#add-command-form #command-word').val('');
+  $('#add-command-form #command-handler').val('');
+  $('#add-command-modal').modal('show');
 };
+
+function displayAddCommandAlert({ title = "Error", message = "Couldn't create command." }) {
+  $("#add-command-alert").empty();
+  $("#add-command-alert").append(`
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <h4 class="alert-heading">${title}</h4>
+      <p>${message}</p>
+      <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `.trim());
+};
+
+$("#add-command-form").submit(function(event) {
+  event.preventDefault();
+  // Parsing new intent
+  let name = $('#add-command-form #command-name').val();
+  let word = $('#add-command-form #command-word').val();
+  let handler = $('#add-command-form #command-handler').val();
+
+  let command = {
+    name: name,
+    cmd: word,
+    execute: handler
+  };
+
+  // SUCCESS ! Let's add the intent to the code
+  skill.addCommand(command).then(() => {
+    $("#add-command-modal").modal("hide");
+  }).catch((err) => {
+    displayAddCommandAlert(err);
+  });
+});
 
 function configureSecret() {
   notifyUser({

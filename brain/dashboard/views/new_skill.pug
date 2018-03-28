@@ -4,35 +4,63 @@ append scripts
   script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js" type="text/javascript" charset="utf-8")
 
 block supercontent
-  .modal.fade#add-intent-modal(tabindex="-1" role="dialog" aria-labelledby="add-intent-modal-label" aria-hidden="true")
-    .modal-dialog(role="document")
-      .modal-content
-        .modal-header
-          h5.modal-title#add-intent-modal-label New intent
-          button.close(type="button" data-dismiss="modal" aria-label="Close")
-            span(aria-hidden="true") &times;
-        .modal-body
-          #add-intent-alert
-          form#add-intent-form
-            .form-group
-              label(for="intent-name") Intent name
-              input.form-control#intent-name(type="text" aria-describedby="intent-name-help" required)
-              small.form-text.text-muted#intent-name-help We'll automatically add the skill name before the intent name if not present.
-            .form-group
-              label(for="intent-slug") Intent slug
-              input.form-control#intent-slug(type="text" aria-describedby="intent-slug-help" placeholder="weather" required)
-              small.form-text.text-muted#intent-slug-help This is the intent identification returned by your NLP API.
-            .form-group
-              label(for="intent-entities") Entities expected
-              input.form-control#intent-entities(type="text" aria-describedby="intent-entities-help" placeholder="location, date")
-              small.form-text.text-muted#intent-entities-help List entities name you require to execute this intent.
-            .form-group
-              label(for="intent-handler") Handler function
-              input.form-control#intent-handler(type="text" aria-describedby="intent-handler-help" placeholder="handleWeather" required)
-              small.form-text.text-muted#intent-handler-help Give a unique name to the function which will be called for this intent.
-        .modal-footer
-          button.btn.btn-success.save(type="submit" form="add-intent-form") Add intent
-          button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+  // Modals
+  .modals
+    .modal.fade#add-intent-modal(tabindex="-1" role="dialog" aria-labelledby="add-intent-modal-label" aria-hidden="true")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            h5.modal-title#add-intent-modal-label New intent
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+            #add-intent-alert
+            form#add-intent-form
+              .form-group
+                label(for="intent-name") Intent name
+                input.form-control#intent-name(type="text" aria-describedby="intent-name-help" required)
+                small.form-text.text-muted#intent-name-help We'll automatically add the skill name before the intent name if not present.
+              .form-group
+                label(for="intent-slug") Intent slug
+                input.form-control#intent-slug(type="text" aria-describedby="intent-slug-help" placeholder="weather" required)
+                small.form-text.text-muted#intent-slug-help This is the intent identification returned by your NLP API.
+              .form-group
+                label(for="intent-entities") Entities expected
+                input.form-control#intent-entities(type="text" aria-describedby="intent-entities-help" placeholder="location, date")
+                small.form-text.text-muted#intent-entities-help List entities name you require to execute this intent.
+              .form-group
+                label(for="intent-handler") Handler function
+                input.form-control#intent-handler(type="text" aria-describedby="intent-handler-help" placeholder="handleWeather" required)
+                small.form-text.text-muted#intent-handler-help Give a unique name to the function which will be called for this intent.
+          .modal-footer
+            button.btn.btn-success.save(type="submit" form="add-intent-form") Add intent
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            
+    .modal.fade#add-command-modal(tabindex="-1" role="dialog" aria-labelledby="add-command-modal-label" aria-hidden="true")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            h5.modal-title#add-command-modal-label New Command
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+            #add-command-alert
+            form#add-command-form
+              .form-group
+                label(for="command-name") Command name
+                input.form-control#command-name(type="text" aria-describedby="command-name-help" required)
+                small.form-text.text-muted#command-name-help Does not have to be unique.
+              .form-group
+                label(for="command-word") Command word
+                input.form-control#command-word(type="text" aria-describedby="command-word-help" placeholder="joke" required)
+                small.form-text.text-muted#command-word-help This is the word used to call your command (!joke).
+              .form-group
+                label(for="command-handler") Handler function
+                input.form-control#command-handler(type="text" aria-describedby="command-handler-help" placeholder="sayJoke" required)
+                small.form-text.text-muted#command-handler-help Give a unique name to the function which will be called for this command.
+          .modal-footer
+            button.btn.btn-success.save(type="submit" form="add-command-form") Add command
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
 
   main.container-fluid
     h1 New skill : Unnamed Skill
