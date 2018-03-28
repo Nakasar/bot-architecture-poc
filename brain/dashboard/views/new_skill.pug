@@ -4,10 +4,40 @@ append scripts
   script(src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js" type="text/javascript" charset="utf-8")
 
 block supercontent
+  .modal.fade#add-intent-modal(tabindex="-1" role="dialog" aria-labelledby="add-intent-modal-label" aria-hidden="true")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#add-intent-modal-label New intent
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          #add-intent-alert
+          form#add-intent-form
+            .form-group
+              label(for="intent-name") Intent name
+              input.form-control#intent-name(type="text" aria-describedby="intent-name-help" required)
+              small.form-text.text-muted#intent-name-help We'll automatically add the skill name before the intent name if not present.
+            .form-group
+              label(for="intent-slug") Intent slug
+              input.form-control#intent-slug(type="text" aria-describedby="intent-slug-help" placeholder="weather" required)
+              small.form-text.text-muted#intent-slug-help This is the intent identification returned by your NLP API.
+            .form-group
+              label(for="intent-entities") Entities expected
+              input.form-control#intent-entities(type="text" aria-describedby="intent-entities-help" placeholder="location, date")
+              small.form-text.text-muted#intent-entities-help List entities name you require to execute this intent.
+            .form-group
+              label(for="intent-handler") Handler function
+              input.form-control#intent-handler(type="text" aria-describedby="intent-handler-help" placeholder="handleWeather" required)
+              small.form-text.text-muted#intent-handler-help Give a unique name to the function which will be called for this intent.
+        .modal-footer
+          button.btn.btn-success.save(type="submit" form="add-intent-form") Add intent
+          button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+
   main.container-fluid
     h1 New skill : Unnamed Skill
     .row
-      .col-md-4
+      .col-md-4#left-panel
         h4 Script configuration
         form#skill-generate
           .form-group.row
@@ -21,11 +51,19 @@ block supercontent
                 option(selected="selected") From scratch
                 option API request
           button.btn.btn-primary(type="submit") Generate template
-      .col-md-6
-        h4 Script code
+        #skill-toolbox(style="display: none;")
+          .list-group.list-group-flush
+            a.list-group-item.list-group-item-action(onClick="addIntent()") Add intent
+            a.list-group-item.list-group-item-action(onClick="addCommand()") Add command
+            a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+      .col-md-6#middle-panel
+        .row.justify-content-between
+          h4 Script code
+          a.action.text-success(role="button" title="Save Code" aria-label="Save Code" style="font-size: 2em; margin-right: 50px;")
+            i.far.fa-save
         p.lead#code-alert Use the left pane to generate a new skill.
         #editor(style="display: none")
-      .col-md-2
+      .col-md-2#right-panel
         h4 Help
 
   script
