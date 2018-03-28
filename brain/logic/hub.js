@@ -170,6 +170,38 @@ function reloadSkill(skillName) {
 }
 
 /**
+  Load skill from /logic/skills folder.
+
+  Store commands and intents into memory : skills, commands and intents.
+
+  Params :
+  --------
+  skillName:
+    String
+*/
+function loadSkill(skillName) {
+  return new Promise((resolve, reject) => {
+    console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
+    let skill = require(`./skills/${skillName}/skill`);
+    skills.add(skillName, skill);
+    skills.get(skillName).active = true;
+    for (let intentName in skill.intents) {
+      let intent = skill.intents[intentName];
+      intent.active = true;
+      intents.add(intent.slug, intent);
+    }
+    for (let commandName in skill.commands) {
+      let command = skill.commands[commandName];
+      command.active = true;
+      commands.add(command.cmd, command);
+    }
+    console.log(`\t..."${skillName}" successfully loaded`);
+
+    return resolve();
+  });
+}
+
+/**
   Load skills from /logic/skills folder.
 
   Store commands and intents into memory : skills, commands and intents.
@@ -307,15 +339,72 @@ function saveSkillCode(skillName, code) {
   });
 }
 
+/**
+  Add a new skill.
+
+  Params :
+  --------
+  skill:
+    {
+      name: String -> Name of the skill. (required)
+      code: String -> Code of the skill to add in skill.js. (required)
+      secret: {key: value} -> Config to add in secret.js. (optional)
+    }
+
+    Returns :
+    ---------
+    Promise
+*/
+function addSkill(skill) {
+  return new Promise((resolve, reject) => {
+
+    // TODO: Check skill definition and skill code.
+
+
+    console.log(`> [INFO] Adding code of skill \x1b[33m${skill.name}\x1b[0m...`);
+    console.log(`\t... Create ${skill.name} folder...`)
+    fs.mkdir(skillsDirectory + "/" + skill.name, function(err) {
+      if (err) {
+        console.log(err.stack);
+        return reject({ title: "Could not create folder.", message: "Could not create skill folder on server." });
+      }
+      console.log(`\t... Create skill.js in ${skill.name} folder...`)
+      fs.writeFile(skillsDirectory + "/" + skill.name + "/skill.js", skill.code, (err) => {
+        if (err) {
+          console.log(err.stack);
+          return reject({ title: "Could not create skill.js file.", message: "Could not create skill.js file on server." });
+        }
+
+        if (skill.secret) {
+          console.log(`\t... Create secret.js in ${skill.name} folder...`)
+          fs.writeFile(skillsDirectory + "/" + skill.name + "/secret.js", "{}", (err) => {
+            if (err) {
+              console.log(err.stack);
+              return reject({ title: "Could not create secret.js file.", message: "Could not create secret.js file on server." });
+            }
+            console.log(`> [INFO] Skill \x1b[33m${skill.name}\x1b[0m successfully added to folder.`);
+            return resolve();
+          });
+        } else {
+          console.log(`> [INFO] Skill \x1b[33m${skill.name}\x1b[0m successfully added to folder.`);
+          return resolve();
+        }
+      });
+    });
+  });
+}
+
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
 exports.handlePhrase = handlePhrase;
 
 exports.activateSkill = activateSkill;
 exports.deactivateSkill = deactivateSkill;
+exports.loadSkill = loadSkill;
 exports.reloadSkill = reloadSkill;
 exports.getSkillCode = getSkillCode;
 exports.saveSkillCode = saveSkillCode;
+exports.addSkill = addSkill;
 
 exports.skills = skills;
 exports.commands = commands;

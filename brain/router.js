@@ -60,6 +60,35 @@ router.get('/skills', (req, res) => {
   return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
 })
 
+// Add a new skill
+router.put('/skills', (req, res) => {
+  if (!req.body.skill_name) {
+    return res.json({ success: false, message: "Missing 'skill_name' definition in body." });
+  }
+  if (!req.body.skill_code) {
+    return res.json({ success: false, message: "Missing 'skill_code' definition in body." });
+  }
+  let skill = { name: req.body.skill_name, code: req.body.skill_code };
+  if (req.body.skill_secret) {
+    skill.secret = req.body.skill_secret;
+  }
+  
+  hub.addSkill(skill).then(() => {
+    hub.loadSkill(skill.name).then(() => {
+      return res.json({ success: true, message: "Skill added and loaded." });
+    }).catch((err) => {
+      return res.json({ success: true, message: "Skill added but not loaded (an error occured)." });
+    });
+  }).catch((err) => {
+    if (err.message) {
+      return res.json({ success: false, message: err.message });
+    } else {
+      console.log(err.stack);
+      return res.json({ success: false, message: "An unkown error occured while saving new skill." });
+    }
+  });
+});
+
 // Reload skills.
 router.post('/skills/:skill/reload', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
