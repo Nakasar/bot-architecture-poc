@@ -9,7 +9,9 @@
 - Run the brain with `npm start`.
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
-> You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard).
+> You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard). Setup admin user with [localhost:8080/dashboard/setup](localhost:8080/dashboard/setup), username is Nakasar and password is Password1.
+
+> Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyse` command).
 
 ## Architecture
 ![Diagram of Architecture](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/PoC%20Bot%20Architecture%20Diagram.png)
