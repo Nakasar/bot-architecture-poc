@@ -306,7 +306,7 @@ function activateSkill(skillName) {
       return resolve();
     }).catch((err) => {
       return reject();
-    })
+    });
   });
 };
 

@@ -6,6 +6,8 @@
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
+- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer).
+- Add a secret variable for tokens in `brain/dashboard/secret.js`, exporting a `secret` string.
 - Run the brain with `npm start`.
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
