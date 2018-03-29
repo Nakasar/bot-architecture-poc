@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 app.set('title', 'Bot Brain Interface');
 app.set('views', './dashboard/views');
@@ -11,6 +12,11 @@ app.use(bodyParser.urlencoded({
     extended: false
 }))
 app.use(bodyParser.json())
+
+app.use(cookieParser());
+
+let db = require('./database/db');
+db.connect();
 
 let router = require('./router.js');
 app.use(router);
