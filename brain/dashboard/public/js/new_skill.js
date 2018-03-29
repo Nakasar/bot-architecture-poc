@@ -91,7 +91,7 @@ exports.dependencies = dependencies;
 
       switch (template) {
         case "API request":
-          this.dependencies = ['request', 'nany'];
+          this.dependencies = ['request'];
           this.generateCode();
           break;
         default:
