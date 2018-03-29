@@ -43,9 +43,7 @@ router.post('/login', (req, res) => {
 
 // MIDDLEWARE FOR DASHBOARD AUTH
 router.use(function(req, res, next) {
-  return next();
-  
-  let token = req.body.token || req.query.token || req.get("x-access-token");
+  let token = req.body.token || req.query.token || req.get("x-access-token") || req.cookies['user_token'];
 
   if (!token) {
     return res.redirect('/dashboard/login');

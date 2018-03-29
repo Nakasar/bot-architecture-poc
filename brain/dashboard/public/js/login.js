@@ -2,6 +2,8 @@ $("#signin-form").submit((event) => {
   event.preventDefault();
   let userName = $("#signin-form #input-username").val();
   let password = $("#signin-form #input-password").val();
+  let keepLoggedIn = $("#signin-form #remember").is(":checked");
+
   $("#signin-form #input-password").val('');
 
   if (userName.length > 0 && password.length > 0) {
@@ -15,6 +17,12 @@ $("#signin-form").submit((event) => {
         if (json.success) {
           // Store token to local storage
           localStorage.setItem("user_token", json.token);
+          // Store token in cookies
+          if (keepLoggedIn) {
+            document.cookie = "user_token="+json.token+";max-age=2592000"; //TODO: Add ";secure";
+          } else {
+            document.cookie = "user_token="+json.token; //TODO: Add ";secure";
+          }
           window.location.replace("/dashboard");
         }
       },
