@@ -12,6 +12,14 @@ router.use((req, res, next) => {
   next();
 });
 
+/**
+ * @api {get} /dashboard/setup Setup admin account.
+ * @apiName SetupAdmin
+ * @apiGroup Setup
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
 router.get('/setup', (err, res) => {
   users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
     return res.json({ success: true, message: "Admin user added.", user: obj.user });
@@ -28,6 +36,15 @@ router.get('/login', (req, res) => {
 })
 
 // Login endpoint
+/**
+ * @api {post} /dashboard/login Login to dashboard
+ * @apiName DashboardLogin
+ * @apiGroup Dashboard
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {String} token User token for this session.
+ */
 router.post('/login', (req, res) => {
   console.log("hera");
   users.sign_in(req.body.user_name, req.body.password).then((obj) => {

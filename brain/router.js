@@ -46,6 +46,17 @@ router.use(function (req, res, next) {
 // BOT ENDPOINTS
 
 // NLP conversation entry point.
+/**
+ * @api {post} /nlp NLP bot entry point.
+ * @apiName NLP
+ * @apiGroup Bot
+ *
+ * @apiParam {String} phrase Text phrase to analyze and execute.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {String} source Source given to the NLP.
+ */
 router.post('/nlp', (req, res) => {
   let phrase = req.body.phrase || req.query.phrase;
   if (!phrase) {
@@ -69,6 +80,17 @@ router.post('/nlp', (req, res) => {
 })
 
 // Command handling entry point.
+/**
+ * @api {post} /command Command bot entry point.
+ * @apiName Command
+ * @apiGroup Bot
+ *
+ * @apiParam {String} command Command phrase to execute (without prefix).
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {String} source Source given to the Command handler.
+ */
 router.post('/command', (req, res) => {
   let phrase = req.body.command || req.query.command;
   if (!phrase) {
@@ -91,12 +113,32 @@ router.post('/command', (req, res) => {
 // BOT ADMIN ENDPOINTS
 
 // list skills
+/**
+ * @api {get} /skills List skills avaible.
+ * @apiName ListSkills
+ * @apiGroup Skills
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {Skill} skills List of available skills.
+ */
 router.get('/skills', (req, res) => {
   let skills = hub.skills.skills;
   return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
 })
 
 // Add a new skill
+/**
+ * @api {put} /skills Add a new skill.
+ * @apiName AddSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill_name Name of the new skill.
+ * @apiParam {String} skill_code Code of the new skill.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
 router.put('/skills', (req, res) => {
   if (!req.body.skill_name) {
     return res.json({ success: false, message: "Missing 'skill_name' definition in body." });
@@ -126,6 +168,16 @@ router.put('/skills', (req, res) => {
 });
 
 // Reload skills.
+/**
+ * @api {post} /skills/:skill/reload Reload the skill.
+ * @apiName ReloadSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to reload.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
 router.post('/skills/:skill/reload', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
@@ -140,6 +192,17 @@ router.post('/skills/:skill/reload', (req, res) => {
 });
 
 // Get skill code
+/**
+ * @api {get} /skills/:skill/reload Get the code of the skill.
+ * @apiName GetSkillCode
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to get code of.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {String} code Code of the skill.
+ */
 router.get('/skills/:skill/edit', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
@@ -154,6 +217,17 @@ router.get('/skills/:skill/edit', (req, res) => {
 });
 
 // Update skill code
+/**
+ * @api {put} /skills/:skill/reload Update the skill.
+ * @apiName UpdateSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to update.
+ * @apiParam {String} code The new code of the skill.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
 router.put('/skills/:skill/edit', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
@@ -168,6 +242,18 @@ router.put('/skills/:skill/edit', (req, res) => {
 });
 
 // Activate/Deactivate skills.
+/**
+ * @api {post} /skills/:skill/:status Activate/Deactive a skill.
+ * @apiName StatusSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to update.
+ * @apiParam {String} status "on" or "off".
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {Boolean} active true if the skill is active, false otherwise.
+ */
 router.post('/skills/:skill/:status', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
