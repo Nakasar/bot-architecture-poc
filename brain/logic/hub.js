@@ -125,15 +125,21 @@ function reloadSkill(skillName) {
         console.log(`\tRemoving skill \x1b[33m${skillName}\x1b[0m...`);
         console.log(`\tRemoving associated Intents...`);
         let skill = skills.get(skillName);
-        for (let intent in skill.intents) {
-          console.log("\t\tRemoving " + intent);
-          intents.remove(skill.intents[intent].slug);
+        if (skill.intents) {
+          for (let intent in skill.intents) {
+            console.log("\t\tRemoving " + intent);
+            intents.remove(skill.intents[intent].slug);
+          }
         }
+
         console.log(`\tRemoving linked Commands...`);
-        for (let command in skill.commands) {
-          console.log("\t\tRemoving " + command);
-          commands.remove(command);
+        if (skill.commands) {
+          for (let command in skill.commands) {
+            console.log("\t\tRemoving " + command);
+            commands.remove(command);
+          }
         }
+
         console.log(`\tRemoving skill...`);
         skills.remove(skillName);
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
@@ -142,9 +148,10 @@ function reloadSkill(skillName) {
         delete require.cache[require.resolve(`./skills/${skillName}/skill`)];
 
         console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
+        skills.add(skillName, {});
+        skills.get(skillName).active = false;
         skill = require(`./skills/${skillName}/skill`);
         skills.add(skillName, skill);
-        skills.get(skillName).active = true;
         for (let intentName in skill.intents) {
           let intent = skill.intents[intentName];
           intent.active = true;
@@ -182,9 +189,10 @@ function reloadSkill(skillName) {
 function loadSkill(skillName) {
   return new Promise((resolve, reject) => {
     console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
+    skills.add(skillName, {});
+    skills.get(skillName).active = false;
     let skill = require(`./skills/${skillName}/skill`);
     skills.add(skillName, skill);
-    skills.get(skillName).active = true;
     for (let intentName in skill.intents) {
       let intent = skill.intents[intentName];
       intent.active = true;
@@ -195,6 +203,7 @@ function loadSkill(skillName) {
       command.active = true;
       commands.add(command.cmd, command);
     }
+    skills.get(skillName).active = true;
     console.log(`\t..."${skillName}" successfully loaded`);
 
     return resolve();
@@ -211,9 +220,10 @@ function loadSkills(skillsToLoad) {
   for (let skillName of skillsToLoad) {
     console.log(`\tLoading skill "${skillName}"...`);
     try {
+      skills.add(skillName, {});
+      skills.get(skillName).active = false;
       let skill = require(`./skills/${skillName}/skill`);
       skills.add(skillName, skill);
-      skills.get(skillName).active = true;
       for (let intentName in skill.intents) {
         let intent = skill.intents[intentName];
         intent.active = true;
@@ -224,6 +234,7 @@ function loadSkills(skillsToLoad) {
         command.active = true;
         commands.add(command.cmd, command);
       }
+      skills.get(skillName).active = true;
       console.log(`\t..."${skillName}" successfully loaded`);
     } catch(e) {
       console.error(`\x1b[31m[ERROR]\t..."${skillName}" could not load!\x1b[0m`);
@@ -282,14 +293,21 @@ function handlePhrase() {
 };
 
 function activateSkill(skillName) {
-  skills.get(skillName).active = true;
-  let skill = skills.get(skillName);
-  for (let intentName in skill.intents) {
-    skill.intents[intentName].active = true;
-  }
-  for (let commandName in skill.commands) {
-    skill.commands[commandName].active = true;
-  }
+  return new Promise((resolve, reject) => {
+    reloadSkill(skillName).then(() => {
+      skills.get(skillName).active = true;
+      let skill = skills.get(skillName);
+      for (let intentName in skill.intents) {
+        skill.intents[intentName].active = true;
+      }
+      for (let commandName in skill.commands) {
+        skill.commands[commandName].active = true;
+      }
+      return resolve();
+    }).catch((err) => {
+      return reject();
+    })
+  });
 };
 
 function deactivateSkill(skillName) {

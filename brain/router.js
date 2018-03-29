@@ -258,8 +258,11 @@ router.post('/skills/:skill/:status', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
     if (req.params.status === "on") {
-      hub.activateSkill(req.params.skill);
-      return res.json({ success: true, message: `Skill ${req.params.skill} activated.`, active: true });
+      hub.activateSkill(req.params.skill).then(() => {
+        return res.json({ success: true, message: `Skill ${req.params.skill} activated.`, active: true });
+      }).catch((err) => {
+        return res.json({ success: false, message: "Could not activate skill." });
+      });
     } else if (req.params.status === "off") {
       hub.deactivateSkill(req.params.skill);
       return res.json({ success: true, message: `Skill ${req.params.skill} deactivated.`, active: false });

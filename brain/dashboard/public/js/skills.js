@@ -11,13 +11,15 @@ function skillToggle(skillButton) {
       url: `/skills/${skill}/${status ? "off" : "on"}`,
       dataType: 'json',
       success: function(json) {
+        console.log(json);
         if (json.active) {
           $(skillButton).attr('data-active', true);
           $(skillButton).data('active', true);
           $(skillButton)
             .find('[data-fa-i2svg]')
             .toggleClass("fa-toggle-on")
-            .toggleClass("fa-toggle-off")
+            .toggleClass("fa-toggle-off");
+          $(skillButton)
             .toggleClass("text-success")
             .toggleClass("text-danger");
           $(skillButton).attr('title', 'Deactivate skill');
@@ -27,10 +29,11 @@ function skillToggle(skillButton) {
           $(skillButton).data('active', false);
           $(skillButton)
             .find('[data-fa-i2svg]')
-            .toggleClass("fa-toggle-on")
             .toggleClass("fa-toggle-off")
-            .toggleClass("text-success")
-            .toggleClass("text-danger");
+            .toggleClass("fa-toggle-on");
+          $(skillButton)
+            .toggleClass("text-danger")
+            .toggleClass("text-success");
           $(skillButton).attr('title', 'Activate skill');
           $(skillButton).attr('aria-label', 'Activate skill');
         }

@@ -46,7 +46,6 @@ router.get('/login', (req, res) => {
  * @apiSuccess {String} token User token for this session.
  */
 router.post('/login', (req, res) => {
-  console.log("hera");
   users.sign_in(req.body.user_name, req.body.password).then((obj) => {
     return res.json({ success: true, message: obj.message, token: obj.token });
   }).catch((err) => {
@@ -67,12 +66,10 @@ router.use(function(req, res, next) {
   }
 
   // Checking user token.
-  console.log("Verify token: " + token);
   jwt.verify(token, config.secret, (err, decoded) => {
     if (err) {
       return res.redirect('/dashboard/login');
     }
-    console.log(decoded);
     next();
   });
 });
