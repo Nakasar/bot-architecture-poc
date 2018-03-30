@@ -498,57 +498,102 @@ function configureSecret() {
 };
 
 $("#save-skill").click(function() {
-  let skilljson = {
-    skill_name: skill.name,
-    skill_code: skill.code,
-  }
+  if ($('#edited-skill-data').data('edit-skill')) {
+    let notificationId = notifyUser({
+      title: "Saving skill...",
+      message: "We are pushing your skill, please wait.",
+      type: "info",
+      delay: -1
+    });
 
-  if (skill.secret) {
-    skilljson.skill_secret = skill.secret;
-  }
-
-  let notificationId = notifyUser({
-    title: "Saving skill...",
-    message: "We are pushing your new skill, please wait.",
-    type: "info",
-    delay: -1
-  });
-
-  $.ajax({
-    method: "PUT",
-    baseUrl: base_url,
-    url: "/skills",
-    data: skilljson,
-    dataType: "json",
-    success: function(json) {
-      console.log(json);
-      dismissNotification(notificationId);
-      if (json.success) {
+    $.ajax({
+      method: "PUT",
+      baseUrl: base_url,
+      url: "/skills/" + skill.name + "/edit",
+      data: { code: skill.code },
+      dataType: "json",
+      success: function(json) {
+        console.log(json);
+        dismissNotification(notificationId);
+        if (json.success) {
+          notifyUser({
+            title: "Skill pushed!",
+            message: `Your skill ${skill.name} is updated and running!`,
+            type: "success",
+            delay: 5
+          });
+        } else {
+          notifyUser({
+            title: `Can't push ${skill.name}`,
+            message: json.message,
+            type: "error",
+            delay: 5
+          });
+        }
+      },
+      error: function(err) {
+        dismissNotification(notificationId);
         notifyUser({
-          title: "Skill pushed!",
-          message: `Your new skill ${skilljson.name} is now running!`,
-          type: "success",
-          delay: 5
-        });
-      } else {
-        notifyUser({
-          title: `Can't push ${skilljson.name}`,
-          message: json.message,
+          title: "Error",
+          message: `Couldn't push ${skilljson.name}.`,
           type: "error",
           delay: 5
         });
       }
-    },
-    error: function(err) {
-      dismissNotification(notificationId);
-      notifyUser({
-        title: "Error",
-        message: `Couldn't push ${skilljson.name}.`,
-        type: "error",
-        delay: 5
-      });
+    })
+  } else {
+    let skilljson = {
+      skill_name: skill.name,
+      skill_code: skill.code,
     }
-  })
+
+    if (skill.secret) {
+      skilljson.skill_secret = skill.secret;
+    }
+
+    let notificationId = notifyUser({
+      title: "Saving skill...",
+      message: "We are pushing your new skill, please wait.",
+      type: "info",
+      delay: -1
+    });
+
+    $.ajax({
+      method: "PUT",
+      baseUrl: base_url,
+      url: "/skills",
+      data: skilljson,
+      dataType: "json",
+      success: function(json) {
+        console.log(json);
+        dismissNotification(notificationId);
+        if (json.success) {
+          notifyUser({
+            title: "Skill pushed!",
+            message: `Your new skill ${skilljson.name} is now running!`,
+            type: "success",
+            delay: 5
+          });
+        } else {
+          notifyUser({
+            title: `Can't push ${skilljson.name}`,
+            message: json.message,
+            type: "error",
+            delay: 5
+          });
+        }
+      },
+      error: function(err) {
+        dismissNotification(notificationId);
+        notifyUser({
+          title: "Error",
+          message: `Couldn't push ${skilljson.name}.`,
+          type: "error",
+          delay: 5
+        });
+      }
+    });
+  }
 });
 
 
