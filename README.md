@@ -1,7 +1,7 @@
 # PoC : Bot Architecture
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
-## Install & Usage
+## Install
 ### Classical installation
 - You must have a local installation of [NodeJS](https://nodejs.org) _(Tested for v9.9.0)_ with npm.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
@@ -29,6 +29,8 @@
 > Note Bene: If you run docker inside a Virtual Machine, be sure to expose the following ports in your VM software : 3012 <-> 49160 (adapter), 3000 <-> 3000 (rocketchat server). Dashboard will be accessible from [127.0.0.1:3012/dashboard](127.0.0.1:3012/dashboard)
 
 > Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyse` command).
+
+> Nota Bene: If you are using the rocketchat server included, you must create a user names `superbot`, a random email, and password `password` for the bot. Then log out and create another account for you.
 
 ## Architecture
 ![Diagram of Architecture](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/PoC%20Bot%20Architecture%20Diagram.png)
