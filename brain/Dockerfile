@@ -4,7 +4,7 @@ LABEL description "A Bot core brain for Bot Brain Architecture."
 LABEL author "Kevin Nakasar Thizy"
 
 # Create app directory
-WORDIR /usr/src/botbrain
+WORKDIR /usr/src/botbrain
 
 # Install app dependencies
 COPY package*.json ./
