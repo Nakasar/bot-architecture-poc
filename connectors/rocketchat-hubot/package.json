@@ -1,0 +1,11 @@
+{
+  "name": "superbot",
+  "scripts": {
+    "start": "exec node_modules/.bin/hubot --adapter ${HUBOT_ADAPTER} --name ${HUBOT_NAME}"
+  },
+  "dependencies": {
+    "hubot": "latest",
+    "hubot-rocketchat": "latest",
+    "request": "^2.85.0"
+  }
+}
