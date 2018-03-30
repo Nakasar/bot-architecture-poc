@@ -1,17 +1,39 @@
+/*
+  You should not modify this part unless you know what you're doing.
+*/
+
+// Defining the skill
+// Commands the skill can execute.
+/* <SKILL COMMANDS> */
 let commands = {
   analyze : {
     cmd: 'analyze',
     execute: analyzeText,
     expected_args: ['phrase']
   }
-}
-let intents = {};
-let dependencies = ['recastai'];
+};
+/* </SKILL COMMANDS> */
 
+// intents the skill understands.
+/* <SKILL INTENTS> */
+let intents = {};
+/* </SKILL INTENTS> */
+
+// dependencies of the skill.
+/* <SKILL DEPENDENCIES> */
+let dependencies = ['recastai'];
+/* </SKILL DEPENDENCIES> */
+
+// Exposing the skill definition.
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
 
+/*
+  Skill logic begins here.
+  You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+*/
+/* <SKILL LOGIC> */
 const recastai = require('recastai');
 const secret = require('./secret');
 
@@ -40,3 +62,6 @@ function analyzeText(phrase = "") {
     })
   })
 };
+/* </SKILL LOGIC> */
+
+// You may define other logic function unexposed here. Try to keep the skill code slim.

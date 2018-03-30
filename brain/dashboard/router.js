@@ -98,10 +98,35 @@ router.get('/skills', (req, res) => {
 
 // Dashboard Skills administration
 router.get('/skills/new', (req, res) => {
-  res.render('new_skill', {
+  res.render('skill_edit', {
     title: 'Add Skill - Bot',
     nav_link: 'nav-skills'
   });
+});
+
+// Dashboard Skills administration
+router.get('/skills/:skill/edit', (req, res) => {
+  let skill = hub.skills.get(req.params.skill);
+  if (skill) {
+    hub.getSkillCode(req.params.skill).then((code) => {
+      res.render('skill_edit', {
+        title: 'Edit Skill ' + req.params.skill + ' - Bot',
+        nav_link: 'nav-skills',
+        skill_edited: {
+          name: req.params.skill,
+          code: code,
+          intents: skill.intents.intents,
+          commands: skill.commands.commands,
+          dependencies: skill.dependencies,
+          active: skill.active
+        }
+      });
+    }).catch((err) => {
+      res.redirect('/dashboard/skills');
+    });
+  } else {
+    res.redirect('/dashboard/skills');
+  }
 });
 
 // Dashboard 404 Error

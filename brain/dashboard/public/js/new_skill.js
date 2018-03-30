@@ -557,16 +557,9 @@ let editor = ace.edit('editor');
 editor.session.setMode('ace/mode/javascript');
 editor.setTheme('ace/theme/monokai');
 
-// Init an empty skill
-let skill = new Skill();
 
-// Welcome user on start.
-notifyUser({
-  title: "Welcome!",
-  message: "To begin building your new skill, you must generate it from a template (or build from scratch).",
-  type: "info",
-  delay: -1
-});
+// Init skill edit page
+let skill;
 
 // Load current bot skills
 let skills = {};
@@ -578,9 +571,55 @@ $.ajax({
   success: function(json) {
     if (json.success) {
       skills = json.skills;
+
+      // Fill current skill data or init a new empty skill
+      let editedSkillData = $('#edited-skill-data');
+      if (editedSkillData.data('edit-skill')) {
+        // Retrieve current skill data
+        skill = new Skill();
+        skill.name = editedSkillData.data('skill-name');
+        skill.code = editedSkillData.data('skill-code');
+
+        // Retrieve skill intents and commands
+        for (let intentName in skills[skill.name].intents) {
+          let intent = skills[skill.name].intents[intentName];
+          intent.name = intentName;
+          skill.intents[intentName] = intent;
+        }
+
+        for (let commandName in skills[skill.name].commands) {
+          let command = skills[skill.name].commands[commandName];
+          command.name = commandName;
+          skill.commands[commandName] = command;
+        }
+
+        skill.dependencies = skills[skill.name].dependencies;
+
+        $('#skill-generate').hide();
+        $('#skill-toolbox').show();
+
+        editor.setValue(skill.code);
+        editor.clearSelection();
+        showEditor();
+        $('#loader').hide();
+        $('#skill-editor').show();
+      } else {
+        // Init an empty skill
+        skill = new Skill();
+        $('#loader').hide();
+        $('#skill-editor').show();
+
+        // Welcome user on start.
+        notifyUser({
+          title: "Welcome!",
+          message: "To begin building your new skill, you must generate it from a template (or build from scratch).",
+          type: "info",
+          delay: -1
+        });
+      }
     }
   },
   error: function(err) {
 
   }
-})
+});

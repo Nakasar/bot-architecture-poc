@@ -123,7 +123,18 @@ router.post('/command', (req, res) => {
  * @apiSuccess {Skill} skills List of available skills.
  */
 router.get('/skills', (req, res) => {
+  // TODO: Deport to hub in function.
   let skills = hub.skills.skills;
+
+  // Be sure to send handle and execute names instead of function object
+  for (let skill in skills) {
+    for (let intentName in skills[skill].intents) {
+      skills[skill].intents[intentName].handle = `${skills[skill].intents[intentName].handle.name}`;
+    }
+    for (let commandName in skills[skill].commands) {
+      skills[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
+    }
+  }
   return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
 })
 

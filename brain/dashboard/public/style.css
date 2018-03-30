@@ -10,3 +10,9 @@
   left: 0;
   height: 70vh;
 }
+
+.loader{
+  position: relative;
+  top: 40vh;
+  text-align: center;
+}

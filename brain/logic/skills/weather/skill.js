@@ -1,10 +1,21 @@
+/*
+  You should not modify this part unless you know what you're doing.
+*/
+
+// Defining the skill
+// Commands the skill can execute.
+/* <SKILL COMMANDS> */
 let commands = {
   weather : {
     cmd: 'weather',
     execute: getWeather,
     expected_args: ['location']
   }
-}
+};
+/* </SKILL COMMANDS> */
+
+// intents the skill understands.
+/* <SKILL INTENTS> */
 let intents = {
   'weather-weather': {
     slug: 'weather',
@@ -12,12 +23,23 @@ let intents = {
     expected_entities: ['location']
   }
 };
-let dependencies = ['request'];
+/* </SKILL INTENTS> */
 
+// dependencies of the skill.
+/* <SKILL DEPENDENCIES> */
+let dependencies = ['request'];
+/* </SKILL DEPENDENCIES> */
+
+// Exposing the skill definition.
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
 
+/*
+  Skill logic begins here.
+  You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+*/
+/* <SKILL LOGIC> */
 const request = require('request');
 
 const serviceURL = "http://localhost:5012";
@@ -61,3 +83,6 @@ function handleWeather({ location: location = "" }) {
   let finalLocation = location[0];
   return getWeather(finalLocation);
 }
+/* </SKILL LOGIC> */
+
+// You may define other logic function unexposed here. Try to keep the skill code slim.

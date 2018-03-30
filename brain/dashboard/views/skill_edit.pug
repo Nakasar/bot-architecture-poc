@@ -63,38 +63,63 @@ block supercontent
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
 
   main.container-fluid
-    h1 New skill : Unnamed Skill
-    .row
-      .col-md-4#left-panel
-        h4 Script configuration
-        form#skill-generate
-          .form-group.row
-            label.col-sm-4.col-form-label(for="skill-name") Skill name
-            .col-sm-8
-              input.form-control#skill-name(type="text")
-          .form-group.row
-            label.col-sm-4.col-form-label(for="skill-template") Skill type
-            .col-sm-8
-              select.form-control#skill-template
-                option(selected="selected") From scratch
-                option API request
-          button.btn.btn-primary(type="submit") Generate template
-        #skill-toolbox(style="display: none;")
-          .list-group.list-group-flush
-            a.list-group-item.list-group-item-action(onClick="addIntent()") Add intent
-            a.list-group-item.list-group-item-action(onClick="addCommand()") Add command
-            a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
-      .col-md-6#middle-panel
-        .row.justify-content-between
-          .col
-            h4 Script code
-          .col.text-right
-            a.action.text-success#save-skill(role="button" title="Save Code" aria-label="Save Code" style="font-size: 2em; margin-right: 50px;")
-              i.far.fa-save
-        p.lead#code-alert Use the left pane to generate a new skill.
-        #editor(style="display: none")
-      .col-md-2#right-panel
-        h4 Help
+    .loader#loader
+      // By Sam Herbert (@sherb), for everyone. More @ http://goo.gl/7AJzbL
+      svg(width='45' height='47' viewbox='0 0 135 140' xmlns='http://www.w3.org/2000/svg' fill='#c9d8d5')
+        rect(y='10' width='15' height='120' rx='6')
+          animate(attributename='height' begin='0.5s' dur='1s' values='120;110;100;90;80;70;60;50;40;140;120' calcmode='linear' repeatcount='indefinite')
+          animate(attributename='y' begin='0.5s' dur='1s' values='10;15;20;25;30;35;40;45;50;0;10' calcmode='linear' repeatcount='indefinite')
+        rect(x='30' y='10' width='15' height='120' rx='6')
+          animate(attributename='height' begin='0.25s' dur='1s' values='120;110;100;90;80;70;60;50;40;140;120' calcmode='linear' repeatcount='indefinite')
+          animate(attributename='y' begin='0.25s' dur='1s' values='10;15;20;25;30;35;40;45;50;0;10' calcmode='linear' repeatcount='indefinite')
+        rect(x='60' width='15' height='140' rx='6')
+          animate(attributename='height' begin='0s' dur='1s' values='120;110;100;90;80;70;60;50;40;140;120' calcmode='linear' repeatcount='indefinite')
+          animate(attributename='y' begin='0s' dur='1s' values='10;15;20;25;30;35;40;45;50;0;10' calcmode='linear' repeatcount='indefinite')
+        rect(x='90' y='10' width='15' height='120' rx='6')
+          animate(attributename='height' begin='0.25s' dur='1s' values='120;110;100;90;80;70;60;50;40;140;120' calcmode='linear' repeatcount='indefinite')
+          animate(attributename='y' begin='0.25s' dur='1s' values='10;15;20;25;30;35;40;45;50;0;10' calcmode='linear' repeatcount='indefinite')
+        rect(x='120' y='10' width='15' height='120' rx='6')
+          animate(attributename='height' begin='0.5s' dur='1s' values='120;110;100;90;80;70;60;50;40;140;120' calcmode='linear' repeatcount='indefinite')
+          animate(attributename='y' begin='0.5s' dur='1s' values='10;15;20;25;30;35;40;45;50;0;10' calcmode='linear' repeatcount='indefinite')
 
+    #skill-editor(style="display: none;")
+      h1 New skill : Unnamed Skill
+      .row
+        .col-md-4#left-panel
+          h4 Script configuration
+          form#skill-generate
+            .form-group.row
+              label.col-sm-4.col-form-label(for="skill-name") Skill name
+              .col-sm-8
+                input.form-control#skill-name(type="text")
+            .form-group.row
+              label.col-sm-4.col-form-label(for="skill-template") Skill type
+              .col-sm-8
+                select.form-control#skill-template
+                  option(selected="selected") From scratch
+                  option API request
+            button.btn.btn-primary(type="submit") Generate template
+          #skill-toolbox(style="display: none;")
+            .list-group.list-group-flush
+              a.list-group-item.list-group-item-action(onClick="addIntent()") Add intent
+              a.list-group-item.list-group-item-action(onClick="addCommand()") Add command
+              a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+        .col-md-6#middle-panel
+          .row.justify-content-between
+            .col
+              h4 Script code
+            .col.text-right
+              a.action.text-success#save-skill(role="button" title="Save Code" aria-label="Save Code" style="font-size: 2em; margin-right: 50px;")
+                i.far.fa-save
+          p.lead#code-alert Use the left pane to generate a new skill.
+          #editor(style="display: none")
+        .col-md-2#right-panel
+          h4 Help
+  
+  if skill_edited
+    #edited-skill-data(style="display: none;" aria-hidden="true" data-edit-skill="true" data-skill-name=skill_edited.name data-skill-code=skill_edited.code)
+  else
+    #edited-skill-data(style="display: none;" aria-hidden="true" data-edit-skill="false")
+  
   script
     include ../public/js/new_skill.js
