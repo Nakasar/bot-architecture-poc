@@ -40,6 +40,8 @@ block content
                   i.fas.fa-toggle-on
                 else
                   i.fas.fa-toggle-off
+              a.action.mb-1.text-danger(role="button" title="Delete skill "+skillName style="margin-left: 1em;" aria-label="Delete skill "+skillName data-skill=skillName onClick="deleteSkill(this)")
+                i.fas.fa-trash
               a.action.displayer(role="button" title="Display skill." style="margin-left: 1em;" onClick=`toggleSkillDetail('${skillName}');`)
                 i.fas.fa-caret-down
           .collapse(id="detail-"+skillName)

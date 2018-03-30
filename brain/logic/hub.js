@@ -410,7 +410,74 @@ function addSkill(skill) {
       });
     });
   });
+};
+
+/**
+  Remove a skill.
+
+  Params :
+  --------
+  skill:
+    String Name of the skill to delete
+
+    Returns :
+    ---------
+    Promise
+*/
+function deleteSkill(skillName) {
+  return new Promise((resolve, reject) => {
+    console.log(`> [INFO] Deleting skill \x1b[33m${skillName}\x1b[0m...`);
+
+    console.log(`\tRemoving skill \x1b[33m${skillName}\x1b[0m...`);
+    console.log(`\tRemoving associated Intents...`);
+    let skill = skills.get(skillName);
+    if (skill.intents) {
+      for (let intent in skill.intents) {
+        console.log("\t\tRemoving " + intent);
+        intents.remove(skill.intents[intent].slug);
+      }
+    }
+
+    console.log(`\tRemoving linked Commands...`);
+    if (skill.commands) {
+      for (let command in skill.commands) {
+        console.log("\t\tRemoving " + command);
+        commands.remove(command);
+      }
+    }
+
+    console.log(`\tRemoving skill...`);
+    skills.remove(skillName);
+    console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
+
+    console.log(`> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m`);
+    delete require.cache[require.resolve(`./skills/${skillName}/skill`)];
+
+    console.log(`> [INFO] Removing files for skill \x1b[33m${skillName}\x1b[0m...`);
+    try {
+      deleteFolderRecursive(skillsDirectory + "/" + skillName);
+      console.log(`> [INFO] Successfully removed folder ${skillsDirectory + "/" + skillName}`);
+      return resolve();
+    } catch(e) {
+      return reject({ message: "Could not delete folder " + skillsDirectory + "/" + skillName });
+    }
+  });
 }
+
+function deleteFolderRecursive(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function(file, index){
+      var curPath = path + "/" + file;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};
+
 
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
@@ -423,6 +490,7 @@ exports.reloadSkill = reloadSkill;
 exports.getSkillCode = getSkillCode;
 exports.saveSkillCode = saveSkillCode;
 exports.addSkill = addSkill;
+exports.deleteSkill = deleteSkill;
 
 exports.skills = skills;
 exports.commands = commands;

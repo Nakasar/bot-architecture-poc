@@ -178,6 +178,21 @@ router.put('/skills', (req, res) => {
   });
 });
 
+// Delete a skill
+/**
+ * @api {delete} /skills/:skill Delete a skill.
+ * @apiName DeleteSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill Name of the skill to delete.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
+ router.delete('/skills/:skill', (req, res) => {
+   hub.deleteSkill
+ });
+
 // Reload skills.
 /**
  * @api {post} /skills/:skill/reload Reload the skill.

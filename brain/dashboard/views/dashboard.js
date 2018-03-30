@@ -106,6 +106,47 @@ function deactivateSkill(event) {
   }
 }
 
+function deleteSkill(event) {
+  let skill = $(event.target).data('skill');
+  if (skill) {
+    console.log("Delete " + skill);
+
+    $.ajax({
+      type: "DELETE",
+      url: `/skills/${skill}`,
+      dataType: 'json',
+      success: function(json) {
+        console.log(json)
+        if (json.success) {
+          $('#skill-'+skill).remove();
+          delete skills[skill];
+          notifyUser({
+            title: "Skill deleted!",
+            message: "Successfully deleted " + skill,
+            type: "success",
+            delay: 3
+          });
+        } else {
+          notifyUser({
+            title: "Couldn't delete " + skill,
+            message: "Impossible to delete " + skill,
+            type: "error",
+            delay: 3
+          });
+        }
+      },
+      error: function(err) {
+        notifyUser({
+          title: "Couldn't delete " + skill,
+          message: "Impossible to delete " + skill,
+          type: "error",
+          delay: 3
+        });
+      }
+    });
+  }
+}
+
 $('.skill-activate').click(activateSkill);
 
 $('.skill-deactivate').click(deactivateSkill);
