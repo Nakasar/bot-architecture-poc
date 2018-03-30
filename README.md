@@ -101,8 +101,13 @@ Skills are small scripts executed by the brain node server. They expose their co
 Here is an example of skill fetching weather on a personnal weather API service:
 
 ```javascript
+/*
+  You should not modify this part unless you know what you're doing.
+*/
+
 // Defining the skill
 // Commands the skill can execute.
+/* <SKILL COMMANDS> */
 let commands = {
   weather : {
     cmd: 'weather',
@@ -110,7 +115,10 @@ let commands = {
     expected_args: ['location']
   }
 };
+/* </SKILL COMMANDS> */
+
 // intents the skill understands.
+/* <SKILL INTENTS> */
 let intents = {
   'weather-weather': {
     slug: 'weather',
@@ -118,8 +126,12 @@ let intents = {
     expected_entities: ['location']
   }
 };
+/* </SKILL INTENTS> */
+
 // dependencies of the skill.
+/* <SKILL DEPENDENCIES> */
 let dependencies = ['request'];
+/* </SKILL DEPENDENCIES> */
 
 // Exposing the skill definition.
 exports.commands = commands;
@@ -130,6 +142,7 @@ exports.dependencies = dependencies;
   Skill logic begins here.
   You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
 */
+/* <SKILL LOGIC> */
 const request = require('request');
 
 const serviceURL = "http://localhost:5012";
@@ -154,7 +167,7 @@ function getWeather(phrase) {
       json: true,
       callback: (err, res, body) => {
         if (!err && body && body.success) {
-          let weatherMessage = `Here is the current weather for *${body.weather.name}*:`
+          let weatherMessage = `Here's the weather for *${body.weather.name}*:`
           weatherMessage += `\nSky: ${body.weather.weather[0].main}`;
           resolve({
             message: weatherMessage
@@ -169,11 +182,11 @@ function getWeather(phrase) {
   });
 };
 
-// An intent handler might just redirect to a command handler.
 function handleWeather({ location: location = "" }) {
   let finalLocation = location[0];
   return getWeather(finalLocation);
 }
+/* </SKILL LOGIC> */
 
 // You may define other logic function unexposed here. Try to keep the skill code slim.
 ```
