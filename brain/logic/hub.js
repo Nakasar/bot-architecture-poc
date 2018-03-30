@@ -189,6 +189,7 @@ function reloadSkill(skillName) {
 function loadSkill(skillName) {
   return new Promise((resolve, reject) => {
     console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
+    delete require.cache[require.resolve(`./skills/${skillName}/skill`)];
     skills.add(skillName, {});
     skills.get(skillName).active = false;
     let skill = require(`./skills/${skillName}/skill`);
@@ -219,6 +220,7 @@ function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Loading skills...`);
   for (let skillName of skillsToLoad) {
     console.log(`\tLoading skill "${skillName}"...`);
+    delete require.cache[require.resolve(`./skills/${skillName}/skill`)];
     try {
       skills.add(skillName, {});
       skills.get(skillName).active = false;
@@ -478,6 +480,16 @@ function deleteFolderRecursive(path) {
   }
 };
 
+function reloadBrain() {
+  return new Promise((resolve, reject) => {
+    try {
+      loadSkillsFromFolder();
+      return resolve();
+    } catch(e) {
+      return reject();
+    }
+  });
+};
 
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
@@ -491,6 +503,7 @@ exports.getSkillCode = getSkillCode;
 exports.saveSkillCode = saveSkillCode;
 exports.addSkill = addSkill;
 exports.deleteSkill = deleteSkill;
+exports.reloadBrain = reloadBrain;
 
 exports.skills = skills;
 exports.commands = commands;

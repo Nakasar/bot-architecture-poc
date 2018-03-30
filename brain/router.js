@@ -112,6 +112,24 @@ router.post('/command', (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////
 // BOT ADMIN ENDPOINTS
 
+// Reload brain
+/**
+ * @api {post} /reload Reload brain.
+ * @apiName ReloadBrain
+ * @apiGroup Brain
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
+router.post('/reload', (req, res) => {
+  hub.reloadBrain().then(() => {
+    return res.json({ success: true, message: "Successfully reloaded brain." });
+  }).catch((err) => {
+    console.log(err.stack);
+    return res.json({ success: false, message: "An unkown error occured while reloading brain." });
+  });
+}),
+
 // list skills
 /**
  * @api {get} /skills List skills avaible.
@@ -136,7 +154,7 @@ router.get('/skills', (req, res) => {
     }
   }
   return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
-})
+});
 
 // Add a new skill
 /**
@@ -195,7 +213,7 @@ router.put('/skills', (req, res) => {
    }).catch((err) => {
      console.log(err.stack);
      return res.json({ success: false, message: "An unkown error occured while deleting skill." });
-   })
+   });
  });
 
 // Reload skills.

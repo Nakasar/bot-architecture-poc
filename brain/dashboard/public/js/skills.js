@@ -113,7 +113,6 @@ function deleteSkill(skillButton) {
         console.log(json)
         if (json.success) {
           $('#skill-'+skill).remove();
-          delete skills[skill];
           notifyUser({
             title: "Skill deleted!",
             message: "Successfully deleted " + skill,
@@ -141,3 +140,42 @@ function deleteSkill(skillButton) {
     });
   }
 }
+
+function reloadBrain() {
+  $.ajax({
+    baseUrl: base_url,
+    type: "POST",
+    url: `/reload`,
+    dataType: 'json',
+    success: function(json) {
+      console.log(json)
+      if (json.success) {
+        notifyUser({
+          title: "Brain reloaded",
+          message: "Successfully reloaded brain and all skills.",
+          type: "success",
+          delay: 3
+        });
+        location.reload();
+      } else {
+        notifyUser({
+          title: "Couldn't reload bot.",
+          message: "An unkown error occured.",
+          type: "error",
+          delay: 3
+        });
+        location.reload();
+      }
+    },
+    error: function(err) {
+      notifyUser({
+        title: "Couldn't reload bot.",
+        message: "An unkown error occured.",
+        type: "error",
+        delay: 3
+      });
+    }
+  });
+}
+
+$("#reload-brain").click(reloadBrain);
