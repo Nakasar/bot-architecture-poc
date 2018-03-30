@@ -1,5 +1,7 @@
 const request = require('request');
-const api_url = "http://10.0.2.2:8080";
+const api_host = process.env.API_HOST || "localhost";
+const api_port = process.env.API_PORT || "8080";
+const api_url = `http://${api_host}:${api_port}`;
 
 module.exports = function(robot) {
   robot.hear(/!(.*)/, function(message) {
