@@ -7,7 +7,7 @@ function skillToggle(skillButton) {
   if (skill) {
     $.ajax({
       type: "POST",
-      baseUrl: 'http://localhost;8080',
+      baseUrl: base_url,
       url: `/skills/${skill}/${status ? "off" : "on"}`,
       dataType: 'json',
       success: function(json) {
@@ -75,7 +75,7 @@ function reloadSkill(skillButton) {
     setTimeout(() => {
       $.ajax({
         type: "POST",
-        baseUrl: 'http://localhost;8080',
+        baseUrl: base_url,
         url: `/skills/${skill}/reload`,
         dataType: 'json',
         success: function(json) {
@@ -99,100 +99,45 @@ function reloadSkill(skillButton) {
   }
 }
 
-function editSkill(skillButton) {
+function deleteSkill(skillButton) {
   let skill = $(skillButton).data('skill');
-
-  let notificationId = notifyUser({
-    title: "Retrieving code...",
-    message: `We are retrieving code of ${skill}, please wait.`,
-    type: "info",
-    delay: -1
-  });
-
   if (skill) {
+    console.log("Delete " + skill);
+
     $.ajax({
-      type: "GET",
-      baseUrl: 'http://localhost;8080',
-      url: `/skills/${skill}/edit`,
+      baseUrl: base_url,
+      type: "DELETE",
+      url: `/skills/${skill}`,
       dataType: 'json',
       success: function(json) {
+        console.log(json)
         if (json.success) {
-          $("#code-modal h5").text(`${skill} / skill.js`);
-          $("#code-modal .save").attr('data-skill', skill);
-
-          if (editor) {
-            editor.destroy();
-          }
-          editor = ace.edit("editor");
-          editor.setTheme("ace/theme/monokai");
-          editor.session.setMode("ace/mode/javascript")
-          editor.setValue(json.code, -1);
-          editor.session.setValue(json.code, -1);
-          editor.clearSelection();
-          editor.resize();
-          setTimeout(() => {
-            dismissNotification(notificationId);
-            $("#code-modal").modal('show');
-          }, 2000)
+          $('#skill-'+skill).remove();
+          delete skills[skill];
+          notifyUser({
+            title: "Skill deleted!",
+            message: "Successfully deleted " + skill,
+            type: "success",
+            delay: 3
+          });
+        } else {
+          notifyUser({
+            title: "Couldn't delete " + skill,
+            message: "Impossible to delete " + skill,
+            type: "error",
+            delay: 3
+          });
         }
       },
       error: function(err) {
-        dismissNotification(notificationId);
         console.log(err)
+        notifyUser({
+          title: "Couldn't delete " + skill,
+          message: "Impossible to delete " + skill,
+          type: "error",
+          delay: 3
+        });
       }
     });
-  }
-}
-
-function saveSkillCode(skillButton) {
-  let skill = $(skillButton).data('skill');
-  if (editor) {
-    let code = editor.getValue();
-
-    $("#code-modal").modal('hide');
-    let notificationId = notifyUser({
-      title: `Please wait`,
-      message: `We are saving modifications for skill ${skill}.`,
-      type: "warning",
-      delay: -1
-    });
-
-    if (skill) {
-      $.ajax({
-        type: "PUT",
-        baseUrl: 'http://localhost;8080',
-        url: `/skills/${skill}/edit`,
-        data: { code: code },
-        dataType: 'json',
-        success: function(json) {
-          dismissNotification(notificationId);
-          console.log(json);
-          if (json.success) {
-            notifyUser({
-              title: `Modification saved!`,
-              message: `The Skill ${skill} was updated and reloaded.`,
-              type: "success",
-              delay: 5
-            });
-          } else {
-            notifyUser({
-              title: `Error`,
-              message: `We could not save and/or reload the skill.`,
-              type: "error",
-              delay: -1
-            });
-          }
-        },
-        error: function(err) {
-          dismissNotification(notificationId);
-          notifyUser({
-            title: `Unkown Error`,
-            message: `The server could not be reached, or responded with a internal error.`,
-            type: "error",
-            delay: -1
-          });
-        }
-      });
-    }
   }
 }

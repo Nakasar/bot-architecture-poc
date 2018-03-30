@@ -190,7 +190,12 @@ router.put('/skills', (req, res) => {
  * @apiSuccess {String} message Message from api.
  */
  router.delete('/skills/:skill', (req, res) => {
-   hub.deleteSkill
+   hub.deleteSkill(req.params.skill).then(() => {
+     return res.json({ success: true, message: "Successfully deleted skill." });
+   }).catch((err) => {
+     console.log(err.stack);
+     return res.json({ success: false, message: "An unkown error occured while deleting skill." });
+   })
  });
 
 // Reload skills.
