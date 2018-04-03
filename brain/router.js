@@ -3,6 +3,8 @@ const express = require('express');
 let router = express.Router();
 let dashboardRouter = require('./dashboard/router');
 let hub = require('./logic/hub');
+const jwt = require('jsonwebtoken');
+const config = require('./secret');
 
 // Main middleware
 router.use((req, res, next) => {
@@ -111,6 +113,24 @@ router.post('/command', (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////////
 // BOT ADMIN ENDPOINTS
+
+// MIDDLEWARE FOR BOT ADMIN AUTH
+router.use(function(req, res, next) {
+  let token = req.body.token || req.query.token || req.get("x-access-token") || req.cookies['user_token'];
+
+  if (!token) {
+    return res.status(403).json({ success: false, message: "No token provided in body/query/header/cookies." });
+  }
+
+  // Checking user token.
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: "Invalid authentification." });
+    }
+
+    next();
+  });
+});
 
 // Reload brain
 /**
