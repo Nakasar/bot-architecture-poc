@@ -642,6 +642,10 @@ $.ajax({
 
         $('#skill-generate').hide();
         $('#skill-toolbox').show();
+        $("#left-panel").removeClass("col-md-4");
+        $("#left-panel").addClass("col-md-2");
+        $("#middle-panel").removeClass("col-md-6");
+        $("#middle-panel").addClass("col-md-8");
 
         editor.setValue(skill.code);
         editor.clearSelection();
