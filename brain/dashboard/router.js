@@ -3,7 +3,7 @@ const express = require('express');
 const hub = require('../logic/hub');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const config = require('./secret');
+const config = require('../secret');
 const users = require('../database/controllers/userController');
 let router = express.Router();
 

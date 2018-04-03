@@ -1,7 +1,7 @@
 'user strict';
 var User = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const secret = require("../../dashboard/secret");
+const secret = require("../../secret");
 const jwt = require('jsonwebtoken');
 
 exports.create_user = function(user) {
