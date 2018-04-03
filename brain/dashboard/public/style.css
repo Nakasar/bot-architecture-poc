@@ -16,3 +16,12 @@
   top: 40vh;
   text-align: center;
 }
+
+.disconnect {
+  cursor: pointer;
+  color: darkred;
+}
+
+.disconnect:hover {
+  color: red;
+}

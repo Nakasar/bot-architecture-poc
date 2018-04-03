@@ -174,8 +174,10 @@ function ${command.execute}(phrase) {
       resolve the handler with a formatted message object.
     */
     return resolve({
-      title: "Not implemented",
-      message: "This functionnality is currently not implemented."
+      message: {
+        title: "Not implemented",
+        text: "This functionnality is currently not implemented."
+      }
     });
   });
 }`;
@@ -300,8 +302,10 @@ function ${intent.handle}(${paramsString}) {
       resolve the handler with a formatted message object.
     */
     return resolve({
-      title: "Not implemented",
-      message: "This functionnality is currently not implemented."
+      message: {
+        title: "Not implemented",
+        text: "This functionnality is currently not implemented."
+      }
     });
   });
 }`;

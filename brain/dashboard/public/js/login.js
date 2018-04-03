@@ -19,9 +19,9 @@ $("#signin-form").submit((event) => {
           localStorage.setItem("user_token", json.token);
           // Store token in cookies
           if (keepLoggedIn) {
-            document.cookie = "user_token="+json.token+";max-age=2592000"; //TODO: Add ";secure";
+            Cookies.set('user_token', json.token, { expires: 31 }); //TODO: Add ";secure";
           } else {
-            document.cookie = "user_token="+json.token; //TODO: Add ";secure";
+            Cookies.set('user_token', json.token); //TODO: Add ";secure";
           }
           window.location.replace("/dashboard");
         }
