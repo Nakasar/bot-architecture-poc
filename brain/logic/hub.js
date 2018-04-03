@@ -281,7 +281,7 @@ function handleCommand(commandName, phrase = "") {
 
     if (commands.has(commandName) && commands.get(commandName).active) {
       let command = commands.get(commandName);
-
+      
       command.execute(phrase).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
