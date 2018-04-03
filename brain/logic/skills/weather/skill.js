@@ -50,7 +50,9 @@ function getWeather(phrase) {
     let location = phrase;
     if (location.length <= 0) {
       return resolve({
-        message: `I need a location (like \`Kayl, lu\`).`
+        message :{
+          text: `I need a location (like \`Kayl, lu\`).`
+        }
       });
     }
 
@@ -67,11 +69,15 @@ function getWeather(phrase) {
           let weatherMessage = `Here's the weather for *${body.weather.name}*:`
           weatherMessage += `\nSky: ${body.weather.weather[0].main}`;
           resolve({
-            message: weatherMessage
+            message :{
+              text: weatherMessage
+            }
           });
         } else {
           resolve({
-            message: "I couldn't load weather for this location :/"
+            message: {
+              text: "I couldn't load weather for this location :/"
+            }
           });
         }
       }

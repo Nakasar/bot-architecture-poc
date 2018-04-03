@@ -53,15 +53,19 @@ exports.dependencies = dependencies;
 function sayThanks() {
   return new Promise((resolve, reject) => {
     return resolve({
-      message: "Don't say thanks, idiot!"
-    })
-  })
+      message: {
+        text: "Don't say thanks, idiot!"
+      }
+    });
+  });
 }
 
 function sayHello() {
   return new Promise((resolve, reject) => {
     return resolve({
-      message: "Hello o/"
+      message: {
+        text: "Hello o/"
+      }
     });
   });
 }

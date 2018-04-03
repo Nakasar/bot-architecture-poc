@@ -56,7 +56,9 @@ function analyzeText(phrase = "") {
         }
       }
 
-      analyzed.message = res.intent() ? `I think your intent is *${res.intent().slug}*.` : `I did'nt found any intent in this sentence.`;
+      analyzed.message = {
+        text: res.intent() ? `I think your intent is *${res.intent().slug}*.` : `I did'nt found any intent in this sentence.`
+      };
 
       return resolve(analyzed);
     })

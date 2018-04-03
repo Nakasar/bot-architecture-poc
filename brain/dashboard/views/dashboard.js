@@ -18,13 +18,13 @@ $('#chat-form').submit((event) => {
         console.log(json)
         $("#chat").val('');
         $("#bot-response #source").text(json.source)
-        $("#bot-response #message").html(formatText(json.message));
+        $("#bot-response #message").html(formatText(json.message.text));
       },
       error: function(err) {
         $("#chat").val('');
         if (json = err.responseJSON) {
           $("#bot-response #source").text(json.source);
-          $("#bot-response #message").html(formatText(json.message));
+          $("#bot-response #message").html(formatText(json.message.text));
         } else {
           console.log(err)
         }
@@ -43,13 +43,13 @@ $('#chat-form').submit((event) => {
         console.log(json)
         $("#chat").val('');
         $("#bot-response #source").text(json.source)
-        $("#bot-response #message").html(formatText(json.message));
+        $("#bot-response #message").html(formatText(json.message.text));
       },
       error: function(err) {
         $("#chat").val('');
         if (json = err.responseJSON) {
           $("#bot-response #source").text(json.source);
-          $("#bot-response #message").html(formatText(json.message));
+          $("#bot-response #message").html(formatText(json.message.text));
         } else {
           console.log(err)
         }

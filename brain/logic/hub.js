@@ -260,7 +260,7 @@ function handleIntent(intentName, entities = {}) {
       for (let entity of intent.expected_entities) {
         if (!Object.keys(entities).includes(entity)) {
           foundAllEntities = false;
-          return resolve({ success: false, message: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` });
+          return resolve({ success: false, message: { text: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` }});
         }
       }
 
@@ -269,7 +269,7 @@ function handleIntent(intentName, entities = {}) {
       });
     } else {
       console.log(`> [WARNING] Intent "\x1b[4m${intentName}\x1b[0m" is not handled.`);
-      return resolve({ success: true, message: `I can't handle your intention, yet I think it is *${intentName}*. Maybe it was disabled :/` });
+      return resolve({ success: true, message: { text: `I can't handle your intention, yet I think it is *${intentName}*. Maybe it was disabled :/` }});
     }
   })
 };
@@ -285,7 +285,7 @@ function handleCommand(commandName, phrase = "") {
         return resolve({ success: true, message: response.message, response: response });
       });
     } else {
-      return resolve({ success: true, message: `I can't handle your command because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` });
+      return resolve({ success: true, message: { text: `I can't handle your command because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` }});
     }
   })
 };

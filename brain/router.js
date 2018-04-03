@@ -60,22 +60,22 @@ router.use(function (req, res, next) {
 router.post('/nlp', (req, res) => {
   let phrase = req.body.phrase || req.query.phrase;
   if (!phrase) {
-    return res.json({ success: false, message: 'No phrase string to analyze in body.'})
+    return res.json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
   }
   hub.handleCommand('analyze', phrase).then((response) => {
     if (!response.response.intent) {
-      return res.json({ success: response.success, message: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/`, source: req.body.phrase });
+      return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
     }
 
     hub.handleIntent(response.response.intent, response.response.entities).then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
       console.log(error.stack)
-      return res.json({ success: false, message: 'Unkown error with nlp endpoint.', source: req.body.phrase });
+      return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
     })
   }).catch((error) => {
     console.log(error.stack);
-    return res.json({ success: false, message: 'Unkown error with nlp endpoint.', source: req.body.phrase });
+    return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
   })
 })
 
@@ -94,7 +94,7 @@ router.post('/nlp', (req, res) => {
 router.post('/command', (req, res) => {
   let phrase = req.body.command || req.query.command;
   if (!phrase) {
-    return res.json({ success: false, message: 'No command string to parse in body.'});
+    return res.json({ success: false, message: { text: 'No command string to parse in body.' }});
   }
 
   let [command, ...params] = phrase.split(" ");
@@ -103,7 +103,7 @@ router.post('/command', (req, res) => {
     return res.json({ success: response.success, message: response.message, source: command });
   }).catch((error) => {
     console.log(error.stack);
-    return res.json({ success: false, message: 'Unkown error while handling command.', source: commad });
+    return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: commad });
   });
 });
 
