@@ -103,7 +103,7 @@ router.post('/command', (req, res) => {
     return res.json({ success: response.success, message: response.message, source: command });
   }).catch((error) => {
     console.log(error.stack);
-    return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: commad });
+    return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: command });
   });
 });
 

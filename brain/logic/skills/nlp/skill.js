@@ -55,14 +55,14 @@ function analyzeText(phrase = "") {
           analyzed.entities[entityName].push(entity.raw);
         }
       }
-      
+
       analyzed.message = {
         text: res.intent() ? `I think your intent is *${res.intent().slug}*.` : `I did'nt found any intent in this sentence.`
       };
 
       return resolve(analyzed);
-    })
-  })
+    });
+  });
 };
 /* </SKILL LOGIC> */
 
