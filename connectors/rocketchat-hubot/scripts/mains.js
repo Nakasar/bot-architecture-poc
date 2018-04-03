@@ -3,10 +3,19 @@ const api_host = process.env.API_HOST || "localhost";
 const api_port = process.env.API_PORT || "8080";
 const api_url = `http://${api_host}:${api_port}`;
 
-function parser(message) {
-  let formatted = {};
+function parser(room, message) {
+  let formatted = {
+    channel: room,
+    attachments: []
+  };
   if (message.text) {
-    formatted.text = message.text;
+    let attachment = {
+      text: message.text
+    };
+    if (message.title) {
+      attachment.title = message.title;
+    }
+    formatted.attachments.push(attachment);
   }
   if (message.avatar) {
     formatted.avatar = message.avatar;
@@ -15,7 +24,6 @@ function parser(message) {
     formatted.emoji = message.emoji;
   }
   if (message.attachments) {
-    formatted.attachments = [];
     for (let attachment of message.attachments) {
       let formattedAttachment = {};
       if (attachment.color) {
@@ -58,11 +66,12 @@ function parser(message) {
       formatted.attachments.push(formattedAttachment);
     }
   }
+  console.log(formatted);
   return formatted;
 };
 
 module.exports = function(robot) {
-  robot.hear(/^!(.*)$/, function(message) {
+  robot.hear(/!(.*)/, function(message) {
     let command = message.match[1];
     request({
       baseUrl: api_url,
@@ -74,7 +83,10 @@ module.exports = function(robot) {
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
-          message.room.sendMessage(parser(body.message));
+          robot.messageRoom(
+            message.message.room,
+            parser(message.message.room, body.message)
+          );
         } else {
           message.send("An error occured :'(");
         }
@@ -82,7 +94,7 @@ module.exports = function(robot) {
     });
   });
 
-  robot.respond(/^(.*)^/, function(message) {
+  robot.respond(/(.*)/, function(message) {
     let phrase = message.match[1];
 
     if (phrase.startsWith("!")) {
@@ -100,8 +112,11 @@ module.exports = function(robot) {
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
-          message.room.sendMessage(parser(body.message));
-        } else {
+          robot.messageRoom(
+            message.message.room,
+            parser(message.message.room, body.message)
+          );
+          } else {
           message.reply("An error occured :'(");
         }
       }
