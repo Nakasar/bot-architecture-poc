@@ -46,7 +46,6 @@ const serviceURL = "http://localhost:5012";
 
 function getWeather(phrase) {
   return new Promise((resolve, reject) => {
-
     let location = phrase;
     if (location.length <= 0) {
       return resolve({

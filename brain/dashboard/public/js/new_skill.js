@@ -498,6 +498,8 @@ function configureSecret() {
 };
 
 $("#save-skill").click(function() {
+  skill.code = editor.getValue();
+
   if ($('#edited-skill-data').data('edit-skill')) {
     let notificationId = notifyUser({
       title: "Saving skill...",

@@ -162,6 +162,7 @@ function reloadSkill(skillName) {
           command.active = true;
           commands.add(command.cmd, command);
         }
+        skills.get(skillName).active = true;
         console.log(`\t..."${skillName}" successfully loaded`);
 
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully reloaded.`);
@@ -348,8 +349,10 @@ function saveSkillCode(skillName, code) {
         console.log(err.stack);
         return reject();
       }
+
       console.log(`\t... Reload skill.`);
-      reloadSkill(skillName).then(() => {;
+
+      reloadSkill(skillName).then(() => {
         return resolve();
       }).catch((err) => {
         console.log(err.stack);
