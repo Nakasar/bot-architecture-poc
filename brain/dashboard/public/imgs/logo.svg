@@ -31,11 +31,4 @@
     <path d="m44.8 50.7c0 1.2-2 1.2-2 0v-6.1c0-1.2 2-1.2 2 0v6.1"/>
   </g><circle cx="32" cy="37" r="2" fill="#f5f5f5"/>
   <path transform="matrix(.7071-.7071.7071.7071-16.7765 33.4583)" fill="#545b61" d="m31.6 35h.8v4h-.8z"/>
-
-  <circle cx="" cy="" r="5" fill="cyan">
-    <!-- Define the motion path animation -->
-    <animateMotion dur="6s" repeatCount="indefinite">
-      <mpath xlink:href="#spark"/>
-    </animateMotion>
-  </circle>
 </svg>
