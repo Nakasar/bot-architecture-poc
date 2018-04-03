@@ -8,7 +8,7 @@
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
 - Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer).
-- Add a secret variable for tokens in `brain/dashboard/secret.js`, exporting a `secret` string.
+- Add a secret variable for tokens in `brain/secret.js`, exporting a `secret` string.
 - Run the brain with `npm start`.
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
@@ -21,7 +21,7 @@
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Modify the `base_url` const in `dashboard/public/js/main.js` to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` other white.
 - Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) _(ex: `nano brain/database/secret.js`, add `module.exports = { host: 'localhost:27017/mydb' }`)_
-- Add a secret variable for tokens in `brain/dashboard/secret.js`, exporting a `secret` string.
+- Add a secret variable for tokens in `brain/secret.js`, exporting a `secret` string.
 - Build the Brain image using the Dockerfile, then run in : `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 
@@ -43,7 +43,76 @@ Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) 
 
 ```javascript
 const request = require('request');
-const api_url = "http://10.0.2.2:8080";
+const api_host = process.env.API_HOST || "localhost";
+const api_port = process.env.API_PORT || "8080";
+const api_url = `http://${api_host}:${api_port}`;
+
+function parser(room, message) {
+  let formatted = {
+    channel: room,
+    attachments: []
+  };
+  if (message.text) {
+    let attachment = {
+      text: message.text
+    };
+    if (message.title) {
+      attachment.title = message.title;
+    }
+    formatted.attachments.push(attachment);
+  }
+  if (message.avatar) {
+    formatted.avatar = message.avatar;
+  }
+  if (message.emoji) {
+    formatted.emoji = message.emoji;
+  }
+  if (message.attachments) {
+    for (let attachment of message.attachments) {
+      let formattedAttachment = {};
+      if (attachment.color) {
+        formattedAttachment.color = attachment.color;
+      }
+      if (attachment.thumbnail) {
+        formattedAttachment.thumb_url = attachment.color;
+      }
+      if (attachment.text) {
+        formattedAttachment.text = attachment.text;
+      }
+      if (attachment.collapsed) {
+        formattedAttachment.collapsed = attachment.collapsed;
+      }
+      if (attachment.author_name) {
+        formattedAttachment.author_name = attachment.author_name;
+      }
+      if (attachment.author_link) {
+        formattedAttachment.author_link = attachment.author_link;
+      }
+      if (attachment.author_icon) {
+        formattedAttachment.author_icon = attachment.author_icon;
+      }
+      if (attachment.title) {
+        formattedAttachment.title = attachment.title;
+      }
+      if (attachment.title_link) {
+        formattedAttachment.title_link = attachment.title_link;
+      }
+      if (attachment.image_url) {
+        formattedAttachment.image_url = attachment.image_url;
+      }
+      if (attachment.audio_url) {
+        formattedAttachment.audio_url = attachment.audio_url;
+      }
+      if (attachment.video_url) {
+        formattedAttachment.video_url = attachment.video_url;
+      }
+      // TODO: Parse fields
+      formatted.attachments.push(formattedAttachment);
+    }
+  }
+  console.log(formatted);
+  return formatted;
+};
 
 module.exports = function(robot) {
   robot.hear(/!(.*)/, function(message) {
@@ -58,7 +127,10 @@ module.exports = function(robot) {
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
-          message.send(body.message);
+          robot.messageRoom(
+            message.message.room,
+            parser(message.message.room, body.message)
+          );
         } else {
           message.send("An error occured :'(");
         }
@@ -84,8 +156,11 @@ module.exports = function(robot) {
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
-          message.reply(body.message);
-        } else {
+          robot.messageRoom(
+            message.message.room,
+            parser(message.message.room, body.message)
+          );
+          } else {
           message.reply("An error occured :'(");
         }
       }
@@ -93,6 +168,7 @@ module.exports = function(robot) {
     message.reply();
   });
 };
+
 ```
 
 ### Skill Services
@@ -226,11 +302,12 @@ const serviceURL = "http://localhost:5012";
 
 function getWeather(phrase) {
   return new Promise((resolve, reject) => {
-
     let location = phrase;
     if (location.length <= 0) {
       return resolve({
-        message: `I need a location (like \`Kayl, lu\`).`
+        message :{
+          text: `I need a location (like \`Kayl, lu\`).`
+        }
       });
     }
 
@@ -247,11 +324,15 @@ function getWeather(phrase) {
           let weatherMessage = `Here's the weather for *${body.weather.name}*:`
           weatherMessage += `\nSky: ${body.weather.weather[0].main}`;
           resolve({
-            message: weatherMessage
+            message :{
+              text: weatherMessage
+            }
           });
         } else {
           resolve({
-            message: "I couldn't load weather for this location :/"
+            message: {
+              text: "I couldn't load weather for this location :/"
+            }
           });
         }
       }
