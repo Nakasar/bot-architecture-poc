@@ -218,6 +218,9 @@ router.get('/skills', (req, res) => {
  *
  * @apiParam {String} skill_name Name of the new skill.
  * @apiParam {String} skill_code Code of the new skill.
+ * @apiParam {Object} [skill_secret] - Secrets for this skill.
+ * @apiParam {String} [skill_secret[].key] - The key of a secret.
+ * @apiParam {String} [skill_secret[].value] - The value of a secret.
  *
  * @apiSuccess {Boolean} success Success of operation.
  * @apiSuccess {String} message Message from api.
@@ -282,7 +285,6 @@ router.put('/skills', (req, res) => {
  * @apiSuccess {String} message Message from api.
  */
 router.post('/skills/:skill/reload', (req, res) => {
-  // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
     hub.reloadSkill(req.params.skill).then(() => {
       return res.json({ success: true, message: `Skill ${req.params.skill} reloaded.`})
@@ -307,7 +309,6 @@ router.post('/skills/:skill/reload', (req, res) => {
  * @apiSuccess {String} code Code of the skill.
  */
 router.get('/skills/:skill/edit', (req, res) => {
-  // TODO: move activation/deactivation in a function exposed by hub!
   if (hub.skills.has(req.params.skill)) {
     hub.getSkillCode(req.params.skill).then((code) => {
       return res.json({ success: true, message: `Code of Skill ${req.params.skill} retrieved.`, code: code })
@@ -321,7 +322,7 @@ router.get('/skills/:skill/edit', (req, res) => {
 
 // Update skill code
 /**
- * @api {put} /skills/:skill/reload Update the skill.
+ * @api {put} /skills/:skill/code Update the skill.
  * @apiName UpdateSkill
  * @apiGroup Skills
  *
@@ -331,8 +332,11 @@ router.get('/skills/:skill/edit', (req, res) => {
  * @apiSuccess {Boolean} success Success of operation.
  * @apiSuccess {String} message Message from api.
  */
-router.put('/skills/:skill/edit', (req, res) => {
-  // TODO: move activation/deactivation in a function exposed by hub!
+router.put('/skills/:skill/code', (req, res) => {
+  if (!req.body.skill_code) {
+    return res.json({ success: false, message: "Missing 'skill_code' definition in body." });
+  }
+
   if (hub.skills.has(req.params.skill)) {
     hub.saveSkillCode(req.params.skill, req.body.code).then(() => {
       return res.json({ success: true, message: `Code of Skill ${req.params.skill} saved, skill reloaded successfully.` })
@@ -342,6 +346,24 @@ router.put('/skills/:skill/edit', (req, res) => {
   } else {
     return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
   }
+});
+
+// Update skill secrets
+/**
+ * @api {put} /skills/:skill/secret Update the skill.
+ * @apiName UpdateSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to update.
+ * @apiParam {Object} [skill_secret] - Secrets for this skill.
+ * @apiParam {String} [skill_secret[].key] - The key of a secret.
+ * @apiParam {String} [skill_secret[].value] - The value of a secret.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ */
+router.put('/skills/:skill/secret', (req, res) => {
+  return res.status(501).json({ success: false, message: `Not implemented.`});
 });
 
 // Activate/Deactivate skills.

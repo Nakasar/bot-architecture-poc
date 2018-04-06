@@ -453,7 +453,7 @@ function ${interaction.interact}(thread, phrase) {
       editor.setValue(this.code);
       editor.session.setValue(this.code);
       editor.clearSelection();
-      
+
       return resolve();
     });
   }
@@ -794,7 +794,7 @@ $("#save-skill").click(function() {
     $.ajax({
       method: "PUT",
       baseUrl: base_url,
-      url: "/skills/" + skill.name + "/edit",
+      url: "/skills/" + skill.name + "/code",
       data: { code: skill.code },
       dataType: "json",
       success: function(json) {
