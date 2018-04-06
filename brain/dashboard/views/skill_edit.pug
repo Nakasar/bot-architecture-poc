@@ -61,6 +61,28 @@ block supercontent
           .modal-footer
             button.btn.btn-success.save(type="submit" form="add-command-form") Add command
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            
+    .modal.fade#add-interaction-modal(tabindex="-1" role="dialog" aria-labelledby="add-interaction-modal-label" aria-hidden="true")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            h5.modal-title#add-interaction-modal-label New interaction
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+            #add-interaction-alert
+            form#add-interaction-form
+              .form-group
+                label(for="interaction-name") Interaction name
+                input.form-control#interaction-name(type="text" aria-describedby="interaction-name-help" required)
+                small.form-text.text-muted#interaction-name-help We'll automatically add the skill name before the interaction name if not present.
+              .form-group
+                label(for="interaction-handler") Handler function
+                input.form-control#interaction-handler(type="text" aria-describedby="interaction-handler-help" placeholder="handleQuizzResponse" required)
+                small.form-text.text-muted#interaction-handler-help Give a unique name to the function which will be called for this interaction.
+          .modal-footer
+            button.btn.btn-success.save(type="submit" form="add-interaction-form") Add interaction
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
 
   main.container-fluid
     .loader#loader
@@ -104,9 +126,13 @@ block supercontent
             button.btn.btn-primary(type="submit") Generate template
           #skill-toolbox(style="display: none;")
             .list-group.list-group-flush
+              a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+              a.list-group-item
               a.list-group-item.list-group-item-action(onClick="addIntent()") Add intent
               a.list-group-item.list-group-item-action(onClick="addCommand()") Add command
-              a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+              a.list-group-item.list-group-item-action(onClick="addInteraction()") Add interaction
+              a.list-group-item
+              a.list-group-item.list-group-item-action(onClick="useSkillCommand()") Use another skill              
         .col-md-6#middle-panel
           .row.justify-content-between
             .col

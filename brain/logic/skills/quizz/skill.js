@@ -83,11 +83,11 @@ function quizz(phrase) {
                   answers.sort();
 
                   question += "\n> " + answers.join("\n> ");
+                  question += "\n (type `abort` or `skip` to skip)";
                   return resolve({
                       message: {
                           interactive: true,
                           thread_id: thread._id,
-                          handler: "thread-quizz-handler",
                           title: body.results[0].category,
                           text: question
                       }
@@ -131,12 +131,27 @@ function answerHandler(thread, phrase) {
             }
         });
       });
+    } else if(["abort", "skip"].includes(phrase)) {
+      overseer.ThreadManager.closeThread(thread._id).then(() => {
+        return resolve({
+            message: {
+                title: "Aborting",
+                text: `The answer was *${thread.getData("correct_answer")}* `
+            }
+        });
+      }).catch((e) => {
+        return resolve({
+            message: {
+              title: "Aborting",
+              text: `The answer was *${thread.getData("correct_answer")}* `
+            }
+        });
+      });
     } else {
       return resolve({
           message: {
               interactive: true,
               thread_id: thread._id,
-              handler: "thread-quizz-handler",
               title: "Wrong :(",
               text: `${phrase} is not the expected answer, try again!`
           }

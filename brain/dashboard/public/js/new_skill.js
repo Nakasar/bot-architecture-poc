@@ -5,6 +5,7 @@ class Skill {
     this.name = undefined;
     this.intents = {};
     this.commands = {};
+    this.interactions = {};
     this.dependencies = [];
     this.code = "";
     this.author = undefined;
@@ -47,8 +48,7 @@ let dependencies = ${dependencies};
 
 // Conversation handlers of the skill.
 /* <SKILL INTERACTIONS> */
-let interactions = {
-};
+let interactions = ${this.interactionString};
 /* </SKILL INTERACTIONS> */
 
 // Exposing the skill definition.
@@ -326,6 +326,123 @@ function ${intent.handle}(${paramsString}) {
     });
   }
 
+  /**
+    Adds the intent to the skill and updates editor.
+
+    Params :
+    --------
+    intent:
+      {
+        name: String
+        slug: String
+        handler: String
+        expected_entities: [String]
+      }
+  */
+  addInteraction(interaction) {
+    return new Promise((resolve, reject) => {
+      // Checks intent validity
+
+      // name unicity
+      // Check in the new edited skill
+      if (Object.keys(this.interactions).includes(interaction.name)) {
+        // interaction name already in use, abort and alert.
+        return reject({
+          title: "Interaction name already in use.",
+          message: `The name of the interaction must be unique to the bot. (Used in this skill).`
+        });
+      }
+      // Check in all skills
+      for (let skillName in skills) {
+        if (Object.keys(skills[skillName].interactions).includes(interaction.name)) {
+          // intent name already in use, abort and alert.
+          return reject({
+            title: "Interaction name already in use.",
+            message: `The name of the interaction must be unique to the bot. (Used in skill ${skillName}).`
+          });
+        }
+      }
+
+      // handler validity
+      const functionRegex = /^[a-zA-Z]{3,40}$/;
+      if (!functionRegex.test(interaction.handle)) {
+        return reject({
+          title: "Invalid handler name.",
+          message: "The handler name must follow camelLowerCase (and souldn't contain digits)."
+        });
+      }
+
+      // Intent is valid
+
+
+      // Add intent to skill and to code
+      this.interactions[interaction.name] = interaction;
+
+      // Add intent definition
+      this.code = this.code.replace(/let interactions = {(.*|\r|\n|\u2028|\u2029){0,}?};/, `let interactions = ${this.interactionString};`);
+
+      // Add handler
+      let handlerString = `/**
+  Handler for interaction ${interaction.name}.
+
+  Params :
+  --------
+    phrase: String
+*/
+function ${interaction.interact}(thread, phrase) {
+  return new Promise((resolve, reject) => {
+    /*
+      >>> YOUR CODE HERE <<<
+      resolve the handler with a formatted message object.
+    */
+    let continueThreadMode = false;
+
+    if (continueThreadMode) {
+      // Return response and continue Conversation on same thread.
+      return resolve({
+          message: {
+              interactive: true,
+              thread_id: thread._id,
+              title: "Continue conversation",
+              text: "Bot response to user answer."
+          }
+      });
+    } else {
+      // Close Thread.
+      overseer.ThreadManager.closeThread(thread._id).then(() => {
+        return resolve({
+            message: {
+                title: "Closing thread.",
+                text: "Bot response to user answer."
+            }
+        });
+      }).catch((e) => {
+        return resolve({
+            message: {
+                title: "Error.",
+                text: "Could not close thread, exit conversation mode."
+            }
+        });
+      });
+    }
+
+  });
+}`;
+      this.code = this.code.replace(/\/\* <\/SKILL LOGIC> \*\//, handlerString + "\n/* </SKILL LOGIC> */");
+
+      // Require Overseer if not present.
+      if (!/const overseer = require\('\.\.\/\.\.\/overseer'\);/.test(this.code)) {
+        this.code = this.code.replace(/\/\* <SKILL LOGIC> \*\//, "/* <SKILL LOGIC> */\nconst overseer = require('../../overseer');\n\n");
+      }
+
+      editor.setValue(this.code);
+      editor.session.setValue(this.code);
+      editor.clearSelection();
+
+      return resolve();
+    });
+  }
+
   get intentString() {
     let intentString = "{"
     for (let intentName in this.intents) {
@@ -364,6 +481,23 @@ function ${intent.handle}(${paramsString}) {
     }
     commandString += "\n}"
     return commandString;
+  }
+
+  get interactionString() {
+    let interactionString = '{';
+    for (let interactionName in this.interactions) {
+      let interaction = this.interactions[interactionName];
+      interactionString += `
+  '${interaction.name}': {
+    name: "${interaction.name}",
+    interact: ${interaction.interact}
+  }`;
+      if (Object.keys(this.interactions).indexOf(interactionName) < Object.keys(this.interactions).length - 1) {
+        interactionString += ","
+      }
+    }
+    interactionString += "\n}"
+    return interactionString;
   }
 }
 
@@ -498,6 +632,54 @@ $("#add-command-form").submit(function(event) {
     displayAddCommandAlert(err);
   });
 });
+
+function addInteraction() {
+  $("#add-interaction-alert").empty();
+  $('#add-interaction-form #interaction-name').val('');
+  $('#add-interaction-form #interaction-handler').val('');
+  $('#add-interaction-modal').modal('show');
+};
+
+function displayAddInteractionAlert({ title = "Error", message = "Couldn't create interaction." }) {
+  $("#add-interaction-alert").empty();
+  $("#add-interaction-alert").append(`
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <h4 class="alert-heading">${title}</h4>
+      <p>${message}</p>
+      <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `.trim());
+};
+
+$("#add-interaction-form").submit(function(event) {
+  event.preventDefault();
+  // Parsing new intent
+  let name = $('#add-interaction-form #interaction-name').val();
+  let handler = $('#add-interaction-form #interaction-handler').val();
+
+  let interaction = {
+    name: name,
+    interact: handler
+  };
+
+  // SUCCESS ! Let's add the intent to the code
+  skill.addInteraction(interaction).then(() => {
+    $("#add-interaction-modal").modal("hide");
+  }).catch((err) => {
+    displayAddInteractionAlert(err);
+  });
+});
+
+function useSkillCommand() {
+  notifyUser({
+    title: "Not implemented.",
+    message: "You can't use the 'use skill command' builder yet.",
+    type: "warning",
+    delay: 2
+  });
+};
 
 function configureSecret() {
   notifyUser({
@@ -648,7 +830,15 @@ $.ajax({
         for (let commandName in skills[skill.name].commands) {
           let command = skills[skill.name].commands[commandName];
           command.name = commandName;
+          console.log(command);
           skill.commands[commandName] = command;
+        }
+
+        for (let interactionName in skills[skill.name].interactions) {
+          let interaction = skills[skill.name].interactions[interactionName];
+          interaction.name = interactionName;
+          console.log(interaction);
+          skill.interactions[interactionName] = interaction;
         }
 
         skill.dependencies = skills[skill.name].dependencies;

@@ -203,6 +203,9 @@ router.get('/skills', (req, res) => {
     for (let commandName in skills[skill].commands) {
       skills[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
     }
+    for (let interactionName in skills[skill].interactions) {
+      skills[skill].interactions[interactionName].interact = `${skills[skill].interactions[interactionName].interact.name}`;
+    }
   }
   return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
 });
