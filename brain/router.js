@@ -333,8 +333,8 @@ router.get('/skills/:skill/edit', (req, res) => {
  * @apiSuccess {String} message Message from api.
  */
 router.put('/skills/:skill/code', (req, res) => {
-  if (!req.body.skill_code) {
-    return res.json({ success: false, message: "Missing 'skill_code' definition in body." });
+  if (!req.body.code) {
+    return res.json({ success: false, message: "Missing 'code' definition in body." });
   }
 
   if (hub.skills.has(req.params.skill)) {
