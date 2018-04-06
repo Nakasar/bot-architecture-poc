@@ -34,7 +34,7 @@
 > Nota Bene: If you are using the rocketchat server included, you must create a user names `superbot`, a random email, and password `password` for the bot. Then log out and create another account for you.
 
 ## Architecture
-![Diagram of Architecture](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/PoC%20Bot%20Architecture%20Diagram.png)
+![Diagram of Architecture](/docs/PoC%20Bot%20Architecture%20Diagram.png)
 
 ### Bot Connectors
 Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests.
@@ -180,7 +180,7 @@ Skills are small scripts executed by the brain node server. They expose their co
 ### Threads and conversation mode
 Skills can notify the hub that their response is awaiting one from the user (like a confirmation, or a selection). For that, they need to create a _Thread_ stored by the hub, via the overseer they can require. This will create a unique thread id that the skill must return to the adapter. The adapter will then activate the "conversation mode" for the next reply, and send it to the `/converse` endpoint with the thread id they received. The hub will call the skill handler defined for this thread at his creation.
 
-![The Conversation Mode Diagram](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/quizz_workflow.png)
+![The Conversation Mode Diagram](/docs/quizz_workflow.png)
 
 ### Requesting other skill commands
 Skills can execute other skill's commands via the overseer they can require (some skill may restrict what skills can access their commands via an auth system):
