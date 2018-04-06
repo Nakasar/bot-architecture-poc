@@ -1,0 +1,27 @@
+.action {
+  cursor: pointer;
+}
+
+#editor {
+  position: relative;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 70vh;
+}
+
+.loader{
+  position: relative;
+  top: 40vh;
+  text-align: center;
+}
+
+.disconnect {
+  cursor: pointer;
+  color: darkred;
+}
+
+.disconnect:hover {
+  color: red;
+}

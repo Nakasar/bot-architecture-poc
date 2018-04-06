@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  if code && code == 404
+    h1 Oups :'(
+    p.lead Looks like you are going where no one did before, you should really turn back adventurer!
+  else if title && message
+    h1= title
+    p= message
+  else
+    h1 Unkown Error
+    p An unkown error occured.

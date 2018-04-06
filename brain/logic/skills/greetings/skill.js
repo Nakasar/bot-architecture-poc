@@ -1,3 +1,10 @@
+/*
+  You should not modify this part unless you know what you're doing.
+*/
+
+// Defining the skill
+// Commands the skill can execute.
+/* <SKILL COMMANDS> */
 let commands = {
   'thanks': {
     cmd: 'thanks',
@@ -10,6 +17,10 @@ let commands = {
     expected_args: []
   }
 };
+/* </SKILL COMMANDS> */
+
+// intents the skill understands.
+/* <SKILL INTENTS> */
 let intents = {
   'greetings-say-hello': {
     slug: 'say-hello',
@@ -22,24 +33,46 @@ let intents = {
     expected_entities: []
   }
 };
-let dependencies = [];
+/* </SKILL INTENTS> */
 
+// Conversation handlers of the skill.
+/* <SKILL INTERACTIONS> */
+let interactions = {
+};
+/* </SKILL INTERACTIONS> */
+
+// dependencies of the skill.
+/* <SKILL DEPENDENCIES> */
+let dependencies = [];
+/* </SKILL DEPENDENCIES> */
+
+// Exposing the skill definition.
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
+exports.interactions = interactions;
 
+/*
+  Skill logic begins here.
+  You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
+*/
+/* <SKILL LOGIC> */
 function sayThanks() {
   return new Promise((resolve, reject) => {
     return resolve({
-      message: "It's nothing ;)"
-    })
-  })
+      message: {
+        text: "Don't say thanks, idiot!"
+      }
+    });
+  });
 }
 
 function sayHello() {
   return new Promise((resolve, reject) => {
     return resolve({
-      message: "Hello o/"
+      message: {
+        text: "Hello o/"
+      }
     });
   });
 }
@@ -51,3 +84,6 @@ function handleHello() {
 function handleThanks() {
   return sayThanks();
 }
+/* </SKILL LOGIC> */
+
+// You may define other logic function unexposed here. Try to keep the skill code slim.

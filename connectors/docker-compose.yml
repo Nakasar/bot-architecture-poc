@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  mongo:
+    image: mongo:3.4.0
+    restart: on-failure
+    volumes:
+      - ./data/db:/data/db
+    command: mongod --smallfiles --oplogSize 128
+
+  rocketchat:
+    image: rocketchat/rocket.chat:latest
+    restart: on-failure
+    environment:
+      - PORT=3000
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+    depends_on:
+      - mongo
+    ports:
+      - 3000:3000
+
+  rocketchat-hubot:
+    build: ./rocketchat-hubot
+    volumes:
+      - ./rocketchat-hubot/scripts:/hubot/scripts
+    restart: on-failure
