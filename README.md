@@ -177,6 +177,31 @@ Skill Services are external microservices that may (or may not) by accessible by
 ### Skills
 Skills are small scripts executed by the brain node server. They expose their commands and intents. Skills are automatically loaded by the bot on startup, and may be added at runtime, or removed/disabled.
 
+### Threads and conversation mode
+Skills can notify the hub that their response is awaiting one from the user (like a confirmation, or a selection). For that, they need to create a _Thread_ stored by the hub, via the overseer they can require. This will create a unique thread id that the skill must return to the adapter. The adapter will then activate the "conversation mode" for the next reply, and send it to the `/converse` endpoint with the thread id they received. The hub will call the skill handler defined for this thread at his creation.
+
+![The Conversation Mode Diagram](https://github.com/Nakasar/bot-architecture-poc/blob/master/docs/quizz_workflow.png)
+
+### Requesting other skill commands
+Skills can execute other skill's commands via the overseer they can require (some skill may restrict what skills can access their commands via an auth system):
+```javascript
+const overseer = require('../../overseer');
+
+  /*
+   * In handler :
+   */
+  overseer.handleCommand('get-ldap-token').then((response) => {
+    let token = response.token;
+    // ...
+  }).catch((error) => {
+    // Error handling
+  });
+```
+
+> Don't forget to catch the error, in case the command cas deactivated!
+
+Anything outside the `message` object returned by a skill will never be returned to any adapter, but might be accessible to other skill using the overseer command handling.
+
 #### Message formatting
 Adapters reformat messages to send rich embeded message (if any) to clients. The brain must send compatible message format.
 
