@@ -35,6 +35,12 @@ let intents = {
 };
 /* </SKILL INTENTS> */
 
+// Conversation handlers of the skill.
+/* <SKILL INTERACTIONS> */
+let interactions = {
+};
+/* </SKILL INTERACTIONS> */
+
 // dependencies of the skill.
 /* <SKILL DEPENDENCIES> */
 let dependencies = [];
@@ -44,6 +50,7 @@ let dependencies = [];
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
+exports.interactions = interactions;
 
 /*
   Skill logic begins here.

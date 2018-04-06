@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 var User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const secret = require("../../secret");

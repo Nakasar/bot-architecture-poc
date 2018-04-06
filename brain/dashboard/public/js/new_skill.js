@@ -45,10 +45,17 @@ let intents = ${this.intentString};
 let dependencies = ${dependencies};
 /* </SKILL DEPENDENCIES> */
 
+// Conversation handlers of the skill.
+/* <SKILL INTERACTIONS> */
+let interactions = {
+};
+/* </SKILL INTERACTIONS> */
+
 // Exposing the skill definition.
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
+exports.interactions = interactions;
 
 /*
   Skill logic begins here.

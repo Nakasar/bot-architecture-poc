@@ -24,6 +24,12 @@ let intents = {
 };
 /* </SKILL INTENTS> */
 
+// Conversation handlers of the skill.
+/* <SKILL INTERACTIONS> */
+let interactions = {
+};
+/* </SKILL INTERACTIONS> */
+
 // dependencies of the skill.
 /* <SKILL DEPENDENCIES> */
 let dependencies = [];
@@ -33,6 +39,7 @@ let dependencies = [];
 exports.commands = commands;
 exports.intents = intents;
 exports.dependencies = dependencies;
+exports.interactions = interactions;
 
 /*
   Skill logic begins here.
@@ -51,7 +58,7 @@ exports.dependencies = dependencies;
 function getToken(phrase) {
   return new Promise((resolve, reject) => {
     console.log(phrase);
-    
+
     return resolve({
       message: {
         title: "Unauthorized",

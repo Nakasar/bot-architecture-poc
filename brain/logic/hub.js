@@ -116,6 +116,34 @@ let intents = {
   }
 };
 
+/**
+  List plugged interactions from skills.
+*/
+let interactions = {
+  interactions: {},
+  get list() {
+    let interactions = []
+    for (let interaction in this.interactions) {
+      interactions.push(interaction);
+    }
+    return interactions;
+  },
+  add: function(interactionName, interaction) {
+    this.interactions[interactionName] = interaction;
+  },
+  get: function(interactionName) {
+    return this.interactions[interactionName];
+  },
+  has: function(interactionName) {
+    return this.list.includes(interactionName);
+  },
+  remove: function(interactionName) {
+    if (this.has(interactionName)) {
+      delete this.interactions[interactionName];
+    }
+  }
+};
+
 function reloadSkill(skillName) {
   return new Promise((resolve, reject) => {
     if (skills.has(skillName)) {
@@ -140,6 +168,14 @@ function reloadSkill(skillName) {
           }
         }
 
+        console.log(`\tRemoving linked Interactions...`);
+        if (skill.interactions) {
+          for (let interaction in skill.interactions) {
+            console.log("\t\tRemoving " + interaction);
+            interactions.remove(interaction);
+          }
+        }
+
         console.log(`\tRemoving skill...`);
         skills.remove(skillName);
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
@@ -152,16 +188,25 @@ function reloadSkill(skillName) {
         skills.get(skillName).active = false;
         skill = require(`./skills/${skillName}/skill`);
         skills.add(skillName, skill);
+
         for (let intentName in skill.intents) {
           let intent = skill.intents[intentName];
           intent.active = true;
           intents.add(intent.slug, intent);
         }
+
         for (let commandName in skill.commands) {
           let command = skill.commands[commandName];
           command.active = true;
           commands.add(command.cmd, command);
         }
+
+        for (let interactionName in skill.interactions) {
+          let interaction = skill.interactions[interactionName];
+          interaction.active = true;
+          interactions.add(interaction.name, interaction);
+        }
+
         skills.get(skillName).active = true;
         console.log(`\t..."${skillName}" successfully loaded`);
 
@@ -195,16 +240,25 @@ function loadSkill(skillName) {
     skills.get(skillName).active = false;
     let skill = require(`./skills/${skillName}/skill`);
     skills.add(skillName, skill);
+
     for (let intentName in skill.intents) {
       let intent = skill.intents[intentName];
       intent.active = true;
       intents.add(intent.slug, intent);
     }
+
     for (let commandName in skill.commands) {
       let command = skill.commands[commandName];
       command.active = true;
       commands.add(command.cmd, command);
     }
+
+    for (let interactionName in skill.interactions) {
+      let interaction = skill.interactions[interactionName];
+      interaction.active = true;
+      interactions.add(interaction.name, interaction);
+    }
+
     skills.get(skillName).active = true;
     console.log(`\t..."${skillName}" successfully loaded`);
 
@@ -227,16 +281,25 @@ function loadSkills(skillsToLoad) {
       skills.get(skillName).active = false;
       let skill = require(`./skills/${skillName}/skill`);
       skills.add(skillName, skill);
+
       for (let intentName in skill.intents) {
         let intent = skill.intents[intentName];
         intent.active = true;
         intents.add(intent.slug, intent);
       }
+
       for (let commandName in skill.commands) {
         let command = skill.commands[commandName];
         command.active = true;
         commands.add(command.cmd, command);
       }
+
+      for (let interactionName in skill.interactions) {
+        let interaction = skill.interactions[interactionName];
+        interaction.active = true;
+        interactions.add(interaction.name, interaction);
+      }
+
       skills.get(skillName).active = true;
       console.log(`\t..."${skillName}" successfully loaded`);
     } catch(e) {
@@ -281,7 +344,7 @@ function handleCommand(commandName, phrase = "") {
 
     if (commands.has(commandName) && commands.get(commandName).active) {
       let command = commands.get(commandName);
-      
+
       command.execute(phrase).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
@@ -306,6 +369,9 @@ function activateSkill(skillName) {
       for (let commandName in skill.commands) {
         skill.commands[commandName].active = true;
       }
+      for (let interactionName in skill.interactions) {
+        skill.interactions[interactionName].active = true;
+      }
       return resolve();
     }).catch((err) => {
       return reject();
@@ -321,6 +387,9 @@ function deactivateSkill(skillName) {
   }
   for (let commandName in skill.commands) {
     skill.commands[commandName].active = false;
+  }
+  for (let interactionName in skill.interactions) {
+    skill.interactions[interactionName].active = false;
   }
 }
 
@@ -451,6 +520,14 @@ function deleteSkill(skillName) {
       }
     }
 
+    console.log(`\tRemoving linked interactions...`);
+    if (skill.interactions) {
+      for (let interaction in skill.interactions) {
+        console.log("\t\tRemoving " + interaction);
+        interactions.remove(interaction);
+      }
+    }
+
     console.log(`\tRemoving skill...`);
     skills.remove(skillName);
     console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
@@ -512,5 +589,41 @@ exports.skills = skills;
 exports.commands = commands;
 exports.intents = intents;
 
+
+class ThreadManager {
+  constructor() {
+    this.threadController = require("./../database/controllers/threadController");
+  }
+
+  addThread({ timestamp: timestamp, handler: handler, source: source = "", data: data = [] }) {
+    return this.threadController.create_thread({ timestamp: timestamp, handler: handler, source: source, data: data });
+  }
+
+  closeThread(threadId) {
+    return this.threadController.delete_thread(threadId);
+  }
+
+  getThread(threadId) {
+    return this.threadController.get_thread(threadId);
+  }
+
+  handleThread(threadId, phrase) {
+    return new Promise((resolve, reject) => {
+      this.threadController.get_thread(threadId).then((thread) => {
+        console.log(`> [INFO] Handling interaction "\x1b[4m${thread.handler}\x1b[0m"`)
+
+        if (interactions.has(thread.handler) && interactions.get(thread.handler).active) {
+          return resolve(interactions.get(thread.handler).interact(thread, phrase));
+        } else {
+          return reject({ message: "Can not execute this interaction" });
+        }
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+}
+
+exports.ThreadManager = new ThreadManager();
 
 loadSkillsFromFolder();

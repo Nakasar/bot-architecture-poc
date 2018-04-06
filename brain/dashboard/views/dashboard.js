@@ -1,3 +1,4 @@
+let currentThread = null;
 $('#chat-form').submit((event) => {
   event.preventDefault();
   let message = $("#chat").val().trim();
@@ -5,23 +6,27 @@ $('#chat-form').submit((event) => {
     return;
   }
 
-  if (message.startsWith("!")) {
-    // Send to commad endpoint.
-    console.log("Message sent to Command: " + message.substring(1));
-
+  if (currentThread) {
     $.ajax({
       type: "POST",
-      url: "/command",
-      data: { command: message.substring(1) },
+      url: "/converse",
+      data: { thread_id: currentThread, phrase: message },
       dataType: 'json',
       success: function(json) {
         console.log(json)
         $("#chat").val('');
         $("#bot-response #source").text(json.source)
         $("#bot-response #message").html(formatText(json.message.text));
+        if (json.message.interactive) {
+          currentThread = json.message.thread_id;
+        } else {
+          currentThread = null;
+        }
       },
       error: function(err) {
+        console.log(err)
         $("#chat").val('');
+        currentThread = null;
         if (json = err.responseJSON) {
           $("#bot-response #source").text(json.source);
           $("#bot-response #message").html(formatText(json.message.text));
@@ -31,30 +36,69 @@ $('#chat-form').submit((event) => {
       }
     });
   } else {
-    // Send to NLP endpoint.
-    console.log("Message sent to NLP: " + message);
+    if (message.startsWith("!")) {
+      // Send to commad endpoint.
+      console.log("Message sent to Command: " + message.substring(1));
 
-    $.ajax({
-      type: "POST",
-      url: "/nlp",
-      data: { phrase: message },
-      dataType: 'json',
-      success: function(json) {
-        console.log(json)
-        $("#chat").val('');
-        $("#bot-response #source").text(json.source)
-        $("#bot-response #message").html(formatText(json.message.text));
-      },
-      error: function(err) {
-        $("#chat").val('');
-        if (json = err.responseJSON) {
-          $("#bot-response #source").text(json.source);
+      $.ajax({
+        type: "POST",
+        url: "/command",
+        data: { command: message.substring(1) },
+        dataType: 'json',
+        success: function(json) {
+          console.log(json)
+          $("#chat").val('');
+          $("#bot-response #source").text(json.source)
           $("#bot-response #message").html(formatText(json.message.text));
-        } else {
-          console.log(err)
+          if (json.message.interactive) {
+            currentThread = json.message.thread_id;
+          } else {
+            currentThread = null;
+          }
+        },
+        error: function(err) {
+          $("#chat").val('');
+          currentThread = null;
+          if (json = err.responseJSON) {
+            $("#bot-response #source").text(json.source);
+            $("#bot-response #message").html(formatText(json.message.text));
+          } else {
+            console.log(err)
+          }
         }
-      }
-    });
+      });
+    } else {
+      // Send to NLP endpoint.
+      console.log("Message sent to NLP: " + message);
+
+      $.ajax({
+        type: "POST",
+        url: "/nlp",
+        data: { phrase: message },
+        dataType: 'json',
+        success: function(json) {
+          console.log(json)
+          $("#chat").val('');
+          $("#bot-response #source").text(json.source)
+          $("#bot-response #message").html(formatText(json.message.text));
+          if (json.message.interactive) {
+            currentThread = json.message.thread_id;
+          } else {
+            currentThread = null;
+          }
+        },
+        error: function(err) {
+          $("#chat").val('');
+          currentThread = null;
+          if (json = err.responseJSON) {
+            $("#bot-response #source").text(json.source);
+            $("#bot-response #message").html(formatText(json.message.text));
+          } else {
+            console.log(err)
+          }
+        }
+      });
+    }
   }
 });
 

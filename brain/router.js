@@ -109,6 +109,37 @@ router.post('/command', (req, res) => {
   });
 });
 
+// Interactive conversation entry point.
+/**
+ * @api {post} /converse Interactive conversation bot entry point.
+ * @apiName converse
+ * @apiGroup Bot
+ *
+ * @apiParam {String} phrase Phrase answered to bot.
+ * @apiParam {String} thread_id Thread id answered to.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {String} source Source given to the Converse handler.
+ */
+router.post('/converse', (req, res) => {
+  let phrase = req.body.phrase || req.query.phrase;
+  let threadId = req.body.thread_id || req.query.thread_id;
+  if (!phrase) {
+    return res.json({ success: false, message: { text: 'No answer in body/query.' }});
+  }
+
+  if (!threadId) {
+    return res.json({ success: false, message: { text: 'No thread_id in body/query.' }});
+  }
+
+  hub.ThreadManager.handleThread(threadId, phrase).then((response) => {
+    return res.json({ success: true, message: response.message, source: phrase, thread_id: threadId });
+  }).catch((error) => {
+    return res.json({ success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id: threadId });
+  });
+});
+
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
