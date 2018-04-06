@@ -68,7 +68,7 @@ function quizz(phrase) {
         callback: (err, res, body) => {
             if (!err && body) {
                 overseer.ThreadManager.addThread({
-                  timestamp: new Date,
+                  timestamp: new Date(),
                   source: body.results[0].question,
                   data: [
                     ["correct_answer", body.results[0].correct_answer],

@@ -83,6 +83,28 @@ block supercontent
           .modal-footer
             button.btn.btn-success.save(type="submit" form="add-interaction-form") Add interaction
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            
+    .modal.fade#use-skill-modal(tabindex="-1" role="dialog" aria-labelledby="use-skill-modal-label" aria-hidden="true")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            h5.modal-title#use-skill-modal-label Use Skill
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+            #use-skill-alert
+            form#use-skill-form
+              .form-group
+                label(for="use-skill-name") Skill to use
+                select.form-control#use-skill-name(required)
+              .form-group#use-skill-command-group(style="display: none;")
+                label(for="use-skill-command") Command to use
+                select.form-control#use-skill-command(required)
+            p#use-skill-help(style="display: none;") Please copy and paste this string to use the command:
+            pre#use-skill-string(style="display: none;")
+          .modal-footer
+            button.btn.btn-success.save(type="submit" form="use-skill-form") Use skill
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
 
   main.container-fluid
     .loader#loader

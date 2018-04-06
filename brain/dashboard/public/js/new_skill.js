@@ -443,6 +443,21 @@ function ${interaction.interact}(thread, phrase) {
     });
   }
 
+  addOverseer() {
+    return new Promise((resolve, reject) => {
+      // Require Overseer if not present.
+      if (!/const overseer = require\('\.\.\/\.\.\/overseer'\);/.test(this.code)) {
+        this.code = this.code.replace(/\/\* <SKILL LOGIC> \*\//, "/* <SKILL LOGIC> */\nconst overseer = require('../../overseer');\n\n");
+      }
+
+      editor.setValue(this.code);
+      editor.session.setValue(this.code);
+      editor.clearSelection();
+      
+      return resolve();
+    });
+  }
+
   get intentString() {
     let intentString = "{"
     for (let intentName in this.intents) {
@@ -673,13 +688,88 @@ $("#add-interaction-form").submit(function(event) {
 });
 
 function useSkillCommand() {
-  notifyUser({
-    title: "Not implemented.",
-    message: "You can't use the 'use skill command' builder yet.",
-    type: "warning",
-    delay: 2
-  });
+  $("#use-skill-alert").empty();
+  $('#use-skill-form #use-skill-name').empty();
+  $('#use-skill-form #use-skill-name').append($('<option>', {
+    value: "",
+    text: "Select the skill to use",
+    selected: true,
+    hidden: true
+  }));
+  for (let skillName in skills) {
+    $('#use-skill-form #use-skill-name').append($('<option>', {
+      value: skillName,
+      text: skillName
+    }));
+  }
+  $('#use-skill-modal').modal('show');
 };
+
+$('#use-skill-form #use-skill-name').change(() => {
+  let selectedSkill = $('#use-skill-form #use-skill-name option:selected').val();
+  $('#use-skill-form #use-skill-command').append($('<option>', {
+    value: "",
+    text: "Select the command to use",
+    selected: true,
+    hidden: true
+  }));
+  for (let commandName in skills[selectedSkill].commands) {
+    $('#use-skill-form #use-skill-command').append($('<option>', {
+      value: commandName,
+      text: commandName
+    }));
+  }
+  $('#use-skill-form #use-skill-command-group').show();
+});
+
+function displayUseSkillAlert({ title = "Error", message = "Couldn't use skill command." }) {
+  $("#use-skill-alert").empty();
+  $("#use-skill-alert").append(`
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <h4 class="alert-heading">${title}</h4>
+      <p>${message}</p>
+      <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `.trim());
+};
+
+$("#use-skill-form").submit(function(event) {
+  event.preventDefault();
+  // Parsing new intent
+  let skillName = $('#use-skill-form #use-skill-name option:selected').val();
+  let commandName = $('#use-skill-form #use-skill-command option:selected').val();
+
+  let command = skills[skillName].commands[commandName];
+  skill.addOverseer().then(() => {
+    let useSkillString = `
+overseer.handleCommand('${command.cmd}').then((response) => {
+  /* Continue your code here */
+  return resolve({
+    success: true,
+    message: {
+      title: "Message title",
+      text: "Skill response to display to user."
+    }
+  });
+}).catch((error) => {
+  /* Handle the error of this command here */
+  return resolve({
+    success: false,
+    message: {
+      title: "Error",
+      text: "Couldn't execute the command."
+    }
+  });
+});`.trim();
+    $('#use-skill-string').text(useSkillString);
+    $('#use-skill-string').show();
+    $('#use-skill-help').show();
+  }).catch((error) => {
+    displayAddInteractionAlert(error);
+  });
+});
 
 function configureSecret() {
   notifyUser({
