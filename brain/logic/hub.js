@@ -14,7 +14,6 @@ function getDirectories(srcpath) {
   Load skills from skills folder (on bot start).
 */
 function loadSkillsFromFolder() {
-<<<<<<< HEAD
   const fs = require('fs');
   const path = require('path');
 
@@ -73,8 +72,6 @@ function loadSkillsFromFolder() {
   }
 
   let skillsDirectory;
-=======
->>>>>>> master
   let skillsFolders;
   try {
     console.log(`> [INFO] Loading skills directory: "\x1b[4m${skillsDirectory}\x1b[0m"...`);
