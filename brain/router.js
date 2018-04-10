@@ -309,6 +309,18 @@ router.post('/skills/:skill/:status', (req, res) => {
   }
 });
 
+// Get list of connectors (without token)
+/**
+ * @api {get} /connectors Get list of connectors registered for this bot, and their status.
+ * @apiName ListConnectors
+ * @apiGroup Connectors
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {Object} [connectors] List of connectors registered.
+ * @apiSuccess {String} [connectors[]._id] - The unique id of a connector.
+ * @apiSuccess {String} [connectors[].name] - The name of a connector.
+ * @apiSuccess {Boolean} [connectors[].active] - The status of a connector.
+ */
 router.get('/connectors', (req, res) => {
   hub.getConnectors()
     .then((connectors) => res.json({
@@ -318,6 +330,19 @@ router.get('/connectors', (req, res) => {
     .catch((err) => res.status(500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
 });
 
+// Get connector details (including token).
+/**
+ * @api {get} /connectors/:id Get details about the specified connector.
+ * @apiName DetailConnectors
+ * @apiGroup Connectors
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {Object} connector The connector object.
+ * @apiSuccess {String} connector._id - The unique id of a connector.
+ * @apiSuccess {String} connector.name - The name of a connector.
+ * @apiSuccess {Boolean} connector.active - The status of a connector.
+ * @apiSuccess {String} connector.token - The auth token of a connector.
+ */
 router.get('/connectors/:id', (req, res) => {
   hub.getConnector(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
@@ -326,8 +351,17 @@ router.get('/connectors/:id', (req, res) => {
 
 // Regenerate connector token
 /**
+ * @api {post} /connectors/:id/token Regenerate token for the specified connector.
+ * @apiName RefreshConnectorToken
+ * @apiGroup Connectors
  *
-*/
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {Object} connector The connector object.
+ * @apiSuccess {String} connector._id - The unique id of a connector.
+ * @apiSuccess {String} connector.name - The name of a connector.
+ * @apiSuccess {Boolean} connector.active - The status of a connector.
+ * @apiSuccess {String} connector.token - The new auth token of a connector.
+ */
 router.post('/connectors/:id/token', (req, res) => {
   hub.regenerateConnectorToken(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
