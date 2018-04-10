@@ -9,7 +9,7 @@ function checkConnectorToken(req, res, next) {
   let token = req.body.token || req.query.token || req.get("x-access-token");
 
   if (!token) {
-    return res.status(403).json({ success: false, error: 403, message: "No token found to authentificate connector."});
+    return res.status(403).json({ success: false, error: 403, message: "No token found to authenticate connector."});
   }
 
   hub.checkConnectorToken(token)
@@ -18,7 +18,7 @@ function checkConnectorToken(req, res, next) {
         req.connector_id = connector._id;
         next();
       } else {
-        return res.status(403).json({ success: false, error: 403, message: "Invalid token found to authentificate connector."});
+        return res.status(403).json({ success: false, error: 403, message: "Invalid token found to authenticate connector."});
       }
     })
     .catch((err) => {
