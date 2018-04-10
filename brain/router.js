@@ -322,7 +322,7 @@ router.post('/skills/:skill/:status', (req, res) => {
  * @apiSuccess {Boolean} [connectors[].active] - The status of a connector.
  */
 router.get('/connectors', (req, res) => {
-  hub.getConnectors()
+  hub.ConnectorManager.getConnectors()
     .then((connectors) => res.json({
         success: true,
         connectors
@@ -344,7 +344,7 @@ router.get('/connectors', (req, res) => {
  * @apiSuccess {String} connector.token - The auth token of a connector.
  */
 router.get('/connectors/:id', (req, res) => {
-  hub.getConnector(req.params.id)
+  hub.ConnectorManager.getConnector(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
     .catch((err) => res.status(404).json({ error: 404, message: 'No connector with id '+req.params.id }));
 });
@@ -365,7 +365,7 @@ router.get('/connectors/:id', (req, res) => {
  * @apiSuccess {Boolean} connector.active - The status of a connector.
  */
 router.post('/connectors/:id/toggle/:status', (req, res) => {
-  hub.toggleConnector(req.params.id, req.params.status === "on" ? "active" : "inactive")
+  hub.ConnectorManager.toggleConnector(req.params.id, req.params.status === "on" ? "active" : "inactive")
     .then((connector) => res.json({ success: true, connector: connector }))
     .catch((err) => res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while setting connector status." }));
 })
@@ -386,7 +386,7 @@ router.post('/connectors/:id/toggle/:status', (req, res) => {
  * @apiSuccess {String} connector.token - The new auth token of a connector.
  */
 router.post('/connectors/:id/token', (req, res) => {
-  hub.regenerateConnectorToken(req.params.id)
+  hub.ConnectorManager.regenerateConnectorToken(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
     .catch((err) => res.status(error.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while refreshing connector token." }));
 });

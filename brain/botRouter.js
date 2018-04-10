@@ -12,7 +12,7 @@ function checkConnectorToken(req, res, next) {
     return res.status(403).json({ success: false, error: 403, message: "No token found to authenticate connector."});
   }
 
-  hub.checkConnectorToken(token)
+  hub.ConnectorManager.checkConnectorToken(token)
     .then((connector) => {
       if (connector && connector.active) {
         req.connector_id = connector._id;
@@ -41,7 +41,7 @@ function checkConnectorToken(req, res, next) {
 router.post('/nlp', checkConnectorToken, (req, res) => {
   let phrase = req.body.phrase || req.query.phrase;
   if (!phrase) {
-    return res.json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
+    return res.status(400).json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
   }
 
   hub.handleCommand('analyze', phrase, req.body.data || {}).then((response) => {
@@ -76,7 +76,7 @@ router.post('/nlp', checkConnectorToken, (req, res) => {
 router.post('/command', checkConnectorToken, (req, res) => {
   let phrase = req.body.command || req.query.command;
   if (!phrase) {
-    return res.json({ success: false, message: { text: 'No command string to parse in body.' }});
+    return res.status(400).json({ success: false, message: { text: 'No command string to parse in body.' }});
   }
 
   let [command, ...params] = phrase.split(" ");
@@ -106,11 +106,11 @@ router.post('/converse', checkConnectorToken, (req, res) => {
   let phrase = req.body.phrase || req.query.phrase;
   let threadId = req.body.thread_id || req.query.thread_id;
   if (!phrase) {
-    return res.json({ success: false, message: { text: 'No answer in body/query.' }});
+    return res.status(400).json({ success: false, message: { text: 'No answer in body/query.' }});
   }
 
   if (!threadId) {
-    return res.json({ success: false, message: { text: 'No thread_id in body/query.' }});
+    return res.status(400).json({ success: false, message: { text: 'No thread_id in body/query.' }});
   }
 
   hub.ThreadManager.handleThread(threadId, phrase, req.body.data || {}).then((response) => {
