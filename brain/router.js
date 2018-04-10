@@ -327,7 +327,7 @@ router.get('/connectors', (req, res) => {
         success: true,
         connectors
       }))
-    .catch((err) => res.status(500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
+    .catch((err) => res.status(err.code || 500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
 });
 
 // Get connector details (including token).
@@ -346,7 +346,21 @@ router.get('/connectors', (req, res) => {
 router.get('/connectors/:id', (req, res) => {
   hub.ConnectorManager.getConnector(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
-    .catch((error) => res.status(500).json({ error: error.code || 500, message: error.message || 'Internal server error while fetching connector '+req.params.id }));
+    .catch((error) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || 'Internal server error while fetching connector '+req.params.id }));
+});
+
+// Delete connector.
+/**
+ * @api {delete} /connectors/:id Delete the specified connector.
+ * @apiName DeleteConnectors
+ * @apiGroup Connectors
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ */
+router.delete('/connectors/:id', (req, res) => {
+  hub.ConnectorManager.deleteConnector(req.params.id)
+    .then(() => res.json({ success: true, message: "Connector " + req.params.id + "successfully removed." }))
+    .catch((error) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || 'Internal server error while fetching connector '+req.params.id }));
 });
 
 // Regenerate connector token

@@ -86,6 +86,24 @@ module.exports.regenerateConnectorToken = function(id) {
   });
 };
 
+module.exports.delete_connector = function(id) {
+  return new Promise((resolve, reject) => {
+    if (!connectors[id]) {
+      return reject({
+        code: 404,
+        message: "No connector with id " + id
+      })
+    }
+
+    try {
+      delete connectors[id];
+      return resolve();
+    } catch(e) {
+      return reject(e);
+    }
+  });
+};
+
 //////////////////////////////////////////////////////
 // TODO : SWITCH TO CONSISTENT STORAGE (OR NOT)
 //////////////////////////////////////////////////////

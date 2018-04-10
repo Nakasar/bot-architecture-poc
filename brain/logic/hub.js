@@ -619,6 +619,10 @@ class ConnectorManager {
     return this.connectorController.getConnector(id);
   }
 
+  deleteConnector(id) {
+    return this.connectorController.delete_connector(id);
+  }
+
   regenerateConnectorToken(id) {
     return this.connectorController.regenerateConnectorToken(id);
   };

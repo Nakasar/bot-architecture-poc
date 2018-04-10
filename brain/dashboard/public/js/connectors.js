@@ -110,3 +110,30 @@ function toggleConnector(button) {
     }
   });
 }
+
+function deleteConnector(button) {
+  // Delete Connector
+  $.ajax({
+    type: "DELETE",
+    baseUrl: base_url,
+    url: `/connectors/${$(button).data('connector')}`,
+    dataType: "json",
+    success: (json) => {
+      $(`#connector-${$(button).data('connector')}`).remove();
+      notifyUser({
+        title: "Connector revoked",
+        message: "We will ignore all request from this source.",
+        delay: 2,
+        type: "success"
+      })
+    },
+    error: (error) => {
+      notifyUser({
+        title: "Error",
+        message: "Could not remove connector.",
+        delay: 2,
+        type: "error"
+      });
+    }
+  });
+}
