@@ -7,6 +7,15 @@ function toggleConnectorDetail(connectorId) {
     dataType: "json",
     success: (json) => {
       $(`#detail-${connectorId} .token`).text(json.connector.token);
+      if (json.connector.ip) {
+        $(`#detail-${connectorId} .ip`).text(json.connector.ip);
+        $(`#detail-${connectorId} .cancel`).attr("data-current", json.connector.ip);
+        $(`#detail-${connectorId} .cancel`).data("data-current", json.connector.ip);
+        $(`#detail-${connectorId} .restrained`).show();
+      } else {
+        $(`#detail-${connectorId} .restrained`).hide();
+      }
+
       $(`#detail-${connectorId}`).on('show.bs.collapse', () => {
         $(`#connector-${connectorId} .displayer`)
           .find('[data-fa-i2svg]')
@@ -61,6 +70,51 @@ function refreshToken(button) {
       }
     });
   }, 1000);
+}
+
+function editIp(button) {
+  let connectorId = $(button).data('connector');
+  $(`#detail-${connectorId} .edit`).hide()
+  $(`#detail-${connectorId} .save`).show()
+  $(`#detail-${connectorId} .cancel`).show()
+  $(`#detail-${connectorId} .ip`).attr("contenteditable", true);
+}
+
+function saveIp(button) {
+  let connectorId = $(button).data('connector');
+  let newIp = $(`#detail-${connectorId} .ip`).text();
+
+  $.ajax({
+    type: "PUT",
+    baseUrl: base_url,
+    url: `/connectors/${connectorId}`,
+    data: { address: newIp },
+    dataType: "json",
+    success: (json) => {
+      $(`#detail-${connectorId} .edit`).show()
+      $(`#detail-${connectorId} .save`).hide()
+      $(`#detail-${connectorId} .cancel`).hide()
+      $(`#detail-${connectorId} .ip`).attr("contenteditable", false);
+      notifyUser({
+        title: "IP updated",
+        type: "success",
+        message: "Updated Id address",
+        delay: 2
+      });
+    },
+    error: (err) => {
+
+    }
+  });
+}
+
+function cancelIp(button) {
+  let connectorId = $(button).data('connector');
+  $(`#detail-${connectorId} .ip`).text($(button).data('current'));
+  $(`#detail-${connectorId} .edit`).show()
+  $(`#detail-${connectorId} .save`).hide()
+  $(`#detail-${connectorId} .cancel`).hide()
+  $(`#detail-${connectorId} .ip`).attr("contenteditable", false);
 }
 
 function toggleConnector(button) {
@@ -137,3 +191,39 @@ function deleteConnector(button) {
     }
   });
 }
+
+$("#new-connector").click((event) => {
+  event.preventDefault();
+  displayNewConnectorModal();
+});
+
+function displayNewConnectorModal() {
+  $("#new-connector-modal").modal('show');
+}
+
+$("#new-connector-form").submit((event) => {
+  event.preventDefault();
+
+  let name = $("#new-connector-form #new-connector-name").val();
+  let ip = $("#new-connector-form #new-connector-ip").val();
+
+  if (name.length > 0) {
+    // Create connector
+    $.ajax({
+      type: "PUT",
+      baseUrl: base_url,
+      url: '/connectors',
+      data: { name: name, address: ip || ""},
+      dataType: "json",
+      success: (json) => {
+        location.reload();
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    });
+  } else {
+    // alert
+  }
+  console.log("new !")
+})

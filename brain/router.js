@@ -355,12 +355,67 @@ router.get('/connectors/:id', (req, res) => {
  * @apiName DeleteConnectors
  * @apiGroup Connectors
  *
+ * @apiParam {String} id The id of the connector
+ *
  * @apiSuccess {Boolean} success Success of operation.
  */
 router.delete('/connectors/:id', (req, res) => {
   hub.ConnectorManager.deleteConnector(req.params.id)
     .then(() => res.json({ success: true, message: "Connector " + req.params.id + "successfully removed." }))
     .catch((error) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || 'Internal server error while fetching connector '+req.params.id }));
+});
+
+// Add connector.
+/**
+ * @api {delete} /connectors Create a new connector.
+ * @apiName DeleteConnectors
+ * @apiGroup Connectors
+ *
+ * @apiParam {String} name The name of the connector to create.
+ * @apiParam {String} [address] The ip address of the connector to create (if not given, token will be valid from any source).
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {Object} connector The connector object.
+ * @apiSuccess {String} connector._id - The unique id of a connector.
+ * @apiSuccess {String} connector.name - The name of a connector.
+ * @apiSuccess {Boolean} connector.active - The status of a connector.
+ * @apiSuccess {String} connector.token - The auth token of a connector.
+ */
+router.put('/connectors', (req, res) => {
+  if (!req.body.name) {
+    return res.status(400).json({ success: false, message: "No connector name in body."});
+  }
+  if (!/^[a-zA-Z\u00C0-\u017F\-'_]{3,30}$/.test(req.body.name)) {
+    return res.status(400).json({ success: false, message: "Connector name container letters, digits, spaces and no special characters (max length: 30)."});
+  }
+  if (req.body.address && !/^(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?$/.test(req.body.address)) {
+    return res.status(400).json({ success: false, message: "Invalid ip address"});
+  }
+
+  hub.ConnectorManager.createConnector(req.body.name, req.body.address || "")
+    .then((connector) => res.json({ success: true, message: "Connector successfully created.", connector: connector }))
+    .catch((error) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || 'Internal server error while creating connector' }));
+});
+
+// Modify connector.
+/**
+ * @api {put} /connectors/:id Modifify a connector.
+ * @apiName UpdateConnectors
+ * @apiGroup Connectors
+ *
+ * @apiParam {String} id The id of the connector to update.
+ * @apiParam {String} [address] The ip address of the connector to update (if not given, token will be valid from any source).
+ *
+ * @apiSuccess {Boolean} success Success of operation..
+ */
+router.put('/connectors/:id', (req, res) => {
+  if (!req.body.address || !/^(?:\d{1,3}\.){3}\d{1,3}(:\d{1,5})?$/.test(req.body.address)) {
+    return res.status(400).json({ success: false, message: "Invalid or missing ip address in body."});
+  }
+
+  hub.ConnectorManager.updateConnector(req.params.id, { ip: req.body.address })
+  .then((connector) => res.json({ success: true, message: "Connector successfully updated.", connector: connector }))
+  .catch((error) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || 'Internal server error while creating connector' }));
 });
 
 // Regenerate connector token

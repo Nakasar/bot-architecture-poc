@@ -1,12 +1,15 @@
 'use strict';
 var Connector = require("../models/connectorModel");
 
-module.exports.create_connector = function(connector) {
+module.exports.create_connector = function(name, ip = "") {
   return new Promise((resolve, reject) => {
 
     let new_connector = new Connector();
-    new_connector.name = connector.name;
+    new_connector.name = name;
     new_connector.active = true;
+    if (ip) {
+      new_connector.ip = ip;
+    }
     let token = Math.random().toString(16).substring(2,) + Date.now().toString(16) + Math.random().toString(16).substring(2,);
     while(Object.values(connectors).filter((connector) => token === connector.token).length > 0) {
       token = Math.random().toString(16).substring(2,) + Date.now().toString(16) + Math.random().toString(16).substring(2,);
@@ -100,6 +103,27 @@ module.exports.delete_connector = function(id) {
       return resolve();
     } catch(e) {
       return reject(e);
+    }
+  });
+};
+
+module.exports.update_connector = function(id, { ip: newip, name: newname }) {
+  return new Promise((resolve, reject) => {
+    if (connectors[id]) {
+      if (newip) {
+        connectors[id].ip = newip;
+      }
+      if (newname) {
+        connectors[id].name = newname;
+      }
+      let { _id, active, name, ip } = connectors[id];
+
+      resolve({ _id, active, name, ip });
+    } else {
+      reject({
+        code: 404,
+        message: "No connector with id " + id
+      })
     }
   });
 };

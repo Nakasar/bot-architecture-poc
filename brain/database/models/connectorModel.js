@@ -14,6 +14,10 @@ const ConnectorSchema = new Schema({
   token: {
     type: String,
     default: ""
+  },
+  ip: {
+    type: String,
+    default: ""
   }
 });
 

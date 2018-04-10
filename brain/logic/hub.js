@@ -619,6 +619,14 @@ class ConnectorManager {
     return this.connectorController.getConnector(id);
   }
 
+  createConnector(name, ip = "") {
+    return this.connectorController.create_connector(name, ip);
+  }
+
+  updateConnector(id, update) {
+    return this.connectorController.update_connector(id, update);
+  }
+
   deleteConnector(id) {
     return this.connectorController.delete_connector(id);
   }

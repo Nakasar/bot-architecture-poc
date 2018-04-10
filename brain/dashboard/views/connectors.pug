@@ -1,11 +1,34 @@
 extends layout
 
 block content
+  // Modals
+  #new-connector-modal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='new-connector-modal-label' aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#new-connector-modal-label.modal-title New connector
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          form#new-connector-form
+            .form-group
+              label(for="new-connector-name") Connector name
+              input.form-control#new-connector-name(type="text" placeholder="Connector name")
+            .form-group
+              label(for="new-connector-ip") Connector ip (optional)
+              input.form-control#new-connector-ip(type="text" placeholder="0.0.0.0" aria-describedby="new-connector-ip-help")
+              small#new-connector-ip-help.form-text.text-muted Restrain to a specific ip:port.
+        .modal-footer
+          button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+          button.btn.btn-primary(type='submit' form="new-connector-form") Add
+  
   .row.justify-content-between
     .col
       h1 Connectors
+    .col.align-self-center.text-right
+      a.btn.btn-outline-success#new-connector(role="button" href="#" style="margin-left: 1em;") Add connector
   
-  .list-group
+  .list-group#connectors-list
     if connectors
       each connector in connectors
         .list-group-item.flex-column.align-items-start(id="connector-"+connector._id)
@@ -34,7 +57,16 @@ block content
               | Token
               a.action.mb-1.text-warning(role="button" style="margin-left: 1em;" title="Refresh token" aria-label="Refresh token" data-connector=connector._id onClick="refreshToken(this)")
                 i.fas.fa-sync
-            code.token(disabled value=connector.token)
+            code.token
+            h5 Restrained to:
+            code
+              span.ip
+              a.action.mb-1.text-primary.edit(role="button" style="margin-left: 1em;" title="Edit ip" aria-label="Edit ip" data-connector=connector._id onClick="editIp(this)")
+                i.fas.fa-pencil-alt
+              a.action.mb-1.text-success.save(role="button" style="margin-left: 1em; display: none" title="Save ip" aria-label="Save ip" data-connector=connector._id onClick="saveIp(this)")
+                i.fas.fa-check
+              a.action.mb-1.text-info.cancel(role="button" style="margin-left: 1em; display: none" title="Cancel" aria-label="Cancel" data-connector=connector._id onClick="cancelIp(this)")
+                i.fas.fa-times
 
   script
     include ../public/js/connectors.js
