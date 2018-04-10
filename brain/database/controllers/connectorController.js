@@ -75,7 +75,7 @@ module.exports.regenerateConnectorToken = function(id) {
       while(Object.values(connectors).filter((connector) => token === connector.token).length > 0) {
         token = Math.random().toString(16).substring(2,) + Date.now().toString(16) + Math.random().toString(16).substring(2,);
       }
-      connectors[id].token = connector;
+      connectors[id].token = token;
       resolve(connectors[id]);
     } else {
       reject({

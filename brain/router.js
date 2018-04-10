@@ -346,7 +346,7 @@ router.get('/connectors', (req, res) => {
 router.get('/connectors/:id', (req, res) => {
   hub.ConnectorManager.getConnector(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
-    .catch((err) => res.status(404).json({ error: 404, message: 'No connector with id '+req.params.id }));
+    .catch((error) => res.status(500).json({ error: error.code || 500, message: error.message || 'Internal server error while fetching connector '+req.params.id }));
 });
 
 // Regenerate connector token
@@ -388,7 +388,7 @@ router.post('/connectors/:id/toggle/:status', (req, res) => {
 router.post('/connectors/:id/token', (req, res) => {
   hub.ConnectorManager.regenerateConnectorToken(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
-    .catch((err) => res.status(error.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while refreshing connector token." }));
+    .catch((err) => res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internal server error while refreshing connector token." }));
 });
 
 ///////////////////////////////////////////////////////////////////////////////

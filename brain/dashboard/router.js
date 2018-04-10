@@ -130,7 +130,7 @@ router.get('/skills/:skill/edit', (req, res) => {
 });
 
 router.get('/connectors', (req, res) => {
-  hub.getConnectors()
+  hub.ConnectorManager.getConnectors()
     .then((connectors) => res.render('connectors', {
         title: 'Manage Connectors',
         nav_link: 'nav-connectors',
