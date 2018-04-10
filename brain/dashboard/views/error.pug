@@ -7,8 +7,12 @@ block content
       h1 Oups :'(
       p.lead Looks like you are going where no one did before, you should really turn back adventurer!
   else if title && message
-    h1= title
-    p= message
+    .text-center
+      img(src="/dashboard/static/imgs/bomb.svg" width="200px" alt="error" style="margin: auto;")
+      h1= title
+      p= message
   else
-    h1 Unkown Error
-    p An unkown error occured.
+    .text-center
+      img(src="/dashboard/static/imgs/bomb.svg" width="200px" alt="error" style="margin: auto;")
+      h1 Unkown Error
+      p An unkown error occured.
