@@ -129,6 +129,16 @@ router.get('/skills/:skill/edit', (req, res) => {
   }
 });
 
+router.get('/connectors', (req, res) => {
+  hub.getConnectors()
+    .then((connectors) => res.render('connectors', {
+        title: 'Manage Connectors',
+        nav_link: 'nav-connectors',
+        connectors
+      }))
+    .catch((err) => res.status(500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
+});
+
 // Dashboard 404 Error
 router.get('*', (req, res) => {
   res.status(404).render('error', { code: 404, message: "404 Error : Page Not Found. "});

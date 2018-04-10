@@ -1,5 +1,3 @@
-let editor;
-
 function skillToggle(skillButton) {
   let skill = $(skillButton).data('skill');
   let status = $(skillButton).data('active');

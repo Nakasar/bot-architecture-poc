@@ -1,7 +1,8 @@
 'use strict';
 const express = require('express');
 let router = express.Router();
-let dashboardRouter = require('./dashboard/router');
+const botRouter = require('./botRouter');
+const dashboardRouter = require('./dashboard/router');
 let hub = require('./logic/hub');
 const jwt = require('jsonwebtoken');
 const config = require('./secret');
@@ -47,98 +48,7 @@ router.use(function (req, res, next) {
 ///////////////////////////////////////////////////////////////////////////////
 // BOT ENDPOINTS
 
-// NLP conversation entry point.
-/**
- * @api {post} /nlp NLP bot entry point.
- * @apiName NLP
- * @apiGroup Bot
- *
- * @apiParam {String} phrase Text phrase to analyze and execute.
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the NLP.
- */
-router.post('/nlp', (req, res) => {
-  let phrase = req.body.phrase || req.query.phrase;
-  if (!phrase) {
-    return res.json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
-  }
-  hub.handleCommand('analyze', phrase).then((response) => {
-    if (!response.response.intent) {
-      return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
-    }
-
-    hub.handleIntent(response.response.intent, response.response.entities).then((response) => {
-      return res.json({ success: response.success, message: response.message, source: req.body.phrase });
-    }).catch((error) => {
-      console.log(error.stack)
-      return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
-    })
-  }).catch((error) => {
-    console.log(error.stack);
-    return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
-  })
-})
-
-// Command handling entry point.
-/**
- * @api {post} /command Command bot entry point.
- * @apiName Command
- * @apiGroup Bot
- *
- * @apiParam {String} command Command phrase to execute (without prefix).
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the Command handler.
- */
-router.post('/command', (req, res) => {
-  let phrase = req.body.command || req.query.command;
-  if (!phrase) {
-    return res.json({ success: false, message: { text: 'No command string to parse in body.' }});
-  }
-
-  let [command, ...params] = phrase.split(" ");
-
-  hub.handleCommand(command, params.join(" ")).then((response) => {
-    return res.json({ success: response.success, message: response.message, source: command });
-  }).catch((error) => {
-    console.log(error.stack);
-    return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: command });
-  });
-});
-
-// Interactive conversation entry point.
-/**
- * @api {post} /converse Interactive conversation bot entry point.
- * @apiName converse
- * @apiGroup Bot
- *
- * @apiParam {String} phrase Phrase answered to bot.
- * @apiParam {String} thread_id Thread id answered to.
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the Converse handler.
- */
-router.post('/converse', (req, res) => {
-  let phrase = req.body.phrase || req.query.phrase;
-  let threadId = req.body.thread_id || req.query.thread_id;
-  if (!phrase) {
-    return res.json({ success: false, message: { text: 'No answer in body/query.' }});
-  }
-
-  if (!threadId) {
-    return res.json({ success: false, message: { text: 'No thread_id in body/query.' }});
-  }
-
-  hub.ThreadManager.handleThread(threadId, phrase).then((response) => {
-    return res.json({ success: true, message: response.message, source: phrase, thread_id: threadId });
-  }).catch((error) => {
-    return res.json({ success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id: threadId });
-  });
-});
+router.use(botRouter);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -398,6 +308,31 @@ router.post('/skills/:skill/:status', (req, res) => {
     return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
   }
 });
+
+router.get('/connectors', (req, res) => {
+  hub.getConnectors()
+    .then((connectors) => res.json({
+        success: true,
+        connectors
+      }))
+    .catch((err) => res.status(500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
+});
+
+router.get('/connectors/:id', (req, res) => {
+  hub.getConnector(req.params.id)
+    .then((connector) => res.json({ success: true, connector: connector }))
+    .catch((err) => res.status(404).json({ error: 404, message: 'No connector with id '+req.params.id }));
+});
+
+// Regenerate connector token
+/**
+ *
+*/
+router.post('/connectors/:id/token', (req, res) => {
+  hub.regenerateConnectorToken(req.params.id)
+    .then((connector) => res.json({ success: true, connector: connector }))
+    .catch((err) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || "Internat server error while refreshing connector token." }));
+})
 
 ///////////////////////////////////////////////////////////////////////////////
 

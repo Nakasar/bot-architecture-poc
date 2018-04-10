@@ -10,7 +10,7 @@ $('#chat-form').submit((event) => {
     $.ajax({
       type: "POST",
       url: "/converse",
-      data: { thread_id: currentThread, phrase: message },
+      data: { thread_id: currentThread, phrase: message, token: bot_token},
       dataType: 'json',
       success: function(json) {
         console.log(json)
@@ -43,7 +43,7 @@ $('#chat-form').submit((event) => {
       $.ajax({
         type: "POST",
         url: "/command",
-        data: { command: message.substring(1) },
+        data: { command: message.substring(1), token: bot_token },
         dataType: 'json',
         success: function(json) {
           console.log(json)
@@ -74,7 +74,7 @@ $('#chat-form').submit((event) => {
       $.ajax({
         type: "POST",
         url: "/nlp",
-        data: { phrase: message },
+        data: { phrase: message, token: bot_token },
         dataType: 'json',
         success: function(json) {
           console.log(json)

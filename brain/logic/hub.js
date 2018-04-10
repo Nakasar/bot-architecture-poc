@@ -627,3 +627,86 @@ class ThreadManager {
 exports.ThreadManager = new ThreadManager();
 
 loadSkillsFromFolder();
+
+
+
+//////////////////////////
+// FAKE DATA
+//////////////////////////
+
+let connectors = [
+  {
+    _id: "59az4dazdaz4d86az4dazd",
+    name: "RocketChat-Intech",
+    active: true,
+    token: "azd4a6d4a6z4d56a4zd56a4"
+  },
+  {
+    _id: "8zad5f4az6azf4f8r8g8hy",
+    name: "IntechApp",
+    active: false,
+    token: "pgo4az454OAKAD4gzaz4ogo"
+  },
+  {
+    _id: "4f4arjaz45ergze45fa5fa",
+    name: "Dashboard",
+    active: true,
+    token: "fjkaz5h65g48az8dAHJKZDe"
+  }
+];
+
+function getConnectors() {
+  return new Promise((resolve, reject) => {
+    let fetched = connectors.map((connector) => {
+      let { name, _id, active } = connector
+      return { name, _id, active };
+    });
+    resolve(fetched);
+  });
+}
+
+function getConnector(id) {
+  return new Promise((resolve, reject) => {
+    let fetched = connectors.filter((connector) => id === connector._id);
+    if (fetched.length == 1) {
+      resolve(fetched[0]);
+    } else {
+      reject();
+    }
+  });
+}
+
+function regenerateConnectorToken(id) {
+  return new Promise((resolve, reject) => {
+    let fetched = connectors.filter((connector) => id === connector._id);
+    if (fetched.length == 1) {
+      let connector = fetched[0];
+      let token = Math.random().toString(16).substring(2,) + Date.now().toString(16) + Math.random().toString(16).substring(2,);
+      while(connectors.filter((connector) => token === connector.token).length > 0) {
+        token = Math.random().toString(16).substring(2,) + Date.now().toString(16) + Math.random().toString(16).substring(2,);
+      }
+      let index = connectors.indexOf(connector);
+      connector.token = token;
+      connectors[index] = connector;
+      resolve(connector);
+    } else {
+      reject();
+    }
+  });
+}
+
+function checkConnectorToken(token) {
+  return new Promise((resolve, reject) => {
+    let fetched = connectors.filter((connector) => token === connector.token);
+    if (fetched.length == 1) {
+      resolve(fetched[0]);
+    } else {
+      resolve(null);
+    }
+  });
+}
+
+exports.getConnectors = getConnectors;
+exports.getConnector = getConnector;
+exports.regenerateConnectorToken = regenerateConnectorToken;
+exports.checkConnectorToken = checkConnectorToken;
