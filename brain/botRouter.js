@@ -43,9 +43,8 @@ router.post('/nlp', checkConnectorToken, (req, res) => {
   if (!phrase) {
     return res.json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
   }
-  
+
   hub.handleCommand('analyze', phrase, req.body.data || {}).then((response) => {
-    console.log(response);
     if (!response.response.intent) {
       return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
     }

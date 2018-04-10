@@ -327,7 +327,7 @@ function handleIntent(intentName, entities = {}, data = {}) {
           return resolve({ success: false, message: { text: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` }});
         }
       }
-      console.log(data)
+
       intent.handle({ entities, data }).then((response) => {
         return resolve({ success: true, message: response.message });
       });
