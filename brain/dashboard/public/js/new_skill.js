@@ -174,7 +174,7 @@ exports.interactions = interactions;
   --------
     phrase: String
 */
-function ${command.execute}(phrase) {
+function ${command.execute}({ phrase, data }) {
   return new Promise((resolve, reject) => {
     /*
       >>> YOUR CODE HERE <<<
@@ -302,7 +302,7 @@ function ${command.execute}(phrase) {
   --------
     entities (Object)
 */
-function ${intent.handle}(${paramsString}) {
+function ${intent.handle}({ entities: ${paramsString}, data }) {
   return new Promise((resolve, reject) => {
     /*
       >>> YOUR CODE HERE <<<
@@ -389,7 +389,7 @@ function ${intent.handle}(${paramsString}) {
   --------
     phrase: String
 */
-function ${interaction.interact}(thread, phrase) {
+function ${interaction.interact}(thread, { phrase, data }) {
   return new Promise((resolve, reject) => {
     /*
       >>> YOUR CODE HERE <<<
