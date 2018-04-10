@@ -37,7 +37,7 @@
 ![Diagram of Architecture](/docs/PoC%20Bot%20Architecture%20Diagram.png)
 
 ### Bot Connectors
-Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests.
+Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests. Token must authenficate themselves through a valid token generated on the dashboard (in request header `x-access-token` or in body `token`).
 
 Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/).
 
@@ -123,7 +123,8 @@ module.exports = function(robot) {
       method: "POST",
       json: true,
       body: {
-        command: command
+        command: command,
+        token: "591az6d9az1azd5zd4f89az4f4ga"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
@@ -152,7 +153,8 @@ module.exports = function(robot) {
       method: "POST",
       json: true,
       body: {
-        phrase: phrase
+        phrase: phrase,
+        token: "591az6d9az1azd5zd4f89az4f4ga"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
