@@ -15,8 +15,12 @@ function checkConnectorToken(req, res, next) {
   hub.ConnectorManager.checkConnectorToken(token)
     .then((connector) => {
       if (connector && connector.active) {
-        req.connector_id = connector._id;
-        next();
+        if (!connector.ip || req.ip === connector.ip) {
+          req.connector_id = connector._id;
+          next();
+        } else {
+          return res.status(403).json({ success: false, error: 403, message: "Invalid token found to authenticate connector."});
+        }
       } else {
         return res.status(403).json({ success: false, error: 403, message: "Invalid token found to authenticate connector."});
       }
