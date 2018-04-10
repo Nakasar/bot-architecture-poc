@@ -60,7 +60,7 @@ const request = require('request');
   --------
     phrase: String
 */
-function quizz(phrase) {
+function quizz({ phrase }) {
   return new Promise((resolve, reject) => {
     request.get({
         url: "https://opentdb.com/api.php?amount=1&difficulty=medium&type=multiple",
@@ -113,7 +113,7 @@ function quizz(phrase) {
   });
 }
 
-function answerHandler(thread, phrase) {
+function answerHandler(thread, { phrase }) {
   return new Promise((resolve, reject) => {
     if (phrase === thread.getData("correct_answer")) {
       overseer.ThreadManager.closeThread(thread._id).then(() => {

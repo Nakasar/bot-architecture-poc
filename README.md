@@ -37,7 +37,8 @@
 ![Diagram of Architecture](/docs/PoC%20Bot%20Architecture%20Diagram.png)
 
 ### Bot Connectors
-Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests. Token must authenticate themselves through a valid token generated on the dashboard (in request header `x-access-token` or in body `token`).
+Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests. Token must authenticate themselves through a valid token generated on the dashboard (in request header `x-access-token` or in body `token`).  
+Adapter can pass data to the brain using the `data: {}` object in body. Data will be passed to skill handlers.
 
 Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/).
 
@@ -334,7 +335,7 @@ const request = require('request');
 
 const serviceURL = "http://localhost:5012";
 
-function getWeather(phrase) {
+function getWeather({ phrase }) {
   return new Promise((resolve, reject) => {
     let location = phrase;
     if (location.length <= 0) {
@@ -374,9 +375,9 @@ function getWeather(phrase) {
   });
 };
 
-function handleWeather({ location: location = "" }) {
+function handleWeather({ entities: { location: location = "" } }) {
   let finalLocation = location[0];
-  return getWeather(finalLocation);
+  return getWeather({ phrase: finalLocation });
 }
 /* </SKILL LOGIC> */
 
@@ -447,7 +448,7 @@ const request = require('request');
   --------
     phrase: String
 */
-function quizz(phrase) {
+function quizz({ phrase, data }) {
   return new Promise((resolve, reject) => {
     request.get({
         url: "https://opentdb.com/api.php?amount=1&difficulty=medium&type=multiple",
@@ -500,21 +501,21 @@ function quizz(phrase) {
   });
 }
 
-function answerHandler(thread, phrase) {
+function answerHandler(thread, { phrase, data }) {
   return new Promise((resolve, reject) => {
     if (phrase === thread.getData("correct_answer")) {
       overseer.ThreadManager.closeThread(thread._id).then(() => {
         return resolve({
             message: {
                 title: "Correct o/",
-                text: `${phrase} is the correct answer, congrats!`
+                text: `${phrase} is the correct answer, congrats ${data.user_name || ""}!`
             }
         });
       }).catch((e) => {
         return resolve({
             message: {
                 title: "Correct o/",
-                text: `${phrase} is the correct answer, congrats!`
+                text: `${phrase} is the correct answer, congrats ${data.user_name || ""}!`
             }
         });
       });

@@ -51,7 +51,7 @@ const request = require('request');
 
 const serviceURL = "http://localhost:5012";
 
-function getWeather(phrase) {
+function getWeather({ phrase }) {
   return new Promise((resolve, reject) => {
     let location = phrase;
     if (location.length <= 0) {
@@ -91,9 +91,9 @@ function getWeather(phrase) {
   });
 };
 
-function handleWeather({ location: location = "" }) {
+function handleWeather({ entities: {location: location = ""} }) {
   let finalLocation = location[0];
-  return getWeather(finalLocation);
+  return getWeather({ phrase: finalLocation });
 }
 /* </SKILL LOGIC> */
 

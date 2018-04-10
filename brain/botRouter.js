@@ -43,12 +43,14 @@ router.post('/nlp', checkConnectorToken, (req, res) => {
   if (!phrase) {
     return res.json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
   }
-  hub.handleCommand('analyze', phrase).then((response) => {
+  
+  hub.handleCommand('analyze', phrase, req.body.data || {}).then((response) => {
+    console.log(response);
     if (!response.response.intent) {
       return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
     }
 
-    hub.handleIntent(response.response.intent, response.response.entities).then((response) => {
+    hub.handleIntent(response.response.intent, response.response.entities, req.body.data || {}).then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
       console.log(error.stack)
@@ -80,7 +82,7 @@ router.post('/command', checkConnectorToken, (req, res) => {
 
   let [command, ...params] = phrase.split(" ");
 
-  hub.handleCommand(command, params.join(" ")).then((response) => {
+  hub.handleCommand(command, params.join(" "), req.body.data || {}).then((response) => {
     return res.json({ success: response.success, message: response.message, source: command });
   }).catch((error) => {
     console.log(error.stack);
@@ -112,7 +114,7 @@ router.post('/converse', checkConnectorToken, (req, res) => {
     return res.json({ success: false, message: { text: 'No thread_id in body/query.' }});
   }
 
-  hub.ThreadManager.handleThread(threadId, phrase).then((response) => {
+  hub.ThreadManager.handleThread(threadId, phrase, req.body.data || {}).then((response) => {
     return res.json({ success: true, message: response.message, source: phrase, thread_id: threadId });
   }).catch((error) => {
     return res.json({ success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id: threadId });

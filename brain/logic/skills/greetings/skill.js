@@ -57,32 +57,33 @@ exports.interactions = interactions;
   You must implements the functions listed as "execute" and "handle" handler, or your skill will not load.
 */
 /* <SKILL LOGIC> */
-function sayThanks() {
+function sayThanks({ data }) {
   return new Promise((resolve, reject) => {
+
     return resolve({
       message: {
-        text: "Don't say thanks, idiot!"
+        text: `Don't say thanks, ${data.user_name || "fellow"}!`
       }
     });
   });
 }
 
-function sayHello() {
+function sayHello({ data }) {
   return new Promise((resolve, reject) => {
     return resolve({
       message: {
-        text: "Hello o/"
+        text: `Hello${" "+data.user_name || " "}o/`
       }
     });
   });
 }
 
-function handleHello() {
-  return sayHello();
+function handleHello({ data }) {
+  return sayHello({ data });
 }
 
-function handleThanks() {
-  return sayThanks();
+function handleThanks({ data }) {
+  return sayThanks({ data });
 }
 /* </SKILL LOGIC> */
 

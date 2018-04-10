@@ -46,7 +46,7 @@ const secret = require('./secret');
 
 const client = new recastai.request(secret.recastai_token, 'en');
 
-function analyzeText(phrase = "") {
+function analyzeText({ phrase = "" }) {
   return new Promise((resolve, reject) => {
     if (!client) {
       return reject();

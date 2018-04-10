@@ -314,7 +314,7 @@ function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
 };
 
-function handleIntent(intentName, entities = {}) {
+function handleIntent(intentName, entities = {}, data = {}) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
     if (intents.has(intentName) && intents.get(intentName).active) {
@@ -327,8 +327,8 @@ function handleIntent(intentName, entities = {}) {
           return resolve({ success: false, message: { text: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` }});
         }
       }
-
-      intent.handle(entities).then((response) => {
+      console.log(data)
+      intent.handle({ entities, data }).then((response) => {
         return resolve({ success: true, message: response.message });
       });
     } else {
@@ -338,14 +338,14 @@ function handleIntent(intentName, entities = {}) {
   })
 };
 
-function handleCommand(commandName, phrase = "") {
+function handleCommand(commandName, phrase = "", data = {}) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling command "\x1b[4m${commandName}\x1b[0m"`)
 
     if (commands.has(commandName) && commands.get(commandName).active) {
       let command = commands.get(commandName);
       console.log(command);
-      command.execute(phrase).then((response) => {
+      command.execute({ phrase, data }).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
     } else {
@@ -607,13 +607,13 @@ class ThreadManager {
     return this.threadController.get_thread(threadId);
   }
 
-  handleThread(threadId, phrase) {
+  handleThread(threadId, phrase, data = {}) {
     return new Promise((resolve, reject) => {
       this.threadController.get_thread(threadId).then((thread) => {
         console.log(`> [INFO] Handling interaction "\x1b[4m${thread.handler}\x1b[0m"`)
 
         if (interactions.has(thread.handler) && interactions.get(thread.handler).active) {
-          return resolve(interactions.get(thread.handler).interact(thread, phrase));
+          return resolve(interactions.get(thread.handler).interact(thread, { phrase, data }));
         } else {
           return reject({ message: "Can not execute this interaction" });
         }
