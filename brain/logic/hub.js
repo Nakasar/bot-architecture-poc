@@ -4,6 +4,10 @@ const skillsDirectory = "./logic/skills";
 
 const fs = require('fs');
 const path = require('path');
+/**
+ *  Get list of directories at a given path.
+ * @return {Array} Array of directories names.
+ */
 function getDirectories(srcpath) {
     return fs.readdirSync(srcpath).filter(function(file) {
         return fs.statSync(path.join(srcpath, file)).isDirectory();
@@ -11,8 +15,8 @@ function getDirectories(srcpath) {
 }
 
 /**
-  Load skills from skills folder (on bot start).
-*/
+ *  Load skills from skills folder (on bot start).
+ */
 function loadSkillsFromFolder() {
   let skillsFolders;
   try {
@@ -26,7 +30,6 @@ function loadSkillsFromFolder() {
   /**
     Load skills on module require (bot start).
   */
-  // TODO: Automated load of skills in folder /skills
   let skillsToLoad = skillsFolders;
 
   loadSkills(skillsToLoad);
@@ -144,6 +147,11 @@ let interactions = {
   }
 };
 
+/**
+ *  Reload a specific skill. (Remove it, reload it, add it).
+ * @param {String} skillName The name of the skill to reload.
+ * @return {Promise} Promise object resolve if success, reject otherwise.
+ */
 function reloadSkill(skillName) {
   return new Promise((resolve, reject) => {
     if (skills.has(skillName)) {
@@ -223,15 +231,10 @@ function reloadSkill(skillName) {
 }
 
 /**
-  Load skill from /logic/skills folder.
-
-  Store commands and intents into memory : skills, commands and intents.
-
-  Params :
-  --------
-  skillName:
-    String
-*/
+ * Load skill from /logic/skills folder.
+ * @param {String} skillName The name of the skill to load.
+ * @return {Promise} Promise object resolve if success, reject otherwise.
+ */
 function loadSkill(skillName) {
   return new Promise((resolve, reject) => {
     console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
@@ -267,10 +270,10 @@ function loadSkill(skillName) {
 }
 
 /**
-  Load skills from /logic/skills folder.
-
-  Store commands and intents into memory : skills, commands and intents.
-*/
+ * Load skills from /logic/skills folder.
+ * Store commands and intents into memory : skills, commands and intents.
+ * @param {String[]} skillsToLoad The names of skills to load.
+ */
 function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Loading skills...`);
   for (let skillName of skillsToLoad) {
@@ -314,6 +317,13 @@ function loadSkills(skillsToLoad) {
   console.log(`> [INFO] Available Commands: ${commands.list.join(", ")}`);
 };
 
+/**
+ * Handle an intent. Find the related skill and call it.
+ * @param {String} intentName The name of the intent (slug given by nlp service provider).
+ * @param {Object} [entities={}] - Entities returned by the nlp service provider (if any).
+ * @param {Object} [data={}] - Data sent by the connector to the brain.
+ * @return {Promise} Promise object represents the answer of the skill (message to send back to connector, optional data...)
+ */
 function handleIntent(intentName, entities = {}, data = {}) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
@@ -338,6 +348,13 @@ function handleIntent(intentName, entities = {}, data = {}) {
   })
 };
 
+/**
+ * Handle a command. Find the related skill and call it.
+ * @param {String} commandName The word of the command to execute.
+ * @param {String} [phrase=""] - Parameters of the command (string following command word) sent by connector.
+ * @param {Object} [data={}] - Data sent by the connector to the brain.
+ * @return {Promise} Promise object represents the answer of the skill (message to send back to connector, optional data...)
+ */
 function handleCommand(commandName, phrase = "", data = {}) {
   return new Promise((resolve, reject) => {
     console.log(`> [INFO] Handling command "\x1b[4m${commandName}\x1b[0m"`)
@@ -595,18 +612,43 @@ class ThreadManager {
     this.threadController = require("./../database/controllers/threadController");
   }
 
+  /**
+   * Create and add a Thread in database.
+   * @param {String} [timestamp] - The timestamp of the thread creation.
+   * @param {String} [handler] - The name of the handler associated with this thread (will be called on answer).
+   * @param {String} [source] - The source message that created this thread.
+   * @param {Array[]} [data] - A key-value pair arrai of data to store with the thread.
+   * @return {Promise} Promise object represents the created thread.
+   */
   addThread({ timestamp: timestamp, handler: handler, source: source = "", data: data = [] }) {
     return this.threadController.create_thread({ timestamp: timestamp, handler: handler, source: source, data: data });
   }
 
+  /**
+   * Close a thread and remove it from database.
+   * @param {String} threadId - The id of the thread to close.
+   * @return {Promise} Promise object resolve if closed, reject otherwise.
+   */
   closeThread(threadId) {
     return this.threadController.delete_thread(threadId);
   }
 
+  /**
+   * Get a thread in database.
+   * @param {String} threadId - The id of the thread to get.
+   * @return {Promise} Promise object represents the thread (reject if not found).
+   */
   getThread(threadId) {
     return this.threadController.get_thread(threadId);
   }
 
+  /**
+   * Handle a Thread answer. Find the related skill and call it.
+   * @param {String} threadId The unique id of the thread.
+   * @param {String} [phrase=""] - The answer to this thread.
+   * @param {Object} [data={}] - Data sent by the connector to the brain.
+   * @return {Promise} Promise object represents the answer of the skill (message to send back to connector, optional data...)
+   */
   handleThread(threadId, phrase, data = {}) {
     return new Promise((resolve, reject) => {
       this.threadController.get_thread(threadId).then((thread) => {
