@@ -18,7 +18,7 @@ block content
                 style="margin-left: 1em;"
                 aria-label=( connector.active ? "Deactivate connector" : "Activate skill")
                 class=( connector.active ? "text-success" : "text-danger")
-                data-connector=connector._id data-active=(`${connector.active}`) onClick=""
+                data-connector=connector._id data-active=(`${connector.active}`) onClick="toggleConnector(this)"
                 )
                 if connector.active
                   i.fas.fa-toggle-on

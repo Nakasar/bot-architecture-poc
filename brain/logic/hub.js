@@ -735,7 +735,7 @@ function regenerateConnectorToken(id) {
       reject();
     }
   });
-}
+};
 
 function checkConnectorToken(token) {
   return new Promise((resolve, reject) => {
@@ -746,9 +746,29 @@ function checkConnectorToken(token) {
       resolve(null);
     }
   });
-}
+};
+
+function toggleConnector(id, status) {
+  return new Promise((resolve, reject) => {
+    let fetched = connectors.filter((connector) => id === connector._id);
+    if (fetched.length == 1) {
+      let connector = fetched[0];
+      let index = connectors.indexOf(connector);
+      connector.active = status === "active" ? true : false;
+      connectors[index] = connector;
+      let { _id, active, name } = connector;
+      resolve({ _id, active, name });
+    } else {
+      reject({
+        code: 404,
+        message: "No connector with id " + id
+      })
+    }
+  });
+};
 
 exports.getConnectors = getConnectors;
 exports.getConnector = getConnector;
 exports.regenerateConnectorToken = regenerateConnectorToken;
 exports.checkConnectorToken = checkConnectorToken;
+exports.toggleConnector = toggleConnector;

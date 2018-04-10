@@ -351,9 +351,32 @@ router.get('/connectors/:id', (req, res) => {
 
 // Regenerate connector token
 /**
+ * @api {post} /connectors/:id/toggle/:status Activate or deactivate the connector.
+ * @apiName ToggleConnector
+ * @apiGroup Connectors
+ *
+ * @apiParam {String} id The id of the connector.
+ * @apiParam {String} status "on" or "off" (default).
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {Object} connector The connector object.
+ * @apiSuccess {String} connector._id - The unique id of a connector.
+ * @apiSuccess {String} connector.name - The name of a connector.
+ * @apiSuccess {Boolean} connector.active - The status of a connector.
+ */
+router.post('/connectors/:id/toggle/:status', (req, res) => {
+  hub.toggleConnector(req.params.id, req.params.status === "on" ? "active" : "inactive")
+    .then((connector) => res.json({ success: true, connector: connector }))
+    .catch((err) => res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while setting connector status." }));
+})
+
+// Regenerate connector token
+/**
  * @api {post} /connectors/:id/token Regenerate token for the specified connector.
  * @apiName RefreshConnectorToken
  * @apiGroup Connectors
+ *
+ * @apiParam {String} id The id of the connector
  *
  * @apiSuccess {Boolean} success Success of operation.
  * @apiSuccess {Object} connector The connector object.
@@ -365,8 +388,8 @@ router.get('/connectors/:id', (req, res) => {
 router.post('/connectors/:id/token', (req, res) => {
   hub.regenerateConnectorToken(req.params.id)
     .then((connector) => res.json({ success: true, connector: connector }))
-    .catch((err) => res.status(error.code || 500).json({ error: error.code || 500, message: error.message || "Internat server error while refreshing connector token." }));
-})
+    .catch((err) => res.status(error.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while refreshing connector token." }));
+});
 
 ///////////////////////////////////////////////////////////////////////////////
 
