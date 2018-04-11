@@ -8,22 +8,22 @@
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
-- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer).
-- Add a secret variable for tokens in `brain/secret.js`, exporting a `secret` string.
-- Run the brain with `npm start`.
+- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `DB_HOST` (see below).
+- Run the brain with `npm start`, or with environment variables : `SET DB_HOST="mongodb://localhost/botbrain" && SET PORT=5012 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
 > You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard). Setup admin user with [localhost:8080/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
 
 > Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyse` command).
 
+> You can set the running port using `SET PORT=5012 && node brain.js` instead of `npm start`.
+
 ![Docker install](/docs/docker.png)
 ### Docker install
 - Clone the repo.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
-- Modify the `base_url` const in `brain/dashboard/public/js/main.js` to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` other white.
-- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) _(ex: `nano brain/database/secret.js`, add `module.exports = { host: 'localhost:27017/mydb' }`)_
-- Add a secret variable for tokens in `brain/secret.js`, exporting a `secret` string.
+- Modify the `BASE_URL` environment variable in the rain Dockerfile to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` otherwhise (or whatever will be the address of the brain api).
+- Configure the `DB_HOST` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb).
 - Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 

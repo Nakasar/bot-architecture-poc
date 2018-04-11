@@ -1,4 +1,4 @@
-const base_url = "localhost:8080";
+const base_url = process.env.BASE_URL || ((process.env.HOST || "localhost") + ":" + (process.env.PORT || "8080"));
 const bot_token = "fjkaz5h65g48az8dAHJKZDe";
 
 /**
