@@ -17,6 +17,7 @@
 
 > Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyse` command).
 
+![Docker install](/docs/docker.png)
 ### Docker install
 - Clone the repo.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
