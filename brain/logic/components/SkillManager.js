@@ -281,6 +281,7 @@ exports.SkillManager = class SkillManager {
 
   /**
    *  Get list of directories at a given path.
+   * @param {String} srcPath - path where to get list of directories.
    * @return {Array} Array of directories names.
    */
   getDirectories(srcpath) {
@@ -290,7 +291,7 @@ exports.SkillManager = class SkillManager {
   }
 
   /**
-   *  Load skills from skills folder (on bot start).
+   * Load skills from skills folder (on bot start).
    */
   loadSkillsFromFolder() {
     let skillsFolders;
@@ -310,6 +311,11 @@ exports.SkillManager = class SkillManager {
     this.loadSkills(skillsToLoad);
   }
 
+  /**
+   * Activate a skill after reloading it..
+   * @param {String} skillName The name of the skill to activate + reload.
+   * @return {Promise} Promise object resolve if success, reject otherwise.
+   */
   activateSkill(skillName) {
     return new Promise((resolve, reject) => {
       this.reloadSkill(skillName).then(() => {
@@ -331,20 +337,37 @@ exports.SkillManager = class SkillManager {
     });
   };
 
+  /**
+   * Deactivate a skill.
+   * @param {String} skillName The name of the skill to deactivate.
+   * @return {Promise} Promise object resolve if success, reject otherwise.
+   */
   deactivateSkill(skillName) {
-    this.skills.get(skillName).active = false;
-    let skill = this.skills.get(skillName);
-    for (let intentName in skill.intents) {
-      skill.intents[intentName].active = false;
-    }
-    for (let commandName in skill.commands) {
-      skill.commands[commandName].active = false;
-    }
-    for (let interactionName in skill.interactions) {
-      skill.interactions[interactionName].active = false;
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        this.skills.get(skillName).active = false;
+        let skill = this.skills.get(skillName);
+        for (let intentName in skill.intents) {
+          skill.intents[intentName].active = false;
+        }
+        for (let commandName in skill.commands) {
+          skill.commands[commandName].active = false;
+        }
+        for (let interactionName in skill.interactions) {
+          skill.interactions[interactionName].active = false;
+        }
+        return resolve();
+      } catch(e) {
+        return reject(e);
+      }
+    })
   }
 
+  /**
+   * Get a skill's code.
+   * @param {String} skillName - The name of the skill to get code of.
+   * @return {Promise} Promise object represents the skill's code.
+   */
   getSkillCode(skillName) {
     return new Promise((resolve, reject) => {
       if (this.skills.has(skillName)) {
@@ -362,6 +385,11 @@ exports.SkillManager = class SkillManager {
     });
   }
 
+  /**
+   * Save a skill's code.
+   * @param {String} skillName - The name of the skill where to save code.
+   * @return {Promise} Promise object resolves if success, reject otherwise.
+   */
   saveSkillCode(skillName, code) {
     return new Promise((resolve, reject) => {
 
@@ -385,21 +413,13 @@ exports.SkillManager = class SkillManager {
   }
 
   /**
-    Add a new skill.
-
-    Params :
-    --------
-    skill:
-      {
-        name: String -> Name of the skill. (required)
-        code: String -> Code of the skill to add in skill.js. (required)
-        secret: {key: value} -> Config to add in secret.js. (optional)
-      }
-
-      Returns :
-      ---------
-      Promise
-  */
+   * Add a new skill.
+   * @param {Object} skill - The skill to add.
+   * @param {String} skill.name - The name of a skill.
+   * @param {String} skill.code - The code of a skill.
+   * @param {Array[]} secret - An array of key-value pair arrays to store secretly for this skill.
+   * @return {Promise} Promise object resolves if success, reject otherwise.
+   */
   addSkill(skill) {
     return new Promise((resolve, reject) => {
 
@@ -440,17 +460,10 @@ exports.SkillManager = class SkillManager {
   };
 
   /**
-    Remove a skill.
-
-    Params :
-    --------
-    skill:
-      String Name of the skill to delete
-
-      Returns :
-      ---------
-      Promise
-  */
+   * Remove a skill.
+   * @param {String} skillName - The name of the skill to remove.
+   * @return {Promise} Promise object resolves if success, reject otherwise.
+   */
   deleteSkill(skillName) {
     return new Promise((resolve, reject) => {
       console.log(`> [INFO] Deleting skill \x1b[33m${skillName}\x1b[0m...`);
@@ -499,24 +512,29 @@ exports.SkillManager = class SkillManager {
     });
   }
 
-  /**
-   * List all skills loaded.
-   */
+ /**
+  * List all skills.
+  * @return {Promise} Promise object represents the list of skills.
+  */
   getSkills() {
     return new Promise((resolve, reject) => {
       return resolve(this.skills.skills);
     });
   }
 
-  /**
-   * Check if the skill exists.
-   */
+ /**
+  * Check if the skill exists.
+  * @param {String} skillName - The name of the skill to check.
+  * @return {Boolean} true of false depending on skill's existence.
+  */
   hasSkill(skillName) {
     return this.skills.has(skillName);
   }
 
   /**
-   * Get a specific skill by name.
+   * Get a specific skill.
+   * @param {String} skillName - The name of the skill to get.
+   * @return {Promise} Promise object represents the skill.
    */
   getSkill(skillName) {
     return new Promise((resolve, reject) => {
@@ -528,6 +546,10 @@ exports.SkillManager = class SkillManager {
     });
   }
 
+  /**
+   * Delete everything in a folder (recursive, including the folder).
+   * @param {String} path - folder to remove.
+   */
   deleteFolderRecursive(path) {
     if (fs.existsSync(path)) {
       fs.readdirSync(path).forEach(function(file, index){
