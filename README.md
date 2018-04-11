@@ -19,19 +19,19 @@
 ### Docker install
 - Clone the repo.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
-- Modify the `base_url` const in `dashboard/public/js/main.js` to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` other white.
+- Modify the `base_url` const in `brain/dashboard/public/js/main.js` to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` other white.
 - Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) _(ex: `nano brain/database/secret.js`, add `module.exports = { host: 'localhost:27017/mydb' }`)_
 - Add a secret variable for tokens in `brain/secret.js`, exporting a `secret` string.
-- Build the Brain image using the Dockerfile, then run in : `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_
+- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 
 > You can access the administration dashboard at [127.0.0.1:49160/dashboard](127.0.0.1:49160/dashboard). Setup admin user with [127.0.0.1:49160/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
 
 > Note Bene: If you run docker inside a Virtual Machine, be sure to expose the following ports in your VM software : 3012 <-> 49160 (adapter), 3000 <-> 3000 (rocketchat server). Dashboard will be accessible from [127.0.0.1:3012/dashboard](127.0.0.1:3012/dashboard).
 
-> Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyse` command).
+> Nota Bene: In order to use the nlp skill, you must add a `secret.js` file in the `brain/logic/skills/nlp` folder exporting a `recastai_token` with your recast ai token. (Or you may recode a new nlp skill exposing an `analyze` command).
 
-> Nota Bene: If you are using the rocketchat server included, you must create a user names `superbot`, a random email, and password `password` for the bot. Then log out and create another account for you.
+> Nota Bene: If you are using the rocketchat server included, you must create a user named `superbot`, a random email, and password `password` for the bot. Then log out and create another account for you.
 
 ## Architecture
 ![Diagram of Architecture](/docs/PoC%20Bot%20Architecture%20Diagram.png)
