@@ -219,6 +219,7 @@ function reloadSkill(skillName) {
         console.log(`\t..."${skillName}" successfully loaded`);
 
         console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully reloaded.`);
+
         return resolve();
       } catch(e) {
         console.log(e.stack);
@@ -361,7 +362,7 @@ function handleCommand(commandName, phrase = "", data = {}) {
 
     if (commands.has(commandName) && commands.get(commandName).active) {
       let command = commands.get(commandName);
-      console.log(command);
+
       command.execute({ phrase, data }).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
       });
@@ -429,6 +430,7 @@ function getSkillCode(skillName) {
 
 function saveSkillCode(skillName, code) {
   return new Promise((resolve, reject) => {
+
     console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
     fs.writeFile(skillsDirectory + "/" + skillName + "/skill.js", code, 'utf8', (err) => {
       if (err) {

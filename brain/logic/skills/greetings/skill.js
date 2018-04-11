@@ -9,7 +9,7 @@ let commands = {
   'thanks': {
     cmd: 'thanks',
     execute: sayThanks,
-    expected_args: []
+    expected_args: [],
   },
   'greets': {
     cmd: 'greets',

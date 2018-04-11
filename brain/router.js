@@ -104,20 +104,22 @@ router.post('/reload', (req, res) => {
 router.get('/skills', (req, res) => {
   // TODO: Deport to hub in function.
   let skills = hub.skills.skills;
+  let skillsToReturn = JSON.parse(JSON.stringify(skills));;
 
   // Be sure to send handle and execute names instead of function object
   for (let skill in skills) {
-    for (let intentName in skills[skill].intents) {
-      skills[skill].intents[intentName].handle = `${skills[skill].intents[intentName].handle.name}`;
+    for (let intentName in skillsToReturn[skill].intents) {
+      skillsToReturn[skill].intents[intentName].handle = `${skills[skill].intents[intentName].handle.name}`;
     }
-    for (let commandName in skills[skill].commands) {
-      skills[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
+    for (let commandName in skillsToReturn[skill].commands) {
+      skillsToReturn[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
     }
-    for (let interactionName in skills[skill].interactions) {
-      skills[skill].interactions[interactionName].interact = `${skills[skill].interactions[interactionName].interact.name}`;
+    for (let interactionName in skillsToReturn[skill].interactions) {
+      skillsToReturn[skill].interactions[interactionName].interact = `${skills[skill].interactions[interactionName].interact.name}`;
     }
   }
-  return res.json({ success: true, message: 'Got list of bot skills.', skills: skills });
+  
+  return res.json({ success: true, message: 'Got list of bot skills.', skills: skillsToReturn });
 });
 
 // Add a new skill

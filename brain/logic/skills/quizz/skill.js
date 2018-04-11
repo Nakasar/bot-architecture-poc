@@ -21,6 +21,11 @@ let commands = {
 // intents the skill understands.
 /* <SKILL INTENTS> */
 let intents = {
+  'quizz-quizz': {
+    slug: "quizz",
+    handle: handleQuizz,
+    expected_entities: []
+  }
 };
 /* </SKILL INTENTS> */
 
@@ -84,6 +89,7 @@ function quizz({ phrase }) {
 
                   question += "\n> " + answers.join("\n> ");
                   question += "\n (type `abort` or `skip` to skip)";
+
                   return resolve({
                       message: {
                           interactive: true,
@@ -158,6 +164,16 @@ function answerHandler(thread, { phrase }) {
       });
     }
   });
+}
+/**
+  Handler for intent quizz-quizz (quizz).
+
+  Params :
+  --------
+    entities (Object)
+*/
+function handleQuizz({ entities: {}, phrase, data }) {
+  return quizz({ phrase });
 }
 /* </SKILL LOGIC> */
 
