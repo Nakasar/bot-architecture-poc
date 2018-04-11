@@ -20,11 +20,10 @@
 
 ![Docker install](/docs/docker.png)
 ### Docker install
-- Clone the repo.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
-- Modify the `BASE_URL` environment variable in the rain Dockerfile to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` otherwhise (or whatever will be the address of the brain api).
-- Configure the `DB_HOST` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb).
-- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_
+- Modify the `BASE_URL` environment variable in the rain Dockerfile to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` otherwhise (or whatever will be the address of the brain api) or set it when running container.
+- Configure the `DB_HOST` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb) or set it when running container.
+- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_. You can set environment variables with the extended command instead: `docker run -d -e DB_HOST='mongodb://localhost/botbrain' -e BASE_URL='127.0.0.1:3012' -p 49160:8080 nakasar/botbrain`.
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 
 > You can access the administration dashboard at [127.0.0.1:49160/dashboard](127.0.0.1:49160/dashboard). Setup admin user with [127.0.0.1:49160/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
