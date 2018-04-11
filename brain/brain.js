@@ -3,9 +3,26 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
+
+
+// Create missing secret.js file if not present.
+if (!fs.existsSync(path.join(__dirname, "/secret.js"))) {
+  console.log("> [WARNING] brain/secret.js file does not exists. We'll create a new one for you with a random secret value!");
+  let secret = Math.random().toString(16).substring(2,);
+  let content = `module.exports = { secret: "${secret}" };`;
+  fs.writeFileSync(path.join(__dirname, "/secret.js"), content);
+}
+
+/*
+module.exports = {
+  secret: "59ga6faz"
+}
+*/
 
 app.set('title', 'Bot Brain Interface');
 app.set('views', './dashboard/views');
