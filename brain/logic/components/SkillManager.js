@@ -150,12 +150,12 @@ exports.SkillManager = class SkillManager {
           console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
 
           console.log('> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m');
-          delete require.cache[require.resolve(`../skills/${skillName}/skill`)];
+          delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
 
           console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
           this.skills.add(skillName, {});
           this.skills.get(skillName).active = false;
-          skill = require(`../skills/${skillName}/skill`);
+          skill = require(path.join(this.skillsDirectory, `/${skillName}/skill`));
           this.skills.add(skillName, skill);
 
           for (let intentName in skill.intents) {
@@ -200,10 +200,10 @@ exports.SkillManager = class SkillManager {
   loadSkill(skillName) {
     return new Promise((resolve, reject) => {
       console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
-      delete require.cache[require.resolve(`../skills/${skillName}/skill`)];
+      delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
       this.skills.add(skillName, {});
       this.skills.get(skillName).active = false;
-      let skill = require(`./skills/${skillName}/skill`);
+      let skill = require(path.join(this.skillsDirectory, `/${skillName}/skill`));
       this.skills.add(skillName, skill);
 
       for (let intentName in skill.intents) {
@@ -240,11 +240,11 @@ exports.SkillManager = class SkillManager {
     console.log(`> [INFO] Loading skills...`);
     for (let skillName of skillsToLoad) {
       console.log(`\tLoading skill "${skillName}"...`);
-      delete require.cache[require.resolve(`../skills/${skillName}/skill`)];
+      delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
       try {
         this.skills.add(skillName, {});
         this.skills.get(skillName).active = false;
-        let skill = require(`../skills/${skillName}/skill`);
+        let skill = require(path.join(this.skillsDirectory, `/${skillName}/skill`));
         this.skills.add(skillName, skill);
 
         for (let intentName in skill.intents) {
@@ -348,7 +348,7 @@ exports.SkillManager = class SkillManager {
   getSkillCode(skillName) {
     return new Promise((resolve, reject) => {
       if (this.skills.has(skillName)) {
-        fs.readFile(path.join(__dirname, "../skills/" + skillName + "/skill.js"), 'utf8', (err, data) => {
+        fs.readFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), 'utf8', (err, data) => {
           if (err) {
             console.log(err.stack);
             return reject();
@@ -366,7 +366,7 @@ exports.SkillManager = class SkillManager {
     return new Promise((resolve, reject) => {
 
       console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
-      fs.writeFile(path.join(__dirname, "../skills/" + skillName + "/skill.js"), code, 'utf8', (err) => {
+      fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
         if (err) {
           console.log(err.stack);
           return reject();
@@ -408,13 +408,13 @@ exports.SkillManager = class SkillManager {
 
       console.log(`> [INFO] Adding code of skill \x1b[33m${skill.name}\x1b[0m...`);
       console.log(`\t... Create ${skill.name} folder...`)
-      fs.mkdir(path.join(__dirname, "../skills/" + skill.name), function(err) {
+      fs.mkdir(path.join(this.skillsDirectory, `/${skill.name}`), function(err) {
         if (err) {
           console.log(err.stack);
           return reject({ title: "Could not create folder.", message: "Could not create skill folder on server." });
         }
         console.log(`\t... Create skill.js in ${skill.name} folder...`)
-        fs.writeFile(path.join(__dirname, "../skills/" + skill.name + "/skill.js"), skill.code, (err) => {
+        fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/skill.js`), skill.code, (err) => {
           if (err) {
             console.log(err.stack);
             return reject({ title: "Could not create skill.js file.", message: "Could not create skill.js file on server." });
@@ -422,7 +422,7 @@ exports.SkillManager = class SkillManager {
 
           if (skill.secret) {
             console.log(`\t... Create secret.js in ${skill.name} folder...`)
-            fs.writeFile(path.join(__dirname, "../skills/" + skill.name + "/secret.js"), "{}", (err) => {
+            fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/secret.js`), "{}", (err) => {
               if (err) {
                 console.log(err.stack);
                 return reject({ title: "Could not create secret.js file.", message: "Could not create secret.js file on server." });
@@ -486,15 +486,44 @@ exports.SkillManager = class SkillManager {
       console.log(`> [INFO] Skill \x1b[33m${skillName}\x1b[0m successfully removed.`);
 
       console.log(`> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m`);
-      delete require.cache[require.resolve(`../skills/${skillName}/skill`)];
+      delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
 
       console.log(`> [INFO] Removing files for skill \x1b[33m${skillName}\x1b[0m...`);
       try {
         deleteFolderRecursive(this.skillsDirectory + "/" + skillName);
-        console.log(`> [INFO] Successfully removed folder ${"/" + skillName}`);
+        console.log(`> [INFO] Successfully removed folder ${"/skills/" + skillName}`);
         return resolve();
       } catch(e) {
-        return reject({ message: "Could not delete folder " + this.skillsDirectory + "/" + skillName });
+        return reject({ message: "Could not delete folder " + "/skills/" + skillName });
+      }
+    });
+  }
+
+  /**
+   * List all skills loaded.
+   */
+  getSkills() {
+    return new Promise((resolve, reject) => {
+      return resolve(this.skills.skills);
+    });
+  }
+
+  /**
+   * Check if the skill exists.
+   */
+  hasSkill(skillName) {
+    return this.skills.has(skillName);
+  }
+
+  /**
+   * Get a specific skill by name.
+   */
+  getSkill(skillName) {
+    return new Promise((resolve, reject) => {
+      if (this.skills.has(skillName)) {
+        return resolve(this.skills.get(skillName));
+      } else {
+        return resolve(null);
       }
     });
   }

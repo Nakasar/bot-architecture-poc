@@ -103,23 +103,24 @@ router.post('/reload', (req, res) => {
  */
 router.get('/skills', (req, res) => {
   // TODO: Deport to hub in function.
-  let skills = hub.skills.skills;
-  let skillsToReturn = JSON.parse(JSON.stringify(skills));;
+  hub.getSkills().then((skills) => {
+    let skillsToReturn = JSON.parse(JSON.stringify(skills));;
 
-  // Be sure to send handle and execute names instead of function object
-  for (let skill in skills) {
-    for (let intentName in skillsToReturn[skill].intents) {
-      skillsToReturn[skill].intents[intentName].handle = `${skills[skill].intents[intentName].handle.name}`;
+    // Be sure to send handle and execute names instead of function object
+    for (let skill in skills) {
+      for (let intentName in skillsToReturn[skill].intents) {
+        skillsToReturn[skill].intents[intentName].handle = `${skills[skill].intents[intentName].handle.name}`;
+      }
+      for (let commandName in skillsToReturn[skill].commands) {
+        skillsToReturn[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
+      }
+      for (let interactionName in skillsToReturn[skill].interactions) {
+        skillsToReturn[skill].interactions[interactionName].interact = `${skills[skill].interactions[interactionName].interact.name}`;
+      }
     }
-    for (let commandName in skillsToReturn[skill].commands) {
-      skillsToReturn[skill].commands[commandName].execute = `${skills[skill].commands[commandName].execute.name}`;
-    }
-    for (let interactionName in skillsToReturn[skill].interactions) {
-      skillsToReturn[skill].interactions[interactionName].interact = `${skills[skill].interactions[interactionName].interact.name}`;
-    }
-  }
-  
-  return res.json({ success: true, message: 'Got list of bot skills.', skills: skillsToReturn });
+
+    return res.json({ success: true, message: 'Got list of bot skills.', skills: skillsToReturn });
+  });
 });
 
 // Add a new skill
@@ -197,7 +198,7 @@ router.put('/skills', (req, res) => {
  * @apiSuccess {String} message Message from api.
  */
 router.post('/skills/:skill/reload', (req, res) => {
-  if (hub.skills.has(req.params.skill)) {
+  if (hub.hasSkill(req.params.skill)) {
     hub.reloadSkill(req.params.skill).then(() => {
       return res.json({ success: true, message: `Skill ${req.params.skill} reloaded.`})
     }).catch(() => {
@@ -221,7 +222,7 @@ router.post('/skills/:skill/reload', (req, res) => {
  * @apiSuccess {String} code Code of the skill.
  */
 router.get('/skills/:skill/edit', (req, res) => {
-  if (hub.skills.has(req.params.skill)) {
+  if (hub.hasSkill(req.params.skill)) {
     hub.getSkillCode(req.params.skill).then((code) => {
       return res.json({ success: true, message: `Code of Skill ${req.params.skill} retrieved.`, code: code })
     }).catch(() => {
@@ -249,7 +250,7 @@ router.put('/skills/:skill/code', (req, res) => {
     return res.json({ success: false, message: "Missing 'code' definition in body." });
   }
 
-  if (hub.skills.has(req.params.skill)) {
+  if (hub.hasSkill(req.params.skill)) {
     hub.saveSkillCode(req.params.skill, req.body.code).then(() => {
       return res.json({ success: true, message: `Code of Skill ${req.params.skill} saved, skill reloaded successfully.` })
     }).catch(() => {
@@ -293,7 +294,7 @@ router.put('/skills/:skill/secret', (req, res) => {
  */
 router.post('/skills/:skill/:status', (req, res) => {
   // TODO: move activation/deactivation in a function exposed by hub!
-  if (hub.skills.has(req.params.skill)) {
+  if (hub.hasSkill(req.params.skill)) {
     if (req.params.status === "on") {
       hub.activateSkill(req.params.skill).then(() => {
         return res.json({ success: true, message: `Skill ${req.params.skill} activated.`, active: true });

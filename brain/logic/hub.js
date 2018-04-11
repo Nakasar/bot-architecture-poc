@@ -86,19 +86,20 @@ exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
 
 // Exoport skill commands
-exports.activateSkill = SkillManager.activateSkill;
-exports.deactivateSkill = SkillManager.deactivateSkill;
-exports.loadSkill = SkillManager.loadSkill;
-exports.reloadSkill = SkillManager.reloadSkill;
-exports.getSkillCode = SkillManager.getSkillCode;
-exports.saveSkillCode = SkillManager.saveSkillCode;
-exports.addSkill = SkillManager.addSkill;
-exports.deleteSkill = SkillManager.deleteSkill;
+exports.activateSkill = (skillName) => SkillManager.activateSkill(skillName);
+exports.deactivateSkill = (skillName) => SkillManager.deactivateSkill(skillName);
+exports.loadSkill = (skillName) => SkillManager.loadSkill();
+exports.reloadSkill = (skillName) => SkillManager.reloadSkill();
+exports.getSkillCode = (skillName) => SkillManager.getSkillCode(skillName);
+exports.saveSkillCode = (skillName, code) => SkillManager.saveSkillCode(skillName, code);
+exports.addSkill = (skill) => SkillManager.addSkill(skill);
+exports.deleteSkill = (skillName) => SkillManager.deleteSkill(skillName);
+exports.getSkills = () => SkillManager.getSkills();
+exports.getSkill = (skillName) => SkillManager.getSkill(skillName);
+exports.hasSkill = (skillName) => SkillManager.hasSkill(skillName);
+
 exports.reloadBrain = reloadBrain;
 
-// Export components (TODO: DO **NOT** EXPORT THESE INTERNAL LISTS)
-exports.skills = SkillManager.skills;
-exports.commands = SkillManager.commands;
-exports.intents = SkillManager.intents;
+
 
 SkillManager.loadSkillsFromFolder();

@@ -76,23 +76,27 @@ router.use(function(req, res, next) {
 
 // Dashboard index
 router.get('/', (req, res) => {
-  res.render('index', {
-    title: 'Dashboard - Bot',
-    nav_link: 'nav-portal',
-    message: 'Welcome to administration panel of this amazing Bot.',
-    mainTitle: "Bot Brain Dashboard",
-    skills: hub.skills.skills
+  hub.getSkills().then((skills) => {
+    res.render('index', {
+      title: 'Dashboard - Bot',
+      nav_link: 'nav-portal',
+      message: 'Welcome to administration panel of this amazing Bot.',
+      mainTitle: "Bot Brain Dashboard",
+      skills: skills
+    });
   });
 });
 
 // Dashboard Skills administration
 router.get('/skills', (req, res) => {
-  res.render('skills', {
-    title: 'Skills - Bot',
-    nav_link: 'nav-skills',
-    message: 'Welcome to administration panel of this amazing Bot.',
-    mainTitle: "Bot Brain Dashboard",
-    skills: hub.skills.skills
+  hub.getSkills().then((skills) => {
+    res.render('skills', {
+      title: 'Skills - Bot',
+      nav_link: 'nav-skills',
+      message: 'Welcome to administration panel of this amazing Bot.',
+      mainTitle: "Bot Brain Dashboard",
+      skills: skills
+    });
   });
 });
 
@@ -106,27 +110,28 @@ router.get('/skills/new', (req, res) => {
 
 // Dashboard Skills administration
 router.get('/skills/:skill/edit', (req, res) => {
-  let skill = hub.skills.get(req.params.skill);
-  if (skill) {
-    hub.getSkillCode(req.params.skill).then((code) => {
-      res.render('skill_edit', {
-        title: 'Edit Skill ' + req.params.skill + ' - Bot',
-        nav_link: 'nav-skills',
-        skill_edited: {
-          name: req.params.skill,
-          code: code,
-          intents: skill.intents.intents,
-          commands: skill.commands.commands,
-          dependencies: skill.dependencies,
-          active: skill.active
-        }
+  hub.getSkill(req.params.skill).then((skill) => {
+    if (skill) {
+      hub.getSkillCode(req.params.skill).then((code) => {
+        res.render('skill_edit', {
+          title: 'Edit Skill ' + req.params.skill + ' - Bot',
+          nav_link: 'nav-skills',
+          skill_edited: {
+            name: req.params.skill,
+            code: code,
+            intents: skill.intents.intents,
+            commands: skill.commands.commands,
+            dependencies: skill.dependencies,
+            active: skill.active
+          }
+        });
+      }).catch((err) => {
+        res.redirect('/dashboard/skills');
       });
-    }).catch((err) => {
+    } else {
       res.redirect('/dashboard/skills');
-    });
-  } else {
-    res.redirect('/dashboard/skills');
-  }
+    }
+  });
 });
 
 router.get('/connectors', (req, res) => {
