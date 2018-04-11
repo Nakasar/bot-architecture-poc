@@ -490,7 +490,7 @@ exports.SkillManager = class SkillManager {
 
       console.log(`> [INFO] Removing files for skill \x1b[33m${skillName}\x1b[0m...`);
       try {
-        deleteFolderRecursive(this.skillsDirectory + "/" + skillName);
+        this.deleteFolderRecursive(path.join(this.skillsDirectory, "/" + skillName));
         console.log(`> [INFO] Successfully removed folder ${"/skills/" + skillName}`);
         return resolve();
       } catch(e) {
