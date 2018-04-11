@@ -79,7 +79,8 @@ module.exports = function(robot) {
       method: "POST",
       json: true,
       body: {
-        command: command
+        command: command,
+        token: "59az4dazdaz4d86az4dazd"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
@@ -108,7 +109,8 @@ module.exports = function(robot) {
       method: "POST",
       json: true,
       body: {
-        phrase: phrase
+        phrase: phrase,
+        token: "59az4dazdaz4d86az4dazd"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
