@@ -1,4 +1,5 @@
 # PoC : Bot Architecture
+![BotBrain](/brain/dashboard/public/imgs/logo.png)
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
 ## Install
