@@ -12,7 +12,7 @@
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
 - Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `DB_HOST` (see below).
-- Run the brain with `npm start`, or with environment variables : `SET DB_HOST="mongodb://localhost/botbrain" && SET PORT=5012 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
+- Run the brain with `npm start`, or with environment variables : `SET DB_HOST="mongodb://localhost/botbrain" && SET PORT=8080 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
 > You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard). Setup admin user with [localhost:8080/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
