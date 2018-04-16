@@ -29,6 +29,9 @@ exports.SkillManager = class SkillManager {
         if (this.has(skillName)) {
           delete this.skills[skillName];
         }
+      },
+      *[Symbol.iterator]() {
+        yield *Object.entries(this.skills);
       }
     };
 
@@ -54,6 +57,9 @@ exports.SkillManager = class SkillManager {
         if (this.has(commandWord)) {
           delete this.commands[commandWord];
         }
+      },
+      *[Symbol.iterator]() {
+        yield *Object.entries(this.commands);
       }
     };
 
@@ -79,6 +85,9 @@ exports.SkillManager = class SkillManager {
         if (this.has(intentName)) {
           delete this.intents[intentName];
         }
+      },
+      *[Symbol.iterator]() {
+        yield *Object.entries(this.intents);
       }
     };
 
@@ -104,6 +113,9 @@ exports.SkillManager = class SkillManager {
         if (this.has(interactionName)) {
           delete this.interactions[interactionName];
         }
+      },
+      *[Symbol.iterator]() {
+        yield *Object.entries(this.interactions);
       }
     };
   }
