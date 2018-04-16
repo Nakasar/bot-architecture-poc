@@ -395,28 +395,45 @@ exports.SkillManager = class SkillManager {
   }
 
   /**
+   * Save a skill's code before saving it.
+   * @param {String} code - The code of the skill to validate.
+   * @return {Promise} Promise object resolves if success, reject otherwise.
+   */
+  validateSkillCode(code) {
+    return new Promise((resolve, reject) => {
+      // TODO: Validate skill code.
+      return resolve();
+    });
+  }
+
+  /**
    * Save a skill's code.
    * @param {String} skillName - The name of the skill where to save code.
+   * @param {String} code - The code of the skill to save.
    * @return {Promise} Promise object resolves if success, reject otherwise.
    */
   saveSkillCode(skillName, code) {
     return new Promise((resolve, reject) => {
+      this.validateSkillCode(code).then(() => {
+        console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
+        fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
+          if (err) {
+            console.log(err);
+            return reject();
+          }
 
-      console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
-      fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
-        if (err) {
-          console.log(err.stack);
-          return reject();
-        }
+          console.log(`\t... Reload skill.`);
 
-        console.log(`\t... Reload skill.`);
-
-        this.reloadSkill(skillName).then(() => {
-          return resolve();
-        }).catch((err) => {
-          console.log(err.stack);
-          return reject();
+          this.reloadSkill(skillName).then(() => {
+            return resolve();
+          }).catch((err) => {
+            console.log(err);
+            return reject();
+          });
         });
+      }).catch((err) => {
+        console.log(err);
+        return reject(new Error("Skill code is not valid."));
       });
     });
   }

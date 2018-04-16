@@ -102,7 +102,6 @@ module.exports = function() {
    * @apiSuccess {Skill} skills List of available skills.
    */
   router.get('/skills', (req, res) => {
-    // TODO: Deport to hub in function.
     hub.getSkills().then((skills) => {
       let skillsToReturn = JSON.parse(JSON.stringify(skills));;
 
@@ -253,7 +252,7 @@ module.exports = function() {
     if (hub.hasSkill(req.params.skill)) {
       hub.saveSkillCode(req.params.skill, req.body.code).then(() => {
         return res.json({ success: true, message: `Code of Skill ${req.params.skill} saved, skill reloaded successfully.` })
-      }).catch(() => {
+      }).catch((err) => {
         return res.json({ success: false, message: `Could not save code of Skill ${req.params.skill}.`})
       });
     } else {
