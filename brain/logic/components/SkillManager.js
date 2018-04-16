@@ -151,6 +151,7 @@ exports.SkillManager = class SkillManager {
 
           console.log('> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m');
           delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
+          delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
 
           console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
           this.skills.add(skillName, {});
