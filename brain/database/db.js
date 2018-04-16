@@ -1,6 +1,6 @@
 'use strict';
 const mongoose = require('mongoose');
-const config = { host: process.env.DB_HOST || require('./secret.js').host };
+const config = { host: (process.env.DB_HOST || require('./secret.js').host).trim() };
 
 let connected = false;
 
