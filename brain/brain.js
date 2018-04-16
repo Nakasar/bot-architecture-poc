@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
@@ -28,10 +27,8 @@ app.set('title', 'Bot Brain Interface');
 app.set('views', './dashboard/views');
 app.set('view engine', 'pug');
 
-app.use(bodyParser.urlencoded({
-    extended: false
-}))
-app.use(bodyParser.json())
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
