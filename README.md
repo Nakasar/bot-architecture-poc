@@ -2,6 +2,9 @@
 ![BotBrain](/brain/dashboard/public/imgs/logo.png)
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
+[Install with NPM](#classical-installation)  
+[Install with Docker](#docker-install)
+
 ## Install
 ### Classical installation
 - You must have a local installation of [NodeJS](https://nodejs.org) _(Tested for v9.9.0)_ with npm.
