@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const skillTemplateRegex = new RegExp(fs.readFileSync(path.join(__dirname, "./skillCodeRegex.txt"), "utf8").trim(), "g");
+
 exports.SkillManager = class SkillManager {
   constructor(skillsDirectory) {
     this.skillsDirectory = skillsDirectory;
@@ -414,6 +416,23 @@ exports.SkillManager = class SkillManager {
   validateSkillCode(code) {
     return new Promise((resolve, reject) => {
       // TODO: Validate skill code.
+      let [matched, commands, intents, interactions, dependencies, logic, ...Rest] = skillTemplateRegex.exec(code) || [null, null, null, null, null, null];
+
+      if (!matched) {
+        return reject();
+      }
+
+      console.log("Commands:")
+      console.log(commands);
+      console.log("Intents:")
+      console.log(intents);
+      console.log("Interactions:")
+      console.log(interactions);
+      console.log("Dependencies:")
+      console.log(dependencies);
+      console.log("Logic:")
+      console.log(logic);
+
       return resolve();
     });
   }
