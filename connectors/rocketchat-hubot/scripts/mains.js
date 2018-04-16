@@ -80,7 +80,7 @@ module.exports = function(robot) {
       json: true,
       body: {
         command: command,
-        token: "59az4dazdaz4d86az4dazd"
+        token: "c7787475e0cc9162cdc8564111f291ccfa8a1"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {
@@ -110,7 +110,7 @@ module.exports = function(robot) {
       json: true,
       body: {
         phrase: phrase,
-        token: "59az4dazdaz4d86az4dazd"
+        token: "c7787475e0cc9162cdc8564111f291ccfa8a1"
       },
       callback: (err, res, body) => {
         if (!err && body.message) {

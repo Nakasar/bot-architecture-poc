@@ -1,5 +1,5 @@
 const base_url = "/"
-const bot_token = "fjkaz5h65g48az8dAHJKZDe";
+const bot_token = "83672d6fc46d3162cdc7204e4877e1f87b30d";
 
 /**
  * Log out user from dashboard, clear session.
