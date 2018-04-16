@@ -6,6 +6,30 @@ append scripts
 block supercontent
   // Modals
   .modals
+    .modal.fade#configure-secret-modal(tabindex="-1" role="dialog" aria-labelledby="configure-secret-modal-label" aria-hidden="true")
+      .modal-dialog(role="document")
+        .modal-content
+          .modal-header
+            h5.modal-title#configure-secret-modal-label Configure skill secrets
+            button.close(type="button" data-dismiss="modal" aria-label="Close")
+              span(aria-hidden="true") &times;
+          .modal-body
+            #configure-secret-alert
+            form#configure-secret-form
+              table.table
+                thead
+                  tr
+                    th Secret
+                    th Value
+                    th
+                  tr
+                tbody
+            .btn.btn-primary.float-right#new-secret(aria-label="New secret" title="New secret")
+              i.far.fa-plus-square
+          .modal-footer
+            button.btn.btn-success.save(type="submit" form="configure-secret-form") Save secrets
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+          
     .modal.fade#add-intent-modal(tabindex="-1" role="dialog" aria-labelledby="add-intent-modal-label" aria-hidden="true")
       .modal-dialog(role="document")
         .modal-content

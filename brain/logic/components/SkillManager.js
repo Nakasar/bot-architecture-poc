@@ -563,4 +563,56 @@ exports.SkillManager = class SkillManager {
       fs.rmdirSync(path);
     }
   };
+
+  getSkillSecret(skillName) {
+    return new Promise((resolve, reject) => {
+      if (this.skills.has(skillName)) {
+        if (fs.existsSync(path.join(this.skillsDirectory, `/${skillName}/secret.js`))) {
+          const secrets = require(path.join(this.skillsDirectory, `/${skillName}/secret`));
+          let secret = [];
+          for (let [key, value] of Object.entries(secrets)) {
+            secret.push([key, value]);
+          }
+          return resolve(secret);
+        } else {
+          return resolve([]);
+        }
+      } else {
+        return resolve(null);
+      }
+    });
+  };
+
+  updateSkillSecret(skillName, secrets) {
+    return new Promise((resolve, reject) => {
+      if (this.skills.has(skillName)) {
+        let secret = {};
+        for (let [key, value] of secrets) {
+          if (key.length > 0) {
+            // Don't retain empty keys.
+            secret[key] = value;
+          }
+        }
+
+        console.log(`> [INFO] Saving secret of skill \x1b[33m${skillName}\x1b[0m...`);
+        fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/secret.js`), `module.exports = ${JSON.stringify(secret)};`, 'utf8', (err) => {
+          if (err) {
+            console.log(err.stack);
+            return reject();
+          }
+
+          console.log(`\t... Reload skill.`);
+
+          this.reloadSkill(skillName).then(() => {
+            return resolve();
+          }).catch((err) => {
+            console.log(err.stack);
+            return reject();
+          });
+        });
+      } else {
+        return reject({ code: 404, message: "No skill name " + skillName });
+      }
+    });
+  };
 }

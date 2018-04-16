@@ -261,6 +261,30 @@ router.put('/skills/:skill/code', (req, res) => {
   }
 });
 
+// Get skill secrets
+/**
+ * @api {put} /skills/:skill/secret Update the skill.
+ * @apiName UpdateSkill
+ * @apiGroup Skills
+ *
+ * @apiParam {String} skill The name of the skill to update.
+ *
+ * @apiSuccess {Boolean} success Success of operation.
+ * @apiSuccess {String} message Message from api.
+ * @apiSuccess {Object} [skill_secret] - Secrets for this skill.
+ * @apiSuccess {String} [skill_secret[].key] - The key of a secret.
+ * @apiSuccess {String} [skill_secret[].value] - The value of a secret.
+ */
+ router.get('/skills/:skill/secret', (req, res) => {
+   hub.getSkillSecret(req.params.skill).then((secret) => {
+     if (secret) {
+       return res.json({ success: true, secret: secret });
+     } else {
+       return res.status(404).json({ code: 404, message: "No skill named " + req.params.skill });
+     }
+   });
+ });
+
 // Update skill secrets
 /**
  * @api {put} /skills/:skill/secret Update the skill.
@@ -269,14 +293,31 @@ router.put('/skills/:skill/code', (req, res) => {
  *
  * @apiParam {String} skill The name of the skill to update.
  * @apiParam {Object} [skill_secret] - Secrets for this skill.
- * @apiParam {String} [skill_secret[].key] - The key of a secret.
- * @apiParam {String} [skill_secret[].value] - The value of a secret.
+ * @apiParam {String} skill_secret[].key - The key of a secret.
+ * @apiParam {String} skill_secret[].value - The value of a secret.
  *
  * @apiSuccess {Boolean} success Success of operation.
  * @apiSuccess {String} message Message from api.
  */
 router.put('/skills/:skill/secret', (req, res) => {
-  return res.status(501).json({ success: false, message: `Not implemented.`});
+  let secret;
+  try {
+    secret = JSON.parse(req.body.secret);
+  } catch(e) {
+    return res.status(400).json({ code: 400, message: `No valid secret in body : secret: [ [key, value] ]` });
+  }
+
+  if (!secret || !Array.isArray(secret)) {
+    return res.status(400).json({ code: 400, message: `No valid secret in body : secret: [ [key, value] ]` });
+  }
+
+  hub.updateSkillSecret(req.params.skill, secret).then(() => {
+    return res.json({ success: true, message: `Secret saved and skill reloaded.` });
+  }).catch((e) => {
+    console.log(e);
+    return res.status(e.code || 500).json({ code: e.code || 500, message: e.message || "Internal server error while updating skill secret."});
+  });
+
 });
 
 // Activate/Deactivate skills.

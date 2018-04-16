@@ -557,6 +557,84 @@ $("#skill-generate").submit(function(event) {
   });
 });
 
+function configureSecret() {
+  $.ajax({
+    type: "GET",
+    baseUrl: base_url,
+    url: `/skills/${skill.name}/secret`,
+    dataType: 'json',
+    success: (json) => {
+      $("#configure-secret-alert").empty();
+
+      $("#configure-secret-form table tbody").empty();
+      if (json.secret) {
+        for (let secret of json.secret) {
+          $('#configure-secret-form table tbody').append(`<tr><td><input class="form-control key" placeholder="key" value="${secret[0]}"></td><td><input class="form-control value" placeholder="value" value="${secret[1]}"></td><td class="align-middle"><span class="action text-danger" aria-label="Delete secret." title="Delete secret." onClick="deleteSecret(this)"><i class="fas fa-times"></i></span></td></tr>`.trim());
+        }
+      }
+
+      $('#configure-secret-modal').modal('show');
+    },
+    error: (err) => {
+      console.log(err);
+    }
+  });
+};
+
+function deleteSecret(button) {
+  $(button)[0].parentNode.parentNode.remove();
+}
+
+function displayConfigureSecretAlert({ title = "Error", message = "Couldn't save secret." } = {}) {
+  $("#configure-secret-alert").empty();
+  $("#configure-secret-alert").append(`
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <h4 class="alert-heading">${title}</h4>
+      <p>${message}</p>
+      <button class="close" type="button" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  `.trim());
+};
+
+// Add a new line to the secrets table in modal.
+$("#new-secret").click((event) => {
+  $('#configure-secret-form table tbody').append(`<tr><td><input class="form-control key" placeholder="key"></td><td><input class="form-control value" placeholder="value"></td><td class="align-middle"><span class="action text-danger" aria-label="Delete secret." title="Delete secret." onClick="deleteSecret(this)"><i class="fas fa-times"></i></span></td></tr>`.trim());
+});
+
+$("#configure-secret-form").submit(function(event) {
+  event.preventDefault();
+
+  // Build secret array
+  let secrets = [];
+  for (let secret of $("#configure-secret-form table tbody tr")) {
+    let key = $(secret).find(".key").val();
+    let value = $(secret).find(".value").val();
+    secrets.push([ key, value ]);
+  }
+  $.ajax({
+    type: "PUT",
+    baseUrl: base_url,
+    url: `/skills/${skill.name}/secret`,
+    data: { secret: JSON.stringify(secrets) },
+    dataType: "json",
+    success: (json) => {
+      console.log(json);
+      $("#configure-secret-modal").modal('hide');
+      notifyUser({
+        title: "Secret saved!",
+        message: "The new secret configuration is saved, and skill was reloaded.",
+        type: "success",
+        delay: 2
+      });
+    },
+    error: (err) => {
+      displayConfigureSecretAlert(err);
+    }
+  });
+});
+
 function addIntent() {
   $("#add-intent-alert").empty();
   $('#add-intent-form #intent-name').val('');
@@ -770,15 +848,6 @@ overseer.handleCommand('${command.cmd}').then((response) => {
     displayAddInteractionAlert(error);
   });
 });
-
-function configureSecret() {
-  notifyUser({
-    title: "Not implemented.",
-    message: "You can't modify secret yet.",
-    type: "warning",
-    delay: 2
-  });
-};
 
 $("#save-skill").click(function() {
   skill.code = editor.getValue();

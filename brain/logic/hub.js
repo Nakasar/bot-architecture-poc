@@ -95,11 +95,11 @@ exports.saveSkillCode = (skillName, code) => SkillManager.saveSkillCode(skillNam
 exports.addSkill = (skill) => SkillManager.addSkill(skill);
 exports.deleteSkill = (skillName) => SkillManager.deleteSkill(skillName);
 exports.getSkills = () => SkillManager.getSkills();
+exports.getSkillSecret = (skillName) => SkillManager.getSkillSecret(skillName);
+exports.updateSkillSecret = (skillName, secret) => SkillManager.updateSkillSecret(skillName, secret);
 exports.getSkill = (skillName) => SkillManager.getSkill(skillName);
 exports.hasSkill = (skillName) => SkillManager.hasSkill(skillName);
 
 exports.reloadBrain = reloadBrain;
-
-
 
 SkillManager.loadSkillsFromFolder();
