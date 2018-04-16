@@ -201,11 +201,11 @@ router.post('/skills/:skill/reload', (req, res) => {
   if (hub.hasSkill(req.params.skill)) {
     hub.reloadSkill(req.params.skill).then(() => {
       return res.json({ success: true, message: `Skill ${req.params.skill} reloaded.`})
-    }).catch(() => {
-      return res.json({ success: false, message: `Could not reload Skill ${req.params.skill}.`})
+    }).catch((err) => {
+      return res.status(500).json({ success: false, message: `Could not reload Skill ${req.params.skill}.`})
     });
   } else {
-    return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+    return res.status(404).json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
   }
 });
 

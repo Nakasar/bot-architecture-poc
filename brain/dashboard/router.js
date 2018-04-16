@@ -119,16 +119,18 @@ router.get('/skills/:skill/edit', (req, res) => {
           skill_edited: {
             name: req.params.skill,
             code: code,
-            intents: skill.intents.intents,
-            commands: skill.commands.commands,
-            dependencies: skill.dependencies,
+            intents: skill.intents ? skill.intents.intents : [],
+            commands: skill.commands ? skill.commands.commands : [],
+            dependencies: skill.dependencies ? skill.dependencies : [],
             active: skill.active
           }
         });
       }).catch((err) => {
+        console.log(err);
         res.redirect('/dashboard/skills');
       });
     } else {
+      console.log(err);
       res.redirect('/dashboard/skills');
     }
   });

@@ -151,7 +151,9 @@ exports.SkillManager = class SkillManager {
 
           console.log('> [INFO] Clearing cache for skill \x1b[33m${skillName}\x1b[0m');
           delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
-          delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
+          if (fs.existsSync(path.join(this.skillsDirectory, `/${skillName}/secret`))) {
+            delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
+          }
 
           console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
           this.skills.add(skillName, {});
@@ -202,6 +204,9 @@ exports.SkillManager = class SkillManager {
     return new Promise((resolve, reject) => {
       console.log(`\tLoading skill \x1b[33m${skillName}\x1b[0m...`);
       delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
+      if (fs.existsSync(path.join(this.skillsDirectory, `/${skillName}/secret`))) {
+        delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
+      }
       this.skills.add(skillName, {});
       this.skills.get(skillName).active = false;
       let skill = require(path.join(this.skillsDirectory, `/${skillName}/skill`));
@@ -242,6 +247,9 @@ exports.SkillManager = class SkillManager {
     for (let skillName of skillsToLoad) {
       console.log(`\tLoading skill "${skillName}"...`);
       delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/skill`))];
+      if (fs.existsSync(path.join(this.skillsDirectory, `/${skillName}/secret`))) {
+        delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
+      }
       try {
         this.skills.add(skillName, {});
         this.skills.get(skillName).active = false;

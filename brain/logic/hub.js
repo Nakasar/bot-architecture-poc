@@ -88,8 +88,8 @@ exports.handleCommand = handleCommand;
 // Exoport skill commands
 exports.activateSkill = (skillName) => SkillManager.activateSkill(skillName);
 exports.deactivateSkill = (skillName) => SkillManager.deactivateSkill(skillName);
-exports.loadSkill = (skillName) => SkillManager.loadSkill();
-exports.reloadSkill = (skillName) => SkillManager.reloadSkill();
+exports.loadSkill = (skillName) => SkillManager.loadSkill(skillName);
+exports.reloadSkill = (skillName) => SkillManager.reloadSkill(skillName);
 exports.getSkillCode = (skillName) => SkillManager.getSkillCode(skillName);
 exports.saveSkillCode = (skillName, code) => SkillManager.saveSkillCode(skillName, code);
 exports.addSkill = (skill) => SkillManager.addSkill(skill);
