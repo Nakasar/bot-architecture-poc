@@ -13,6 +13,10 @@ exports.ConnectorManager = class ConnectorManager {
     return this.connectorController.getConnector(id);
   }
 
+  getConnectorByName(name) {
+    return this.connectorController.getConnectorByName(name);
+  }
+
   createConnector(name, ip = "") {
     return this.connectorController.create_connector(name, ip);
   }

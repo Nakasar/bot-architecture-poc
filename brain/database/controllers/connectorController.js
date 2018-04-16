@@ -45,7 +45,7 @@ module.exports.toggleConnector = function(id, status) {
 
 module.exports.checkConnectorToken = function(token) {
   return new Promise((resolve, reject) => {
-    Connector.findOne({ token: token }).then((err, connector) => {
+    Connector.findOne({ token: token }).then((connector, err) => {
       if (err) {
         return resolve(null);
       } else if (connector) {
@@ -79,6 +79,23 @@ module.exports.getConnector = function(id) {
         return reject({
           code: 404,
           message: "No connector with id " + id
+        });
+      }
+    });
+  });
+}
+
+module.exports.getConnectorByName = function(name) {
+  return new Promise((resolve, reject) => {
+    Connector.findOne({ name: name }, (err, connector) => {
+      if (err) {
+        return reject(err);
+      } else if (connector) {
+        return resolve(connector);
+      } else {
+        return reject({
+          code: 404,
+          message: "No connector named " + name
         });
       }
     });

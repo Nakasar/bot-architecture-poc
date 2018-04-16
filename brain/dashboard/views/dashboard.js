@@ -2,6 +2,7 @@ let currentThread = null;
 $('#chat-form').submit((event) => {
   event.preventDefault();
   let message = $("#chat").val().trim();
+  let bot_token = $("#chat").data('token');
   if (message.length <= 0) {
     return;
   }

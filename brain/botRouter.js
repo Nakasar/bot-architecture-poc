@@ -57,11 +57,11 @@ router.post('/nlp', checkConnectorToken, (req, res) => {
     hub.handleIntent(response.response.intent, response.response.entities, req.body.data || {}).then((response) => {
       return res.json({ success: response.success, message: response.message, source: req.body.phrase });
     }).catch((error) => {
-      console.log(error.stack)
+      console.log(error)
       return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
     })
   }).catch((error) => {
-    console.log(error.stack);
+    console.log(error);
     return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
   })
 })
@@ -89,7 +89,7 @@ router.post('/command', checkConnectorToken, (req, res) => {
   hub.handleCommand(command, params.join(" "), req.body.data || {}).then((response) => {
     return res.json({ success: response.success, message: response.message, source: command });
   }).catch((error) => {
-    console.log(error.stack);
+    console.log(error);
     return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: command });
   });
 });

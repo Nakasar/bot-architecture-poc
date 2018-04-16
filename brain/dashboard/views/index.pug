@@ -34,18 +34,23 @@ block content
         .card-header
           h5.mb-0 Chat
         .card-body
-          form#chat-form
-            .form-group
-              .input-group.mb-3
-                input#chat.form-control(type='text' placeholder='Say something here...' name='chat')
-                .input-group-append
-                  button.btn.btn-primary(type='submit', aria-label="Send message")
-                    i.far.fa-comments
-          
-          #bot-response
-            ul.list-group
-              li.list-group-item.text-muted#source
-              li.list-group-item#message(style='white-space: pre-wrap;')
+          if connector_token
+            form#chat-form
+              .form-group
+                .input-group.mb-3
+                  input#chat.form-control(type='text' placeholder='Say something here...' name='chat' data-token=connector_token)
+                  .input-group-append
+                    button.btn.btn-primary(type='submit', aria-label="Send message")
+                      i.far.fa-comments
+            #bot-response
+              ul.list-group
+                li.list-group-item.text-muted#source
+                li.list-group-item#message(style='white-space: pre-wrap;')
                   
+          else
+            .alert.alert-warning
+              p In order to use the chat sandbox, you must create a connector named "Dashboard" and allow it from at least your current ip address.
+          
   script
     include dashboard.js
+  

@@ -68,6 +68,8 @@ function analyzeText({ phrase = "" }) {
       };
 
       return resolve(analyzed);
+    }).catch((err) => {
+      return reject(err);
     });
   });
 };

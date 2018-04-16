@@ -25,6 +25,8 @@ function handleIntent(intentName, entities = {}, data = {}) {
 
       intent.handle({ entities, data }).then((response) => {
         return resolve({ success: true, message: response.message });
+      }).catch((err) => {
+        return reject(err);
       });
     } else {
       console.log(`> [WARNING] Intent "\x1b[4m${intentName}\x1b[0m" is not handled.`);
@@ -49,6 +51,8 @@ function handleCommand(commandName, phrase = "", data = {}) {
 
       command.execute({ phrase, data }).then((response) => {
         return resolve({ success: true, message: response.message, response: response });
+      }).catch((err) => {
+        return reject(err);
       });
     } else {
       return resolve({ success: true, message: { text: `I can't handle your command because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` }});
