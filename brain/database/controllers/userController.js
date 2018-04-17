@@ -4,6 +4,17 @@ const bcrypt = require("bcrypt");
 const secret = require("../../secret");
 const jwt = require('jsonwebtoken');
 
+exports.is_empty = function() {
+  return new Promise((resolve, reject) => {
+    User.count({}, (err, count) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(count == 0);
+    })
+  });
+}
+
 exports.create_user = function(user) {
   return new Promise((resolve, reject) => {
     // check for user unicity
@@ -31,6 +42,40 @@ exports.create_user = function(user) {
         });
       }
     });
+  });
+}
+
+exports.get_user = function(id) {
+  return new Promise((resolve, reject) => {
+    User.findById(id, (err, user) => {
+      if (err) {
+        return reject(err)
+      } else if (user) {
+        return resolve(user);
+      } else {
+        return reject();
+      }
+    });
+  });
+}
+
+exports.update_username = function(userId, userName) {
+  return new Promise((resolve, reject) => {
+    // Check for user unicity.
+    User.findOne({ user_name: userName }, (err, userFound) => {
+      if (err) {
+        return reject(err);
+      } else if (userFound) {
+        return reject({ error: "username-exists", message: "Username already in use." });
+      } else {
+        User.findByIdAndUpdate(userId, { $set: { user_name: userName }}, (err, user) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve();
+        });
+      }
+    })
   });
 }
 

@@ -22,8 +22,16 @@ module.exports = function() {
    * @apiSuccess {String} message Message from api.
    */
   router.get('/setup', (err, res) => {
-    users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
-      return res.json({ success: true, message: "Admin user added.", user: obj.user });
+    users.is_empty().then((isempty) => {
+      if (isempty) {
+        users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
+          return res.json({ success: true, message: "Admin user added.", user: obj.user });
+        }).catch((err) => {
+          return res.json({ success: false, message: "Could not setup admin user." });
+        });
+      } else {
+        return res.json({ success: false, message: "Could not setup admin user." });
+      }
     }).catch((err) => {
       return res.json({ success: false, message: "Could not setup admin user." });
     });
@@ -71,6 +79,7 @@ module.exports = function() {
       if (err) {
         return res.redirect('/dashboard/login');
       }
+      req.decoded = decoded;
       next();
     });
   });
@@ -162,18 +171,49 @@ module.exports = function() {
           nav_link: 'nav-connectors',
           connectors
         }))
-      .catch((err) => res.status(500).json({ error: 500, message: 'Internal server error while retrieving connectors list.' }));
+      .catch((err) => {
+        return next(err);
+      });
+  });
+
+  router.get('/settings', (req, res) => {
+    users.get_user(req.decoded.user.id).then((user) => {
+      return res.render('settings', {
+        title: "Dashboard Settings - Bot",
+        nav_link: 'settings',
+        user: user
+      });
+    }).catch((err) => {
+      return next();
+    })
+  });
+
+  router.put('/settings/username', (req, res) => {
+    let usernameRegex = /^[0-9a-zA-Z\u00E0-\u00FC -_]{3,30}$/;
+    if (req.body.username && usernameRegex.test(req.body.username)) {
+      users.update_username(req.decoded.user.id, req.body.username).then(() => {
+        return res.status(200).json({ success: true, message: "Username updated." });
+      }).catch((err) => {
+        if (err.error) {
+          return res.status(400).json({ success: false, message: "Username already in use." });
+        } else {
+          return res.status(500).json({ success: false, message: "Error while setting username." });
+        }
+      });
+    } else {
+      return res.status(400).json({ success: false, message: "Username must contains only letters (accentued), digits, '-', '_', and whitespaces, from 3 to 30 characters." });
+    }
   });
 
   // Dashboard 404 Error
   router.get('*', (req, res) => {
-    res.status(404).render('error', { code: 404, message: "404 Error : Page Not Found. "});
+    res.status(404).render('error', { code: 404, message: "404 Error : Page Not Found." });
   });
 
   // Dashboard error handling (logging)
   router.use((err, req, res, next) => {
-    console.log(err.stack);
-    res.status(500).send(`<h1 style="color: brown;">500 - INTERAL SERVER ERROR</h1><p>Something broke on our side. We're sorry not being able to fullfill your request :/</p>`)
+    console.log(err);
+    res.status(500).render('error', { code: 500, message: "500 Error: Internal Server Error." })
   });
 
   return router;

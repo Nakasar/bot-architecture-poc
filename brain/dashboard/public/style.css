@@ -25,3 +25,13 @@
 .disconnect:hover {
   color: red;
 }
+
+.settings {
+  cursor: pointer;
+  color: darkblue;
+}
+
+.settings:hover {
+  cursor: pointer;
+  color: blue;
+}
