@@ -10,7 +10,7 @@ RUN apk update && apk upgrade \
 RUN yarn global add coffee-script
 
 WORKDIR /hubot
-#COPY scripts/ scripts/
+COPY scripts/ scripts/
 COPY package.json package.json
 
 ENV HUBOT_LOG_LEVEL='debug'
