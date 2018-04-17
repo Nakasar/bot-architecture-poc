@@ -22,12 +22,20 @@ const ThreadSchema = new Schema({
 });
 
 ThreadSchema.methods.getData = function(dataKey) {
-  for (let data of this.data) {
-    if (data[0] === dataKey) {
-      return data[1];
-    }
+  let found = this.data.filter((data) => data[0] === dataKey);
+  if (found.length <= 0) {
     return null;
   }
+
+  return found[0][1];
+};
+
+ThreadSchema.methods.setData = function(dataKey, dataValue) {
+  let tdata = this.data.filter((data) => data[0] !== dataKey);
+  tdata.push([dataKey, dataValue]);
+  this.data = tdata;
+  
+  return;
 };
 
 const Thread = mongoose.model('Thread', ThreadSchema);

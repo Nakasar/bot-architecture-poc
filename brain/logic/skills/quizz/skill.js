@@ -140,21 +140,24 @@ function answerHandler(thread, { phrase }) {
       });
     } else if(["abort", "skip"].includes(phrase)) {
       overseer.ThreadManager.closeThread(thread._id).then(() => {
+        console.log(thread.getData("attemps"));
         return resolve({
             message: {
                 title: "Aborting",
-                text: `The answer was *${thread.getData("correct_answer")}* `
+                text: `The answer was *${thread.getData("correct_answer")}*. ${thread.getData("attemps") || 0} attemps.`
             }
         });
       }).catch((e) => {
         return resolve({
             message: {
               title: "Aborting",
-              text: `The answer was *${thread.getData("correct_answer")}* `
+              text: `The answer was *${thread.getData("correct_answer")}*. ${thread.getData("attemps") || 0} attemps.`
             }
         });
       });
     } else {
+      console.log(thread.getData("attemps"));
+      thread.setData("attemps", (thread.getData("attemps") || 0) + 1);
       return resolve({
           message: {
               interactive: true,
