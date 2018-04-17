@@ -198,6 +198,8 @@ $("#new-connector").click((event) => {
 });
 
 function displayNewConnectorModal() {
+  $("#new-connector-form #new-connector-name").val('');
+  $("#new-connector-form #new-connector-ip").val('');
   $("#new-connector-modal").modal('show');
 }
 
@@ -219,7 +221,16 @@ $("#new-connector-form").submit((event) => {
         location.reload();
       },
       error: (err) => {
-        console.log(err);
+        let message = "An error occured.";
+        if (err.responseJSON) {
+          message = err.responseJSON.message;
+        }
+        notifyUser({
+          title: "Couldn't add connector.",
+          message: message,
+          type: "error",
+          delay: 2
+        })
       }
     });
   } else {
