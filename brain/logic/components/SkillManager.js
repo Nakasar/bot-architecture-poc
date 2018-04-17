@@ -475,37 +475,40 @@ exports.SkillManager = class SkillManager {
     return new Promise((resolve, reject) => {
 
       // TODO: Check skill definition and skill code.
-
-
-      console.log(`> [INFO] Adding code of skill \x1b[33m${skill.name}\x1b[0m...`);
-      console.log(`\t... Create ${skill.name} folder...`)
-      fs.mkdir(path.join(this.skillsDirectory, `/${skill.name}`), (err) => {
-        if (err) {
-          console.log(err.stack);
-          return reject({ title: "Could not create folder.", message: "Could not create skill folder on server." });
-        }
-        console.log(`\t... Create skill.js in ${skill.name} folder...`)
-        fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/skill.js`), skill.code, (err) => {
+      this.validateSkillCode(skill.code).then((success, reason) => {
+        console.log(`> [INFO] Adding code of skill \x1b[33m${skill.name}\x1b[0m...`);
+        console.log(`\t... Create ${skill.name} folder...`)
+        fs.mkdir(path.join(this.skillsDirectory, `/${skill.name}`), (err) => {
           if (err) {
-            console.log(err.stack);
-            return reject({ title: "Could not create skill.js file.", message: "Could not create skill.js file on server." });
+            console.log(err);
+            return reject({ title: "Could not create folder.", message: "Could not create skill folder on server." });
           }
+          console.log(`\t... Create skill.js in ${skill.name} folder...`)
+          fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/skill.js`), skill.code, (err) => {
+            if (err) {
+              console.log(err);
+              return reject({ title: "Could not create skill.js file.", message: "Could not create skill.js file on server." });
+            }
 
-          if (skill.secret) {
-            console.log(`\t... Create secret.js in ${skill.name} folder...`)
-            fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/secret.js`), "{}", (err) => {
-              if (err) {
-                console.log(err.stack);
-                return reject({ title: "Could not create secret.js file.", message: "Could not create secret.js file on server." });
-              }
+            if (skill.secret) {
+              console.log(`\t... Create secret.js in ${skill.name} folder...`)
+              fs.writeFile(path.join(this.skillsDirectory, `/${skill.name}/secret.js`), "{}", (err) => {
+                if (err) {
+                  console.log(err);
+                  return reject({ title: "Could not create secret.js file.", message: "Could not create secret.js file on server." });
+                }
+                console.log(`> [INFO] Skill \x1b[33m${skill.name}\x1b[0m successfully added to folder.`);
+                return resolve();
+              });
+            } else {
               console.log(`> [INFO] Skill \x1b[33m${skill.name}\x1b[0m successfully added to folder.`);
               return resolve();
-            });
-          } else {
-            console.log(`> [INFO] Skill \x1b[33m${skill.name}\x1b[0m successfully added to folder.`);
-            return resolve();
-          }
+            }
+          });
         });
+      }).catch((err) => {
+        console.log(err);
+        return reject({ title: "Could not validate skill code.", message: "Could not validate skill code." });
       });
     });
   };
