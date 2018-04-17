@@ -172,7 +172,10 @@ block supercontent
             button.btn.btn-primary(type="submit") Generate template
           #skill-toolbox(style="display: none;")
             .list-group.list-group-flush
-              a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+              if skill_edited
+                a.list-group-item.list-group-item-action(onClick="configureSecret()") Configure Secret
+              else
+                a.list-group-item.list-group-item-action.disabled.text-muted(title="You must create the skill before editing its secrets.") Configure Secret
               a.list-group-item
               a.list-group-item.list-group-item-action(onClick="addIntent()") Add intent
               a.list-group-item.list-group-item-action(onClick="addCommand()") Add command

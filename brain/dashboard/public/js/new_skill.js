@@ -929,6 +929,7 @@ $("#save-skill").click(function() {
             type: "success",
             delay: 5
           });
+          window.location.href = "/dashboard/skills";
         } else {
           notifyUser({
             title: `Can't push ${skilljson.name}`,
