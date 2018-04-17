@@ -45,6 +45,15 @@ exports.create_user = function(user) {
   });
 }
 
+exports.remove_all = function() {
+  return new Promise((resolve, reject) => {
+    User.find({}, (err, users) => {
+      console.log(users);
+      return resolve([])
+    })
+  });
+}
+
 exports.get_user = function(id) {
   return new Promise((resolve, reject) => {
     User.findById(id, (err, user) => {
@@ -58,6 +67,40 @@ exports.get_user = function(id) {
     });
   });
 }
+
+exports.update_password = function(userId, currentPassword, newPassword) {
+  return new Promise((resolve, reject) => {
+    User.findById(userId, (err, user) => {
+      if (err) {
+        return reject(err);
+      } else if (!user) {
+        return reject(new Error("No user found."));
+      } else {
+        // Check password
+        bcrypt.compare(currentPassword, user.password, (err, res) => {
+          if (res) {
+            // Hash new password
+            bcrypt.hash(newPassword, 8, (err, hash) => {
+              if (err) {
+                return reject(err);
+              }
+
+              user.password = hash;
+              user.save((err) => {
+                if (err) {
+                  return reject(err);
+                }
+                return resolve();
+              })
+            });
+          } else {
+            return reject({ error: "invalid-password", message: "Invalid password." });
+          }
+        });
+      }
+    });
+  });
+};
 
 exports.update_username = function(userId, userName) {
   return new Promise((resolve, reject) => {

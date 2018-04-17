@@ -22,17 +22,24 @@ module.exports = function() {
    * @apiSuccess {String} message Message from api.
    */
   router.get('/setup', (err, res) => {
+    // users.remove_all().then((users) => {
+    //   console.log(users);
+    //   return res.sendStatus(404);
+    // })
+
     users.is_empty().then((isempty) => {
       if (isempty) {
         users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
           return res.json({ success: true, message: "Admin user added.", user: obj.user });
         }).catch((err) => {
+          console.log(err);
           return res.json({ success: false, message: "Could not setup admin user." });
         });
       } else {
         return res.json({ success: false, message: "Could not setup admin user." });
       }
     }).catch((err) => {
+      console.log(err);
       return res.json({ success: false, message: "Could not setup admin user." });
     });
   });
@@ -202,6 +209,27 @@ module.exports = function() {
       });
     } else {
       return res.status(400).json({ success: false, message: "Username must contains only letters (accentued), digits, '-', '_', and whitespaces, from 3 to 30 characters." });
+    }
+  });
+
+  router.put('/settings/password', (req, res) => {
+    if (!req.body.current_password) {
+      return res.status(400).json({ sucess: false, message: "No current password to confirm security operation." });
+    }
+
+    let passwordRegex = /^[0-9a-zA-Z\u00E0-\u00FC!@#{}~"'\(\[|\\^=+\]\)-_]{8,30}$/;
+    if (req.body.new_password && passwordRegex.test(req.body.new_password)) {
+      users.update_password(req.decoded.user.id, req.body.current_password, req.body.new_password).then(() => {
+        return res.status(200).json({ success: true, message: "Password updated." });
+      }).catch((err) => {
+        if (err.error) {
+          return res.status(400).json({ success: false, message: err.message });
+        } else {
+          return res.status(500).json({ success: false, message: "Error while setting password." });
+        }
+      });
+    } else {
+      return res.status(400).json({ success: false, message: "new_password must contains only letters, digits, some special characters, from 8 to 30 characters." });
     }
   });
 
