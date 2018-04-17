@@ -7,6 +7,7 @@
 /*
   You should not modify this part unless you know what you're doing.
 */
+
 // Defining the skill
 // Commands the skill can execute.
 /* <SKILL COMMANDS> */

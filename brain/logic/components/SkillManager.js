@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const skillTemplateRegex = new RegExp(fs.readFileSync(path.join(__dirname, "./skillCodeRegex.txt"), "utf8").trim(), "g");
+const skillTemplateRegex = fs.readFileSync(path.join(__dirname, "./skillCodeRegex.txt"), "utf8").trim();
 
 exports.SkillManager = class SkillManager {
   constructor(skillsDirectory) {
@@ -411,29 +411,19 @@ exports.SkillManager = class SkillManager {
   /**
    * Save a skill's code before saving it.
    * @param {String} code - The code of the skill to validate.
-   * @return {Promise} Promise object resolves if success, reject otherwise.
+   * @return {Promise} Promise object (true, null) if validated, (false, string reason) otherwise.
    */
   validateSkillCode(code) {
     return new Promise((resolve, reject) => {
       // TODO: Validate skill code.
-      let [matched, commands, intents, interactions, dependencies, logic, ...Rest] = skillTemplateRegex.exec(code) || [null, null, null, null, null, null];
+      let [matched, name, author, date, commands, intents, interactions, dependencies, logic, ...Rest] = new RegExp(skillTemplateRegex, "g").exec(code) || [null, null, null, null, null, null, null, null, null, null];
 
-      if (!matched) {
-        return reject();
+      if (matched == null || matched.length == 0) {
+        console.log("Not matched");
+        return resolve(false, "Skill template didn't match.");
       }
 
-      console.log("Commands:")
-      console.log(commands);
-      console.log("Intents:")
-      console.log(intents);
-      console.log("Interactions:")
-      console.log(interactions);
-      console.log("Dependencies:")
-      console.log(dependencies);
-      console.log("Logic:")
-      console.log(logic);
-
-      return resolve();
+      return resolve(true, null);
     });
   }
 
@@ -445,23 +435,27 @@ exports.SkillManager = class SkillManager {
    */
   saveSkillCode(skillName, code) {
     return new Promise((resolve, reject) => {
-      this.validateSkillCode(code).then(() => {
-        console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
-        fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
-          if (err) {
-            console.log(err);
-            return reject();
-          }
+      this.validateSkillCode(code).then((success, reason) => {
+        if (success) {
+          console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
+          fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
+            if (err) {
+              console.log(err);
+              return reject();
+            }
 
-          console.log(`\t... Reload skill.`);
+            console.log(`\t... Reload skill.`);
 
-          this.reloadSkill(skillName).then(() => {
-            return resolve();
-          }).catch((err) => {
-            console.log(err);
-            return reject();
+            this.reloadSkill(skillName).then(() => {
+              return resolve();
+            }).catch((err) => {
+              console.log(err);
+              return reject();
+            });
           });
-        });
+        } else {
+          return reject(new Error("Skill code is not valid : " + reason || ""));
+        }
       }).catch((err) => {
         console.log(err);
         return reject(new Error("Skill code is not valid."));
@@ -485,7 +479,7 @@ exports.SkillManager = class SkillManager {
 
       console.log(`> [INFO] Adding code of skill \x1b[33m${skill.name}\x1b[0m...`);
       console.log(`\t... Create ${skill.name} folder...`)
-      fs.mkdir(path.join(this.skillsDirectory, `/${skill.name}`), function(err) {
+      fs.mkdir(path.join(this.skillsDirectory, `/${skill.name}`), (err) => {
         if (err) {
           console.log(err.stack);
           return reject({ title: "Could not create folder.", message: "Could not create skill folder on server." });

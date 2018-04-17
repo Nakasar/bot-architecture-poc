@@ -30,6 +30,7 @@ class Skill {
 /*
   You should not modify this part unless you know what you're doing.
 */
+
 // Defining the skill
 // Commands the skill can execute.
 /* <SKILL COMMANDS> */
@@ -41,15 +42,15 @@ let commands = ${this.commandString};
 let intents = ${this.intentString};
 /* </SKILL INTENTS> */
 
-// dependencies of the skill.
-/* <SKILL DEPENDENCIES> */
-let dependencies = ${dependencies};
-/* </SKILL DEPENDENCIES> */
-
 // Conversation handlers of the skill.
 /* <SKILL INTERACTIONS> */
 let interactions = ${this.interactionString};
 /* </SKILL INTERACTIONS> */
+
+// dependencies of the skill.
+/* <SKILL DEPENDENCIES> */
+let dependencies = ${dependencies};
+/* </SKILL DEPENDENCIES> */
 
 // Exposing the skill definition.
 exports.commands = commands;
