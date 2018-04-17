@@ -175,7 +175,6 @@ module.exports = function(robot) {
     message.reply();
   });
 };
-
 ```
 
 ### Skill Services
@@ -379,7 +378,7 @@ function getWeather({ phrase }) {
   });
 };
 
-function handleWeather({ entities: { location: location = "" } }) {
+function handleWeather({ entities: {location: location = ""} }) {
   let finalLocation = location[0];
   return getWeather({ phrase: finalLocation });
 }
@@ -399,6 +398,7 @@ And here is an example with conversation mode enabled:
 /*
   You should not modify this part unless you know what you're doing.
 */
+
 // Defining the skill
 // Commands the skill can execute.
 /* <SKILL COMMANDS> */
@@ -413,6 +413,11 @@ let commands = {
 // intents the skill understands.
 /* <SKILL INTENTS> */
 let intents = {
+  'quizz-quizz': {
+    slug: "quizz",
+    handle: handleQuizz,
+    expected_entities: []
+  }
 };
 /* </SKILL INTENTS> */
 
@@ -452,7 +457,7 @@ const request = require('request');
   --------
     phrase: String
 */
-function quizz({ phrase, data }) {
+function quizz({ phrase }) {
   return new Promise((resolve, reject) => {
     request.get({
         url: "https://opentdb.com/api.php?amount=1&difficulty=medium&type=multiple",
@@ -460,7 +465,7 @@ function quizz({ phrase, data }) {
         callback: (err, res, body) => {
             if (!err && body) {
                 overseer.ThreadManager.addThread({
-                  timestamp: new Date,
+                  timestamp: new Date(),
                   source: body.results[0].question,
                   data: [
                     ["correct_answer", body.results[0].correct_answer],
@@ -475,11 +480,12 @@ function quizz({ phrase, data }) {
                   answers.sort();
 
                   question += "\n> " + answers.join("\n> ");
+                  question += "\n (type `abort` or `skip` to skip)";
+
                   return resolve({
                       message: {
                           interactive: true,
                           thread_id: thread._id,
-                          handler: "thread-quizz-handler",
                           title: body.results[0].category,
                           text: question
                       }
@@ -505,21 +511,37 @@ function quizz({ phrase, data }) {
   });
 }
 
-function answerHandler(thread, { phrase, data }) {
+function answerHandler(thread, { phrase }) {
   return new Promise((resolve, reject) => {
     if (phrase === thread.getData("correct_answer")) {
       overseer.ThreadManager.closeThread(thread._id).then(() => {
         return resolve({
             message: {
                 title: "Correct o/",
-                text: `${phrase} is the correct answer, congrats ${data.user_name || ""}!`
+                text: `${phrase} is the correct answer, congrats!`
             }
         });
       }).catch((e) => {
         return resolve({
             message: {
                 title: "Correct o/",
-                text: `${phrase} is the correct answer, congrats ${data.user_name || ""}!`
+                text: `${phrase} is the correct answer, congrats!`
+            }
+        });
+      });
+    } else if(["abort", "skip"].includes(phrase)) {
+      overseer.ThreadManager.closeThread(thread._id).then(() => {
+        return resolve({
+            message: {
+                title: "Aborting",
+                text: `The answer was *${thread.getData("correct_answer")}* `
+            }
+        });
+      }).catch((e) => {
+        return resolve({
+            message: {
+              title: "Aborting",
+              text: `The answer was *${thread.getData("correct_answer")}* `
             }
         });
       });
@@ -528,13 +550,22 @@ function answerHandler(thread, { phrase, data }) {
           message: {
               interactive: true,
               thread_id: thread._id,
-              handler: "thread-quizz-handler",
               title: "Wrong :(",
               text: `${phrase} is not the expected answer, try again!`
           }
       });
     }
   });
+}
+/**
+  Handler for intent quizz-quizz (quizz).
+
+  Params :
+  --------
+    entities (Object)
+*/
+function handleQuizz({ entities: {}, phrase, data }) {
+  return quizz({ phrase });
 }
 /* </SKILL LOGIC> */
 
