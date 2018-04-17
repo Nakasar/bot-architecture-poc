@@ -13,7 +13,21 @@ exports.is_empty = function() {
       return resolve(count == 0);
     })
   });
-}
+};
+
+exports.promote_user = function(id, admin) {
+  return new Promise((resolve, reject) => {
+    User.findByIdAndUpdate(id, { $set: { admin: admin }}, (err, user) => {
+      if (err) {
+        return reject(err);
+      } else if (user) {
+        return resolve();
+      } else {
+        return reject();
+      }
+    });
+  });
+};
 
 exports.create_user = function(user) {
   return new Promise((resolve, reject) => {
@@ -47,9 +61,11 @@ exports.create_user = function(user) {
 
 exports.remove_all = function() {
   return new Promise((resolve, reject) => {
-    User.find({}, (err, users) => {
-      console.log(users);
-      return resolve([])
+    User.deleteMany({}, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve()
     })
   });
 }
@@ -132,7 +148,7 @@ exports.sign_in = function(user_name, password) {
         bcrypt.compare(password, user.password, (err, res) => {
           if (res) {
             // Password matched, generate token.
-            let token = jwt.sign({ user: { user_name: user.name, id: user._id }}, secret.secret, { expiresIn: '1d' });
+            let token = jwt.sign({ user: { user_name: user.name, id: user._id, admin: user.admin }}, secret.secret, { expiresIn: '1d' });
             return resolve({ message: "User signed in.", token: token });
           } else {
             return reject({ message: "Invalid password." });

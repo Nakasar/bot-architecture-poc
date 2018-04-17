@@ -21,6 +21,10 @@ const UserSchema = new Schema({
   token: {
     value: String,
     expire_date: Date
+  },
+  admin: {
+    type: Boolean,
+    default: false
   }
 });
 

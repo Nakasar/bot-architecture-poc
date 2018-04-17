@@ -22,15 +22,15 @@ module.exports = function() {
    * @apiSuccess {String} message Message from api.
    */
   router.get('/setup', (err, res) => {
-    // users.remove_all().then((users) => {
-    //   console.log(users);
-    //   return res.sendStatus(404);
-    // })
-
     users.is_empty().then((isempty) => {
       if (isempty) {
-        users.create_user({ user_name: "Nakasar", password: "Password0" }).then((obj) => {
-          return res.json({ success: true, message: "Admin user added.", user: obj.user });
+        users.create_user({ user_name: "Nakasar", password: "Password0", admin: true }).then((obj) => {
+          users.promote_user(obj.user.id, true).then((user) => {
+            return res.json({ success: true, message: "Admin user added.", user: obj.user });
+          }).catch((err) => {
+            console.log(err);
+            return res.json({ success: false, message: "Could not setup admin user." });
+          });
         }).catch((err) => {
           console.log(err);
           return res.json({ success: false, message: "Could not setup admin user." });
