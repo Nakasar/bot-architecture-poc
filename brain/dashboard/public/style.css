@@ -38,7 +38,7 @@
 
 
 .navbar {
-  background-color: #fb8c00;
+  background-color: #ffa726;
 }
 .navbar .navbar-brand {
   color: #000000;
@@ -73,14 +73,14 @@
 .navbar .navbar-nav .nav-item.show .nav-link:hover,
 .navbar .navbar-nav .nav-item.show .nav-link:focus {
   color: #ffffff;
-  background-color: #c25e00;
+  background-color: #c77800;
 }
 .navbar .navbar-toggle {
-  border-color: #c25e00;
+  border-color: #c77800;
 }
 .navbar .navbar-toggle:hover,
 .navbar .navbar-toggle:focus {
-  background-color: #c25e00;
+  background-color: #c77800;
 }
 .navbar .navbar-toggle .navbar-toggler-icon {
   color: #000000;
@@ -106,7 +106,7 @@
   }
   .navbar-expand-sm .navbar-nav .show .dropdown-menu .dropdown-item.active {
     color: #ffffff;
-    background-color: #c25e00;
+    background-color: #c77800;
   }
 }
 
@@ -120,7 +120,7 @@
   }
   .navbar-expand-md .navbar-nav .show .dropdown-menu .dropdown-item.active {
     color: #ffffff;
-    background-color: #c25e00;
+    background-color: #c77800;
   }
 }
 
@@ -134,7 +134,7 @@
   }
   .navbar-expand-lg .navbar-nav .show .dropdown-menu .dropdown-item.active {
     color: #ffffff;
-    background-color: #c25e00;
+    background-color: #c77800;
   }
 }
 
@@ -148,7 +148,7 @@
   }
   .navbar-expand-xl .navbar-nav .show .dropdown-menu .dropdown-item.active {
     color: #ffffff;
-    background-color: #c25e00;
+    background-color: #c77800;
   }
 }
 
@@ -161,5 +161,5 @@
 }
 .navbar-expand .navbar-nav .show .dropdown-menu .dropdown-item.active {
   color: #ffffff;
-  background-color: #c25e00;
+  background-color: #c77800;
 }
