@@ -3,6 +3,8 @@ const api_host = process.env.API_HOST || "localhost";
 const api_port = process.env.API_PORT || "8080";
 const api_url = `http://${api_host}:${api_port}`;
 
+const thread = require('./thread');
+
 function parser(room, message) {
   let formatted = {
     channel: room,
@@ -66,63 +68,110 @@ function parser(room, message) {
       formatted.attachments.push(formattedAttachment);
     }
   }
-  console.log(formatted);
+  //console.log(formatted);
   return formatted;
 };
 
-module.exports = function(robot) {
-  robot.hear(/!(.*)/, function(message) {
+module.exports = function (robot) {
+  robot.hear(/!(.*)/, function (message) {
     let command = message.match[1];
-    request({
-      baseUrl: api_url,
-      uri: "/command",
-      method: "POST",
-      json: true,
-      body: {
-        command: command,
-        token: "c7787475e0cc9162cdc8564111f291ccfa8a1"
-      },
-      callback: (err, res, body) => {
-        if (!err && body.message) {
-          robot.messageRoom(
-            message.message.room,
-            parser(message.message.room, body.message)
-          );
-        } else {
-          message.send("An error occured :'(");
+    var uri = "/command";
+    thread.checkThread(command, message.message.room)
+      .then((thread_id) => {
+        if (thread_id) {
+          var phrase = command.split(' ');
+          phrase.splice(0, 1);
+          phrase = phrase.join(' ');
+          if (phrase === '') {
+            return message.send(">Entrez votre message après la commande");
+          }
+          var uri = '/converse';
+          var body_thread = {
+            thread_id: thread_id,
+            phrase: phrase,
+            token: "59az4dazdaz4d86az4dazd"
+          }
+          console.log("Phrase envoyé " + phrase);
         }
-      }
-    });
+        else {
+          var uri = '/command';
+          var body_thread = {
+            command: command,
+            token: "59az4dazdaz4d86az4dazd"
+          }
+        }
+        request({
+          baseUrl: api_url,
+          uri: uri,
+          method: "POST",
+          json: true,
+          body: body_thread,
+          callback: (err, res, body) => {
+            if (!err && body.message) {
+              console.log("Message reçu ! ");
+              thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
+                .then(() => {
+                  robot.messageRoom(
+                    message.message.room,
+                    parser(message.message.room, body.message)
+                  );
+                });
+            } else {
+              message.send("An error occured :'(");
+            }
+          }
+
+        });
+      });
   });
 
-  robot.respond(/(.*)/, function(message) {
+  robot.respond(/(.*)/, function (message) {
     let phrase = message.match[1];
 
     if (phrase.startsWith("!")) {
       return;
     }
-
-    console.log("Catched: " + phrase);
-    request({
-      baseUrl: api_url,
-      uri: "/nlp",
-      method: "POST",
-      json: true,
-      body: {
-        phrase: phrase,
-        token: "c7787475e0cc9162cdc8564111f291ccfa8a1"
-      },
-      callback: (err, res, body) => {
-        if (!err && body.message) {
-          robot.messageRoom(
-            message.message.room,
-            parser(message.message.room, body.message)
-          );
-          } else {
-          message.reply("An error occured :'(");
+    thread.checkThread('nlp nlp', message.message.room)
+      .then((thread_id) => {
+        if(thread_id){
+          var uri = "/converse";
+          var body_thread = {
+            thread_id: thread_id,
+            phrase: phrase,
+            token: "59az4dazdaz4d86az4dazd"
+          }
+          console.log("Message type Converse sent");
         }
-      }
-    });
-    message.reply();
-  });
+        else{
+          var uri = "/nlp";
+          var body_thread = {
+            phrase: phrase,
+            token: "59az4dazdaz4d86az4dazd"
+          }
+          console.log("Message typ Nlp sent");
+        }
+        console.log("Catched: " + phrase);
+        request({
+          baseUrl: api_url,
+          uri: uri,
+          method: "POST",
+          json: true,
+          body: body_thread,
+          callback: (err, res, body) => {
+            if (!err && body.message) {
+              thread.handleThread(thread_id, body.message.thread_id, message.message.room, 'nlp', body.message.interactive)
+                .then(() => {
+                  robot.messageRoom(
+                    message.message.room,
+                    parser(message.message.room, body.message)
+                  );
+                });
+            } else {
+              message.reply("An error occured :'(");
+            }
+          }
+        });
+        message.reply();
+      });
+  })
 };
