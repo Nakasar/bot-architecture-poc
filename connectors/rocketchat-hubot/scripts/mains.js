@@ -2,6 +2,7 @@ const request = require('request');
 const api_host = process.env.API_HOST || "localhost";
 const api_port = process.env.API_PORT || "8080";
 const api_url = `http://${api_host}:${api_port}`;
+const bot_token = process.env.BOT_TOKEN || "";
 
 const thread = require('./thread');
 
@@ -89,7 +90,7 @@ module.exports = function (robot) {
           var body_thread = {
             thread_id: thread_id,
             phrase: phrase,
-            token: "59az4dazdaz4d86az4dazd"
+            token: bot_token
           }
           console.log("Phrase envoyé " + phrase);
         }
@@ -97,7 +98,7 @@ module.exports = function (robot) {
           var uri = '/command';
           var body_thread = {
             command: command,
-            token: "59az4dazdaz4d86az4dazd"
+            token: bot_token
           }
         }
         request({
@@ -138,7 +139,7 @@ module.exports = function (robot) {
           var body_thread = {
             thread_id: thread_id,
             phrase: phrase,
-            token: "59az4dazdaz4d86az4dazd"
+            token: bot_token
           }
           console.log("Message type Converse sent");
         }
@@ -146,7 +147,7 @@ module.exports = function (robot) {
           var uri = "/nlp";
           var body_thread = {
             phrase: phrase,
-            token: "59az4dazdaz4d86az4dazd"
+            token: bot_token
           }
           console.log("Message typ Nlp sent");
         }
