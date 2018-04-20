@@ -12,4 +12,8 @@ exports.StorageManager = class StorageManager {
   storeItem(skill, key, value) {
     return this.storageController.create_storage(skill, key, value)
   }
+
+  clear() {
+    return this.storageController.clear_storage();
+  }
 }

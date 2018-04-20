@@ -6,15 +6,31 @@ module.exports.create_storage = function(skill, key, value) {
     try {
       const stringifiedValue = JSON.stringify(value);
 
-      let storage = new Storage();
-      storage.skill = skill;
-      storage.key = key;
-      storage.value = stringifiedValue;
-      storage.save((err) => {
+      Storage.findOne({ skill, key }, (err, found) => {
         if (err) {
           return reject(err);
+        } else if (found) {
+          // Override storage.
+          found.value = stringifiedValue;
+          found.save((err) => {
+            if (err) {
+              return reject(err);
+            }
+            return resolve(storage);
+          });
+        } else {
+          // Create enw storage
+          let storage = new Storage();
+          storage.skill = skill;
+          storage.key = key;
+          storage.value = stringifiedValue;
+          storage.save((err) => {
+            if (err) {
+              return reject(err);
+            }
+            return resolve(storage);
+          });
         }
-        return resolve(storage);
       });
     } catch (e) {
       return reject(e);
@@ -24,6 +40,10 @@ module.exports.create_storage = function(skill, key, value) {
 
 module.exports.get_storage = function(skill, key) {
   return new Promise((resolve, reject) => {
+    Storage.find({}).then((s) => {
+      console.log(s);
+    })
+    console.log({ skill, key });
     Storage.findOne({ skill, key }, (err, storage) => {
       if (err) {
         return reject(err);
@@ -40,6 +60,17 @@ module.exports.get_storage = function(skill, key) {
           message: `No storage with key ${key} for skill ${skill}.`
         })
       }
+    });
+  });
+}
+
+module.exports.clear_storage = function() {
+  return new Promise((resolve, reject) => {
+    Storage.remove({}, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve();
     });
   });
 }

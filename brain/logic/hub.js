@@ -90,7 +90,6 @@ const storageComponent = require('./components/StorageManager');
 let StorageManager = new storageComponent.StorageManager();
 exports.StorageManager = StorageManager;
 
-
 // Export main handlers
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;
