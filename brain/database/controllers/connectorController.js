@@ -24,21 +24,22 @@ module.exports.create_connector = function(name, ip = "") {
 
 module.exports.toggleConnector = function(id, status) {
   return new Promise((resolve, reject) => {
-    Connector.findByIdAndUpdate(id, { $set : { active : true }}).then((err, connector) => {
-      if (err) {
-        reject({
-          code: 500,
-          message: "Could not update connector."
-        })
-      } else if (connector) {
+    Connector.findByIdAndUpdate(id, { $set : { active : status }}).then((connector) => {
+      if (connector) {
         let { _id, active, name } = connector;
-        resolve({ _id, active, name });
+        return resolve({ _id, status, name });
       } else {
-        reject({
+        return reject({
           code: 404,
           message: "No connector with id " + id
         })
       }
+    }).catch((err) => {
+        console.log(err);
+        return reject({
+          code: 500,
+          message: "Could not update connector."
+        });
     });
   });
 };

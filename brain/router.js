@@ -478,9 +478,12 @@ module.exports = function(io) {
    * @apiSuccess {Boolean} connector.active - The status of a connector.
    */
   router.post('/connectors/:id/toggle/:status', (req, res) => {
-    hub.ConnectorManager.toggleConnector(req.params.id, req.params.status === "on" ? "active" : "inactive")
+    hub.ConnectorManager.toggleConnector(req.params.id, req.params.status === "on" ? true : false)
       .then((connector) => res.json({ success: true, connector: connector }))
-      .catch((err) => res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internat server error while setting connector status." }));
+      .catch((err) => {
+        console.log(err);
+        res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internal server error while setting connector status." })
+      });
   })
 
   // Regenerate connector token
