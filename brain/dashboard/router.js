@@ -5,9 +5,10 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const config = require('../secret');
 const users = require('../database/controllers/userController');
-let router = express.Router();
 
-module.exports = function() {
+module.exports = function(io) {
+  let router = express.Router();
+
   // Dashboard middleware
   router.use((req, res, next) => {
     next();

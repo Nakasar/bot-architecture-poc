@@ -1,6 +1,5 @@
 'use strict';
 const express = require('express');
-let router = express.Router();
 let hub = require('./logic/hub');
 
 // Bot endpoints middleware
@@ -31,98 +30,149 @@ function checkConnectorToken(req, res, next) {
     });
 };
 
-// NLP conversation entry point.
-/**
- * @api {post} /nlp NLP bot entry point.
- * @apiName NLP
- * @apiGroup Bot
- *
- * @apiParam {String} phrase Text phrase to analyze and execute.
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the NLP.
- */
-router.post('/nlp', checkConnectorToken, (req, res) => {
-  let phrase = req.body.phrase || req.query.phrase;
-  if (!phrase) {
-    return res.status(400).json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
-  }
+module.exports = function(io) {
+  let router = express.Router();
 
-  hub.handleCommand('analyze', phrase, req.body.data || {}).then((response) => {
-    if (!response.response.intent) {
-      return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
+  // NLP conversation entry point.
+  /**
+   * @api {post} /nlp NLP bot entry point.
+   * @apiName NLP
+   * @apiGroup Bot
+   *
+   * @apiParam {String} phrase Text phrase to analyze and execute.
+   *
+   * @apiSuccess {Boolean} success Success of operation.
+   * @apiSuccess {String} message Message from api.
+   * @apiSuccess {String} source Source given to the NLP.
+   */
+  router.post('/nlp', checkConnectorToken, (req, res) => {
+    let phrase = req.body.phrase || req.query.phrase;
+    if (!phrase) {
+      return res.status(400).json({ success: false, message: { text: 'No phrase string to analyze in body.' }})
     }
 
-    hub.handleIntent(response.response.intent, response.response.entities, req.body.data || {}).then((response) => {
-      return res.json({ success: response.success, message: response.message, source: req.body.phrase });
+    hub.handleCommand('analyze', phrase, req.body.data || {}).then((response) => {
+      if (!response.response.intent) {
+        return res.json({ success: response.success, message: { text: `It seems I have no skill that could fit your request, maybe it was disabled, I'm sorry :/` }, source: req.body.phrase });
+      }
+
+      hub.handleIntent(response.response.intent, response.response.entities, req.body.data || {}).then((response) => {
+        return res.json({ success: response.success, message: response.message, source: req.body.phrase });
+      }).catch((error) => {
+        console.log(error)
+        return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
+      })
     }).catch((error) => {
-      console.log(error)
+      console.log(error);
       return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
-    })
-  }).catch((error) => {
-    console.log(error);
-    return res.json({ success: false, message: { text: 'Unkown error with nlp endpoint.' }, source: req.body.phrase });
+    });
   })
-})
 
-// Command handling entry point.
-/**
- * @api {post} /command Command bot entry point.
- * @apiName Command
- * @apiGroup Bot
- *
- * @apiParam {String} command Command phrase to execute (without prefix).
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the Command handler.
- */
-router.post('/command', checkConnectorToken, (req, res) => {
-  let phrase = req.body.command || req.query.command;
-  if (!phrase) {
-    return res.status(400).json({ success: false, message: { text: 'No command string to parse in body.' }});
-  }
+  // Command handling entry point.
+  /**
+   * @api {post} /command Command bot entry point.
+   * @apiName Command
+   * @apiGroup Bot
+   *
+   * @apiParam {String} command Command phrase to execute (without prefix).
+   *
+   * @apiSuccess {Boolean} success Success of operation.
+   * @apiSuccess {String} message Message from api.
+   * @apiSuccess {String} source Source given to the Command handler.
+   */
+  router.post('/command', checkConnectorToken, (req, res) => {
+    let phrase = req.body.command || req.query.command;
+    if (!phrase) {
+      return res.status(400).json({ success: false, message: { text: 'No command string to parse in body.' }});
+    }
 
-  let [command, ...params] = phrase.split(" ");
+    let [command, ...params] = phrase.split(" ");
 
-  hub.handleCommand(command, params.join(" "), req.body.data || {}).then((response) => {
-    return res.json({ success: response.success, message: response.message, source: command });
-  }).catch((error) => {
-    console.log(error);
-    return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: command });
+    hub.handleCommand(command, params.join(" "), req.body.data || {}).then((response) => {
+      return res.json({ success: response.success, message: response.message, source: command });
+    }).catch((error) => {
+      console.log(error);
+      return res.json({ success: false, message: { text: 'Unkown error while handling command.' }, source: command });
+    });
   });
-});
 
-// Interactive conversation entry point.
-/**
- * @api {post} /converse Interactive conversation bot entry point.
- * @apiName converse
- * @apiGroup Bot
- *
- * @apiParam {String} phrase Phrase answered to bot.
- * @apiParam {String} thread_id Thread id answered to.
- *
- * @apiSuccess {Boolean} success Success of operation.
- * @apiSuccess {String} message Message from api.
- * @apiSuccess {String} source Source given to the Converse handler.
- */
-router.post('/converse', checkConnectorToken, (req, res) => {
-  let phrase = req.body.phrase || req.query.phrase;
-  let threadId = req.body.thread_id || req.query.thread_id;
-  if (!phrase) {
-    return res.status(400).json({ success: false, message: { text: 'No answer in body/query.' }});
-  }
+  // Interactive conversation entry point.
+  /**
+   * @api {post} /converse Interactive conversation bot entry point.
+   * @apiName converse
+   * @apiGroup Bot
+   *
+   * @apiParam {String} phrase Phrase answered to bot.
+   * @apiParam {String} thread_id Thread id answered to.
+   *
+   * @apiSuccess {Boolean} success Success of operation.
+   * @apiSuccess {String} message Message from api.
+   * @apiSuccess {String} source Source given to the Converse handler.
+   */
+  router.post('/converse', checkConnectorToken, (req, res) => {
+    let phrase = req.body.phrase || req.query.phrase;
+    let threadId = req.body.thread_id || req.query.thread_id;
+    if (!phrase) {
+      return res.status(400).json({ success: false, message: { text: 'No answer in body/query.' }});
+    }
 
-  if (!threadId) {
-    return res.status(400).json({ success: false, message: { text: 'No thread_id in body/query.' }});
-  }
+    if (!threadId) {
+      return res.status(400).json({ success: false, message: { text: 'No thread_id in body/query.' }});
+    }
 
-  hub.ThreadManager.handleThread(threadId, phrase, req.body.data || {}).then((response) => {
-    return res.json({ success: true, message: response.message, source: phrase, thread_id: threadId });
-  }).catch((error) => {
-    return res.json({ success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id: threadId });
+    hub.ThreadManager.handleThread(threadId, phrase, req.body.data || {}).then((response) => {
+      return res.json({ success: true, message: response.message, source: phrase, thread_id: threadId });
+    }).catch((error) => {
+      return res.json({ success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id: threadId });
+    });
   });
-});
 
-module.exports = router;
+  // Hook requesting endpoint.
+  /**
+   * @api {post} /hooks Hook requesting endpoint.
+   * @apiName hooks
+   * @apiGroup Bot
+   *
+   * @apiParam {String} hook_id Hook id to confirm creation of.
+   * @apiParam {String} channel_id Unique identifier so the adapter can send message to the correct channel on hook emission.
+   *
+   * @apiSuccess {Boolean} success Success of operation.
+   * @apiSuccess {String} message Message from api.
+   */
+  router.post('/hooks', checkConnectorToken, (req, res) => {
+    if (!req.body.hook_id) {
+      return res.status(400).json({ success: false, message: { text: 'No hook_id in body/query. The hook_id was given when you recieved the message that requested the creation of a hook.' }});
+    }
+    if (!req.body.channel_id) {
+      return res.status(400).json({ success: false, message: { text: 'No channel_id in body/query. The channel_id will be sent when the hook is trigerred, so that you know where to display the message.' }});
+    }
+
+    return res.status(501);
+  });
+
+  io.use((socket, next) => {
+    let token = socket.handshake.headers['x-access-token'];
+    if (!token) {
+      console.log("> [WARNING] A connector attempted to connect without a token.")
+      return next(new Error('authentication error'));
+    }
+
+    hub.ConnectorManager.checkConnectorToken(token)
+      .then((connector) => {
+        if (connector && connector.active) {
+          socket.connector = { name: connector.name, id: connector._id };
+          return next();
+        } else {
+          console.log("> [WARNING] A rejected connector attempted to connect.")
+          return next(new Error('authentication error'));
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        return next(new Error('authentication error'));
+      });
+  });
+  io.on('connection', require('./socket'));
+
+  return router;
+}

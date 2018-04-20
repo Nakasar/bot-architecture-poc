@@ -1,6 +1,8 @@
 'use strict';
 const express = require('express');
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
@@ -35,7 +37,7 @@ app.use(cookieParser());
 let db = require('./database/db');
 db.connect();
 
-let router = require('./router.js')();
+let router = require('./router.js')(io);
 app.use(router);
 
-app.listen(PORT, HOST, () => console.log(`\n\x1b[36m> [INFO] Bot brain listening on http://${HOST}:${PORT}!\x1b[0m`));
+http.listen(PORT, HOST, () => console.log(`\n\x1b[36m> [INFO] Bot brain listening on http://${HOST}:${PORT}!\x1b[0m`));

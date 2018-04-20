@@ -1,12 +1,13 @@
 'use strict';
 const express = require('express');
-let router = express.Router();
 const botRouter = require('./botRouter');
 let hub = require('./logic/hub');
 const jwt = require('jsonwebtoken');
 const config = require('./secret');
 
-module.exports = function() {
+module.exports = function(io) {
+  let router = express.Router();
+
   // Main middleware
   router.use((req, res, next) => {
     next();
@@ -29,7 +30,7 @@ module.exports = function() {
   // DASHBOARD ENDPOINTS
 
   // Routing dashboard requests
-  router.use('/dashboard', require('./dashboard/router')());
+  router.use('/dashboard', require('./dashboard/router')(io));
 
   ///////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +49,7 @@ module.exports = function() {
   ///////////////////////////////////////////////////////////////////////////////
   // BOT ENDPOINTS
 
-  router.use(botRouter);
+  router.use(botRouter(io));
 
   ///////////////////////////////////////////////////////////////////////////////
 
