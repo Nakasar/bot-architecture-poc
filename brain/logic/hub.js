@@ -85,6 +85,12 @@ const threadComponent = require('./components/ThreadManager');
 let ThreadManager = new threadComponent.ThreadManager(SkillManager.interactions);
 exports.ThreadManager = ThreadManager;
 
+// Create and export a new StorageManager
+const storageComponent = require('./components/StorageManager');
+let StorageManager = new storageComponent.StorageManager();
+exports.StorageManager = StorageManager;
+
+
 // Export main handlers
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;

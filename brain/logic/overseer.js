@@ -4,3 +4,4 @@ let hub = require('./hub');
 
 module.exports.handleCommand = hub.handleCommand;
 module.exports.ThreadManager = hub.ThreadManager;
+module.exports.StorageManager = hub.StorageManager;
