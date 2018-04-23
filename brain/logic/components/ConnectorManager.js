@@ -52,7 +52,7 @@ exports.ConnectorManager = class ConnectorManager {
           const socket = Object.values(this.io.sockets.sockets).filter((socket) => socket.connector.id == id);
           if (socket.length > 0) {
             console.log(`\t... Rejecting current socket connection.`);
-            socket[0].disconnect(true);
+            socket[0].disconnect();
           }
         }
         console.log('Done!')

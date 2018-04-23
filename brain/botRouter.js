@@ -159,7 +159,7 @@ module.exports = function(io) {
 
     if (!token) {
       console.log("> [WARNING] A connector attempted to connect without a token.")
-      socket.disconnect(true);
+      socket.disconnect();
       return next(new Error('authentication error'));
     }
 
@@ -169,13 +169,13 @@ module.exports = function(io) {
           socket.connector = { name: connector.name, id: connector._id };
           return next();
         } else {
-          socket.disconnect(true);
+          socket.disconnect();
           console.log("> [WARNING] A rejected connector attempted to connect.")
           return next(new Error('authentication error'));
         }
       })
       .catch((err) => {
-        socket.disconnect(true);
+        socket.disconnect();
         console.log(err);
         return next(new Error('authentication error'));
       });
