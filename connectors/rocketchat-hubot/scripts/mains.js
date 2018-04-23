@@ -1,10 +1,13 @@
 const request = require('request');
 const api_host = process.env.API_HOST || "localhost";
 const api_port = process.env.API_PORT || "8080";
+const socket_port = process.env.SOCKET_PORT || "4205";
 const api_url = `http://${api_host}:${api_port}`;
 const bot_token = process.env.BOT_TOKEN || "";
 
 const thread = require('./thread');
+const hookComponent = require('./hook');
+const HookManager = new hookComponent.HookManager();
 
 function parser(room, message) {
   let formatted = {
@@ -74,6 +77,26 @@ function parser(room, message) {
 };
 
 module.exports = function (robot) {
+  console.log("Init socket with brain.")
+  const io = require('socket.io-client');
+  const socket = io('http://localhost:5012', {
+    transportOptions: {
+      polling: {
+        extraHeaders: {
+          'x-access-token': bot_token
+        }
+      }
+    }
+  });
+
+  socket.on('hook', (hookId, body) => {
+    HookManager.handleHook(hookId, body.message).then(({ room, message }) => {
+      robot.messageRoom(room, parser(message.message.room, message.message));
+    }).catch((err) => {
+      console.log(err);
+    });
+  });
+
   robot.hear(/!(.*)/, function (message) {
     let command = message.match[1];
     var uri = "/command";
@@ -84,45 +107,62 @@ module.exports = function (robot) {
           phrase.splice(0, 1);
           phrase = phrase.join(' ');
           if (phrase === '') {
-            return message.send(">Entrez votre message après la commande");
+            return message.send("> Entrez votre message après la commande");
           }
-          var uri = '/converse';
-          var body_thread = {
-            thread_id: thread_id,
-            phrase: phrase,
-            token: bot_token
+          if (!socket.connected) {
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
+            socket.open();
           }
-          console.log("Phrase envoyé " + phrase);
+          socket.emit('converse', { thread_id, phrase }, (err, body) => {
+            if (err) {
+              return message.send("An error occured :'(");
+            }
+
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
+              .then(() => {
+                if (body.message.request_hook) {
+                  HookManager.createHook(body.message.hook_id, message.message.room);
+                  socket.emit('hook-accept', body.message.hook_id, (error) => {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      console.log("Hook finalized.");
+                    }
+                  });
+                }
+                return robot.messageRoom(
+                  message.message.room,
+                  parser(message.message.room, body.message)
+                );
+              });
+          });
         }
         else {
-          var uri = '/command';
-          var body_thread = {
-            command: command,
-            token: bot_token
+          if (!socket.connected) {
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
+            socket.open();
           }
-        }
-        request({
-          baseUrl: api_url,
-          uri: uri,
-          method: "POST",
-          json: true,
-          body: body_thread,
-          callback: (err, res, body) => {
-            if (!err && body.message) {
-              console.log("Message reçu ! ");
-              thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
-                .then(() => {
-                  robot.messageRoom(
-                    message.message.room,
-                    parser(message.message.room, body.message)
-                  );
-                });
-            } else {
+          socket.emit('command', { command }, (err, body) => {
+            if (err) {
               message.send("An error occured :'(");
             }
-          }
-
-        });
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
+              .then(() => {
+                if (body.message.request_hook) {
+                  HookManager.createHook(body.message.hook_id, message.message.room);
+                  socket.emit('hook-accept', body.message.hook_id, (error) => {
+                    if (error) {
+                      console.log(error);
+                    }
+                  });
+                }
+                return robot.messageRoom(
+                  message.message.room,
+                  parser(message.message.room, body.message)
+                );
+              });
+          });
+        }
       });
   });
 
@@ -135,44 +175,57 @@ module.exports = function (robot) {
     thread.checkThread('nlp nlp', message.message.room)
       .then((thread_id) => {
         if(thread_id){
-          var uri = "/converse";
-          var body_thread = {
-            thread_id: thread_id,
-            phrase: phrase,
-            token: bot_token
+          if (!socket.connected) {
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
+            socket.open();
           }
-          console.log("Message type Converse sent");
-        }
-        else{
-          var uri = "/nlp";
-          var body_thread = {
-            phrase: phrase,
-            token: bot_token
-          }
-          console.log("Message typ Nlp sent");
-        }
-        console.log("Catched: " + phrase);
-        request({
-          baseUrl: api_url,
-          uri: uri,
-          method: "POST",
-          json: true,
-          body: body_thread,
-          callback: (err, res, body) => {
-            if (!err && body.message) {
-              thread.handleThread(thread_id, body.message.thread_id, message.message.room, 'nlp', body.message.interactive)
-                .then(() => {
-                  robot.messageRoom(
-                    message.message.room,
-                    parser(message.message.room, body.message)
-                  );
-                });
-            } else {
-              message.reply("An error occured :'(");
+          socket.emit('converse', { thread_id, phrase }, (err, body) => {
+            if (err) {
+              return message.send("An error occured :'(");
             }
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, phrase, body.message.interactive)
+              .then(() => {
+                if (body.message.request_hook) {
+                  HookManager.createHook(body.message.hook_id, message.message.room);
+                  socket.emit('hook-accept', body.message.hook_id, (error) => {
+                    if (error) {
+                      console.log(error);
+                    }
+                  });
+                }
+                return robot.messageRoom(
+                  message.message.room,
+                  parser(message.message.room, body.message)
+                );
+              });
+          });
+        }
+        else {
+          if (!socket.connected) {
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
+            socket.open();
           }
-        });
-        message.reply();
+          socket.emit('nlp', { phrase }, (err, body) => {
+            if (err) {
+              message.send("An error occured :'(");
+            }
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, phrase, body.message.interactive)
+              .then(() => {
+                if (body.message.request_hook) {
+                  HookManager.createHook(body.message.hook_id, message.message.room);
+                  socket.emit('hook-accept', body.message.hook_id, (error) => {
+                    if (error) {
+                      console.log(error);
+                    }
+                  });
+                }
+                return robot.messageRoom(
+                  message.message.room,
+                  parser(message.message.room, body.message)
+                );
+              });
+          });
+        }
       });
   })
 };
