@@ -79,7 +79,7 @@ function parser(room, message) {
 module.exports = function (robot) {
   console.log("Init socket with brain.")
   const io = require('socket.io-client');
-  const socket = io('http://localhost:5012', {
+  const socket = io(api_url, {
     autoConnect: true,
     reconnection: false,
     transportOptions: {
