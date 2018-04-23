@@ -70,10 +70,10 @@ module.exports.get_hook = function(hookId) {
           message: "Could not get hook."
         });
       }
-      if (!hook) {
-        return reject(new Error(`No hook with id ${hookId}.`));
+      if (hook) {
+        return resolve(hook);
       }
-      return resolve(hook);
+      return reject(new Error(`No hook with id ${hookId}.`));
     });
   });
 }

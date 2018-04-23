@@ -16,7 +16,7 @@ module.exports.create_storage = function(skill, key, value) {
             if (err) {
               return reject(err);
             }
-            return resolve(storage);
+            return resolve(found);
           });
         } else {
           // Create enw storage
@@ -40,10 +40,6 @@ module.exports.create_storage = function(skill, key, value) {
 
 module.exports.get_storage = function(skill, key) {
   return new Promise((resolve, reject) => {
-    Storage.find({}).then((s) => {
-      console.log(s);
-    })
-    console.log({ skill, key });
     Storage.findOne({ skill, key }, (err, storage) => {
       if (err) {
         return reject(err);
@@ -55,10 +51,7 @@ module.exports.get_storage = function(skill, key) {
           return reject(e);
         }
       } else {
-        return reject({
-          code: 404,
-          message: `No storage with key ${key} for skill ${skill}.`
-        })
+        return resolve(null);
       }
     });
   });

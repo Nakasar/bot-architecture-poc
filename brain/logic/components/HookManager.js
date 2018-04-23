@@ -31,7 +31,7 @@ class HookManager {
             });
             return resolve();
           } else {
-            return reject(new Error(`No hook with id ${hookId}`));
+            return reject(new Error(`No connector linked to this hook currently online.`));
           }
         } else {
           return reject(new Error('No sockets instancied, hook can not be executed.'));

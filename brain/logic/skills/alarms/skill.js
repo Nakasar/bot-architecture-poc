@@ -54,6 +54,36 @@ exports.interactions = interactions;
 const overseer = require('../../overseer');
 const schedule = require('node-schedule');
 
+// Load alarms from database if any.
+overseer.StorageManager.getItem("alarms", "alarms").then((alarms) => {
+  if (!alarms) {
+    return;
+  }
+  const today = new Date();
+  let alarmsToKeep = []
+
+  for (let alarm of alarms) {
+    const alarmDate = new Date(alarm.date);
+    if (alarmDate > today) {
+      schedule.scheduleJob(alarmDate, () => {
+        overseer.HookManager.execute(alarm.hook, {
+          message: {
+            title: "Alarm",
+            text: alarm.text,
+            hook_id: alarm.hook
+          }
+        })
+      });
+
+      alarmsToKeep.push(alarm);
+    }
+  }
+  
+  overseer.StorageManager.storeItem("alarms", "alarms", alarmsToKeep).then().catch((err) => console.log(err));
+}).catch((err) => {
+  console.log(err);
+});
+
 /**
   Handler for command alarm (!alarm).
 
@@ -64,9 +94,12 @@ const schedule = require('node-schedule');
 function alarmHandler({ phrase, data }) {
   return new Promise((resolve, reject) => {
     let time = new Date();
+    let text = "";
     try {
+      let [timeString, textString] = phrase.split(" ");
+      text = textString;
       // Checking time format.
-      let [hours, minutes] = phrase.split(/[:h\-]/i);
+      let [hours, minutes] = timeString.split(/[:h\-]/i);
       hours = parseInt(hours, 10);
       minutes = parseInt(minutes, 10);
       if (isNaN(hours) || hours < 0 || hours > 24) {
@@ -90,7 +123,8 @@ function alarmHandler({ phrase, data }) {
         timestamp: new Date(),
         source: phrase,
         data: [
-            ["time", time]
+            ["time", time],
+            ["text", text]
         ],
         handler: "confirmation"
     }).then((thread) => {
@@ -99,10 +133,11 @@ function alarmHandler({ phrase, data }) {
                interactive: true,
                thread_id: thread._id,
                title: "Set a alarm.",
-               text: `Will set an alarm for ${phrase}, is that correct ? (o/N)`
+               text: `Will set an alarm for today, ${time.toLocaleTimeString()}, is that correct ? (o/N)`
            }
        });
     }).catch((e) => {
+      console.log(e);
       return resolve({
           message: {
               title: "Cannot create alarm.",
@@ -122,6 +157,7 @@ function alarmHandler({ phrase, data }) {
 function handleConfirmation(thread, { phrase, data }) {
   return new Promise((resolve, reject) => {
     let time = new Date(thread.getData("time"));
+    let text = thread.getData("text");
 
     // Close Thread.
     let response = "Aborted";
@@ -134,11 +170,21 @@ function handleConfirmation(thread, { phrase, data }) {
         overseer.HookManager.execute(hook._id, {
           message: {
             title: "Alarm",
-            text: "An alarm is ringing!",
+            text: text,
             hook_id: hook._id
           }
         })
       });
+      overseer.StorageManager.getItem("alarms", "alarms").then((storage) => {
+        let alarms = [];
+        if (storage) {
+          alarms = storage;
+        }
+
+        alarms.push({ date: time, hook: hook._id, text });
+
+        overseer.StorageManager.storeItem("alarms", "alarms", alarms).then().catch((err) => console.log(err));
+      }).catch((err) => console.log(err));
       overseer.ThreadManager.closeThread(thread._id).then(() => {
           return resolve({
               message: {
