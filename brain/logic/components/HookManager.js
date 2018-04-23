@@ -10,8 +10,8 @@ class HookManager {
     this.io = io;
   }
 
-  create() {
-   return this.hookController.create_hook();
+  create(skill) {
+   return this.hookController.create_hook(skill);
   }
 
   finalize(hookId, connectorId) {

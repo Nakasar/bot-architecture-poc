@@ -129,7 +129,7 @@ function handleConfirmation(thread, { phrase, data }) {
         response = "Ok! Alarm set today at " + time.toLocaleTimeString()
     }
 
-    overseer.HookManager.create().then((hook) => {
+    overseer.HookManager.create("alarms").then((hook) => {
       schedule.scheduleJob(time, () => {
         overseer.HookManager.execute(hook._id, {
           message: {

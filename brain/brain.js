@@ -19,12 +19,6 @@ if (!fs.existsSync(path.join(__dirname, "/secret.js"))) {
   fs.writeFileSync(path.join(__dirname, "/secret.js"), content);
 }
 
-/*
-module.exports = {
-  secret: "59ga6faz"
-}
-*/
-
 app.set('title', 'Bot Brain Interface');
 app.set('views', './dashboard/views');
 app.set('view engine', 'pug');
@@ -34,9 +28,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(cookieParser());
 
+// Load and connect database module.
 let db = require('./database/db');
 db.connect();
 
+// Init routes.
 let router = require('./router.js')(io);
 app.use(router);
 

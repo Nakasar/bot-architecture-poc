@@ -7,10 +7,14 @@ var Hook = require("../models/hookModel");
  * @param {Hook} hook - A Hook representation with at last the skill name.
  * @returns {Promise<Hook>} A promise to the created Hook.
  */
-module.exports.create_hook = function(hook) {
+module.exports.create_hook = function(skill) {
   return new Promise((resolve, reject) => {
+    if (!skill) {
+        return reject(new Error("Can't create a hook without skill name."));
+    }
 
     let new_hook = new Hook();
+    new_hook.skill = skill;
     new_hook.save((err) => {
       if (err) {
         return reject(err);
