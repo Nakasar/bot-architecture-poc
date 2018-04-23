@@ -79,7 +79,7 @@ function parser(room, message) {
 module.exports = function (robot) {
   console.log("Init socket with brain.")
   const io = require('socket.io-client');
-  const socket = io(api_url, {
+  const socket = io('http://localhost:5012', {
     autoConnect: true,
     reconnection: true,
     transportOptions: {
@@ -119,7 +119,7 @@ module.exports = function (robot) {
             socket.open();
             return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
-          socket.emit('converse', { thread_id, phrase }, (err, body) => {
+          socket.emit('converse', { thread_id, phrase, data: { channel: message.message.room } }, (err, body) => {
             if (err) {
               return message.send("An error occured :'(");
             }
@@ -148,7 +148,7 @@ module.exports = function (robot) {
             socket.open();
             return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
-          socket.emit('command', { command }, (err, body) => {
+          socket.emit('command', { command, data: { channel: message.message.room } }, (err, body) => {
             if (err) {
               message.send("An error occured :'(");
             }
@@ -185,7 +185,7 @@ module.exports = function (robot) {
             socket.open();
             return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
-          socket.emit('converse', { thread_id, phrase }, (err, body) => {
+          socket.emit('converse', { thread_id, phrase, data: { channel: message.message.room } }, (err, body) => {
             if (err) {
               return message.send("An error occured :'(");
             }
@@ -211,7 +211,7 @@ module.exports = function (robot) {
             socket.open();
             return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
-          socket.emit('nlp', { phrase }, (err, body) => {
+          socket.emit('nlp', { phrase, data: { channel: message.message.room } }, (err, body) => {
             if (err) {
               message.send("An error occured :'(");
             }
