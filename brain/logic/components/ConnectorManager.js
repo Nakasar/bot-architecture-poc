@@ -3,6 +3,11 @@
 exports.ConnectorManager = class ConnectorManager {
   constructor() {
     this.connectorController = require("./../../database/controllers/connectorController");
+    this.io = null;
+  }
+
+  attachIo(io) {
+    this.io = io;
   }
 
   getConnectors() {
@@ -38,6 +43,23 @@ exports.ConnectorManager = class ConnectorManager {
   };
 
   toggleConnector(id, status) {
-    return this.connectorController.toggleConnector(id, status);
+    return new Promise((resolve, reject) => {
+      this.connectorController.toggleConnector(id, status).then((connector) => {
+        console.log(status);
+        console.log(`> [INFO] Setting connector ${connector.name} to ${status ? "active" : "inactive"}...`);
+        if (this.io && this.io.sockets) {
+          // Reject current socket to force connector to retry connection and handshake.
+          const socket = Object.values(this.io.sockets.sockets).filter((socket) => socket.connector.id == id);
+          if (socket.length > 0) {
+            console.log(`\t... Rejecting current socket connection.`);
+            socket[0].disconnect(true);
+          }
+        }
+        console.log('Done!')
+        return resolve(connector)
+      }).catch((err) => {
+        return reject(err);
+      });
+    })
   };
 }

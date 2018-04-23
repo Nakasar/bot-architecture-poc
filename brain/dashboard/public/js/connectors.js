@@ -120,7 +120,7 @@ function cancelIp(button) {
 function toggleConnector(button) {
   let connector = $(button).attr('data-connector');
   let status = $(button).attr('data-active');
-  console.log(status)
+  
   // Toggle Connector status
   $.ajax({
     type: "POST",
@@ -128,7 +128,6 @@ function toggleConnector(button) {
     url: `/connectors/${connector}/toggle/${status == "on" ? "off" : "on"}`,
     dataType: "json",
     success: (json) => {
-      console.log(json);
       if (json.connector.status) {
         $(button).attr('data-active', "on");
         $(button)

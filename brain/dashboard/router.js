@@ -174,11 +174,13 @@ module.exports = function(io) {
 
   router.get('/connectors', (req, res) => {
     hub.ConnectorManager.getConnectors()
-      .then((connectors) => res.render('connectors', {
+      .then((connectors) => {
+        res.render('connectors', {
           title: 'Manage Connectors',
           nav_link: 'nav-connectors',
           connectors
-        }))
+        })
+      })
       .catch((err) => {
         return next(err);
       });

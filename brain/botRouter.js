@@ -152,12 +152,14 @@ module.exports = function(io) {
     });
   });
 
-
+  hub.ConnectorManager.attachIo(io);
   hub.HookManager.attachIo(io);
   io.use((socket, next) => {
     let token = socket.handshake.headers['x-access-token'];
+
     if (!token) {
       console.log("> [WARNING] A connector attempted to connect without a token.")
+      socket.disconnect(true);
       return next(new Error('authentication error'));
     }
 
@@ -167,11 +169,13 @@ module.exports = function(io) {
           socket.connector = { name: connector.name, id: connector._id };
           return next();
         } else {
+          socket.disconnect(true);
           console.log("> [WARNING] A rejected connector attempted to connect.")
           return next(new Error('authentication error'));
         }
       })
       .catch((err) => {
+        socket.disconnect(true);
         console.log(err);
         return next(new Error('authentication error'));
       });

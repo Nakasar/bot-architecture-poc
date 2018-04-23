@@ -484,7 +484,7 @@ module.exports = function(io) {
         console.log(err);
         res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internal server error while setting connector status." })
       });
-  })
+  });
 
   // Regenerate connector token
   /**
@@ -511,7 +511,7 @@ module.exports = function(io) {
     hub.StorageManager.clear()
       .then(() => res.json({ success: true, message: "Storage fully cleared." }))
       .catch((err) => res.status(500).json({ error: 500, message: "Couldn't clear storage." }));
-  })
+  });
 
   ///////////////////////////////////////////////////////////////////////////////
 
