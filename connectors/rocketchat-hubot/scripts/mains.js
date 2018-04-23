@@ -80,6 +80,8 @@ module.exports = function (robot) {
   console.log("Init socket with brain.")
   const io = require('socket.io-client');
   const socket = io('http://localhost:5012', {
+    autoConnect: true,
+    reconnection: false,
     transportOptions: {
       polling: {
         extraHeaders: {
@@ -88,6 +90,10 @@ module.exports = function (robot) {
       }
     }
   });
+
+  socket.on('disconnect', () => {
+    console.log("> [WARING] Disconnected from brain!");
+  })
 
   socket.on('hook', (hookId, body) => {
     HookManager.handleHook(hookId, body.message).then(({ room, message }) => {
@@ -110,8 +116,8 @@ module.exports = function (robot) {
             return message.send("> Entrez votre message après la commande");
           }
           if (!socket.connected) {
-            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
             socket.open();
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
           socket.emit('converse', { thread_id, phrase }, (err, body) => {
             if (err) {
@@ -139,8 +145,8 @@ module.exports = function (robot) {
         }
         else {
           if (!socket.connected) {
-            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
             socket.open();
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
           socket.emit('command', { command }, (err, body) => {
             if (err) {
@@ -176,8 +182,8 @@ module.exports = function (robot) {
       .then((thread_id) => {
         if(thread_id){
           if (!socket.connected) {
-            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
             socket.open();
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
           socket.emit('converse', { thread_id, phrase }, (err, body) => {
             if (err) {
@@ -202,8 +208,8 @@ module.exports = function (robot) {
         }
         else {
           if (!socket.connected) {
-            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
             socket.open();
+            return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
           socket.emit('nlp', { phrase }, (err, body) => {
             if (err) {
