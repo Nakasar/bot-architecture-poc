@@ -143,13 +143,17 @@ module.exports = function(io) {
     if (!req.body.hook_id) {
       return res.status(400).json({ success: false, message: { text: 'No hook_id in body/query. The hook_id was given when you recieved the message that requested the creation of a hook.' }});
     }
-    if (!req.body.channel_id) {
-      return res.status(400).json({ success: false, message: { text: 'No channel_id in body/query. The channel_id will be sent when the hook is trigerred, so that you know where to display the message.' }});
-    }
 
-    return res.status(501);
+    hub.HookManager.finalize(hookId, req.decoded.connector.id).then(() => {
+      return res.json({ success: true, message: "Hook finalized and registered." })
+    }).catch((err) => {
+      console.log(err);
+      return res.status(err.code || 500).json({ code: err.code || 500, success: false, message: (err.code ? ( err.message || "Internal Server Error while finalizing hook." ) : "Internal Server Error while finalizing hook." ) });
+    });
   });
 
+
+  hub.HookManager.attachIo(io);
   io.use((socket, next) => {
     let token = socket.handshake.headers['x-access-token'];
     if (!token) {

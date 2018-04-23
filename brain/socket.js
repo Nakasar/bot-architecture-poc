@@ -68,4 +68,13 @@ module.exports = function(socket) {
       return res(null, { success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id });
     });
   });
+
+  socket.on('hook-accept', (hookId, error) => {
+    hub.HookManager.finalize(hookId, socket.connector.id).then(() => {
+      error(null);
+    }).catch((err) => {
+      console.log(err);
+      error("Could not finalize hook.");
+    });
+  });
 };

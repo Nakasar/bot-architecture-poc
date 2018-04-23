@@ -90,6 +90,12 @@ const storageComponent = require('./components/StorageManager');
 let StorageManager = new storageComponent.StorageManager();
 exports.StorageManager = StorageManager;
 
+// Create and export a new HookManaher
+const hookComponent = require('./components/HookManager');
+let HookManager = new hookComponent.HookManager();
+exports.HookManager = HookManager;
+
+
 // Export main handlers
 exports.handleIntent = handleIntent;
 exports.handleCommand = handleCommand;

@@ -37,7 +37,7 @@ let interactions = {
 
 // dependencies of the skill.
 /* <SKILL DEPENDENCIES> */
-let dependencies = [];
+let dependencies = ['node-shedule'];
 /* </SKILL DEPENDENCIES> */
 
 // Exposing the skill definition.
@@ -52,6 +52,7 @@ exports.interactions = interactions;
 */
 /* <SKILL LOGIC> */
 const overseer = require('../../overseer');
+const schedule = require('node-schedule');
 
 /**
   Handler for command alarm (!alarm).
@@ -62,42 +63,53 @@ const overseer = require('../../overseer');
 */
 function alarmHandler({ phrase, data }) {
   return new Promise((resolve, reject) => {
-    overseer.StorageManager.storeItem(
-      "alarm",
-      "time123",
-      {
-        hour: phrase.split(':')[0],
-        minutes: phrase.split(':')[1]
+    let time = new Date();
+    try {
+      // Checking time format.
+      let [hours, minutes] = phrase.split(/[:h\-]/i);
+      hours = parseInt(hours, 10);
+      minutes = parseInt(minutes, 10);
+      if (isNaN(hours) || hours < 0 || hours > 24) {
+        throw new Error("Invalid hour format.");
       }
-    ).then(() => {
-      overseer.ThreadManager.addThread({
-          timestamp: new Date(),
-          source: phrase,
-          data: [
-              ["at", phrase]
-          ],
-          handler: "confirmation"
-      }).then((thread) => {
-         return resolve({
-             message: {
-                 interactive: true,
-                 thread_id: thread._id,
-                 title: "Set a alarm.",
-                 text: `Will set an alarm for ${phrase}, is that correct ? (o/N)`
-             }
-         });
-      }).catch((e) => {
-        return resolve({
-            message: {
-                title: "Cannot create alarm.",
-                text: "Error while creating thread."
-            }
-        });
+      if (isNaN(minutes) || minutes < 0 || minutes >= 60) {
+        throw new Error("Invalid minutes format.");
+      }
+      time.setHours(hours, minutes, 0, 0);
+    } catch(e) {
+      // Invalid time format.
+      return resolve({
+        message: {
+          title: "Invalid time format",
+          text: "Type `!alarm hh:mm` to create a new alarm."
+        }
+      })
+    }
+
+    overseer.ThreadManager.addThread({
+        timestamp: new Date(),
+        source: phrase,
+        data: [
+            ["time", time]
+        ],
+        handler: "confirmation"
+    }).then((thread) => {
+       return resolve({
+           message: {
+               interactive: true,
+               thread_id: thread._id,
+               title: "Set a alarm.",
+               text: `Will set an alarm for ${phrase}, is that correct ? (o/N)`
+           }
+       });
+    }).catch((e) => {
+      return resolve({
+          message: {
+              title: "Cannot create alarm.",
+              text: "Error while creating thread."
+          }
       });
-    }).catch((err) => {
-      console.log(err);
-      return reject(err);
-    })
+    });
   });
 }
 /**
@@ -109,31 +121,48 @@ function alarmHandler({ phrase, data }) {
 */
 function handleConfirmation(thread, { phrase, data }) {
   return new Promise((resolve, reject) => {
-    overseer.StorageManager.getItem("alarm", "time123").then((time) => {
-      // Close Thread.
-      let response = "Aborted";
-      if (["oui", "yes", "o", "oui!", "yes!"].includes(phrase)) {
-          response = "Ok! Alarm set for " + time
-      }
+    let time = new Date(thread.getData("time"));
+
+    // Close Thread.
+    let response = "Aborted";
+    if (["oui", "yes", "o", "oui!", "yes!"].includes(phrase)) {
+        response = "Ok! Alarm set today at " + time.toLocaleTimeString()
+    }
+
+    overseer.HookManager.create().then((hook) => {
+      schedule.scheduleJob(time, () => {
+        overseer.HookManager.execute(hook._id, {
+          message: {
+            title: "Alarm",
+            text: "An alarm is ringing!",
+            hook_id: hook._id
+          }
+        })
+      });
       overseer.ThreadManager.closeThread(thread._id).then(() => {
           return resolve({
               message: {
-                  title: "Alarm",
-                  text: response
+                  title: "Alarm ",
+                  text: response,
+                  request_hook: true,
+                  hook_id: hook._id
               }
           });
       }).catch((e) => {
+          console.log(e);
           return resolve({
               message: {
                   title: "Alarm",
-                  text: response
+                  text: response,
+                  request_hook: true,
+                  hook_id: hook._id
               }
           });
       });
     }).catch((err) => {
       console.log(err);
       return reject(err);
-    })
+    });
   });
 }
 /* </SKILL LOGIC> */
