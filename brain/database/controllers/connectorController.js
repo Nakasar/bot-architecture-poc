@@ -32,7 +32,7 @@ module.exports.toggleConnector = function(id, status) {
         return reject({
           code: 404,
           message: "No connector with id " + id
-        })
+        });
       }
     }).catch((err) => {
         console.log(err);

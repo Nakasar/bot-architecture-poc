@@ -11,38 +11,66 @@ module.exports.create_hook = function(hook) {
   return new Promise((resolve, reject) => {
 
     let new_hook = new Hook();
-
-    hooks[new_hook._id] = new_hook;
-
-    return resolve(new_hook);
+    new_hook.save((err) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(new_hook);
+    });
   });
 };
 
 module.exports.add_connector = function (hookId, connectorId) {
   return new Promise((resolve, reject) => {
-    if (!hooks[hookId]) {
-      return reject({
-        code: 404,
-        message: "No hook with id " + hookId
+    Hook.findById(hookId).then((hook) => {
+      if (!hook) {
+        return reject({
+          code: 404,
+          message: "No hook with id " + hookId
+        });
+      }
+      if (hook.connector && hooks.connector.length > 0) {
+        return reject({
+          code: 500,
+          message: `Hook ${hookId} is already linked to a connector.`
+        });
+      }
+      hook.connector = connectorId;
+      hook.save((err) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            code: 500,
+            message: "Could not link hook to connector."
+          });
+        }
+        return resolve();
       });
-    }
-    if (hooks[hookId].connector && hooks[hookId].connector.length > 0) {
+    }).catch((err) => {
+      console.log(err);
       return reject({
         code: 500,
-        message: `Hook ${hookId} is already linked to a connector.`
+        message: "Could not link hook to connector."
       });
-    }
-    hooks[hookId].connector = connectorId;
-    return resolve();
+    });
   });
 }
 
 module.exports.get_hook = function(hookId) {
   return new Promise((resolve, reject) => {
-    if (hooks[hookId]) {
-      return resolve(hooks[hookId]);
-    }
-    return reject(new Error(`No hook with id ${hookId}.`));
+    Hook.findById(hookId, (err, hook) => {
+      if (err) {
+        console.log(err);
+        return reject({
+          code: 500,
+          message: "Could not get hook."
+        });
+      }
+      if (!hook) {
+        return reject(new Error(`No hook with id ${hookId}.`));
+      }
+      return resolve(hook);
+    });
   });
 }
 
@@ -56,4 +84,14 @@ module.exports.delete_hook = function(hookId) {
   })
 }
 
-let hooks = {};
+module.exports.purge_hooks = function() {
+  return new Promise((resolve, reject) => {
+    Hook.remove({ connector: { $exists: false }}, (err) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve();
+    })
+  });
+}
