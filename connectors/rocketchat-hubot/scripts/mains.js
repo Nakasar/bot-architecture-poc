@@ -81,7 +81,7 @@ module.exports = function (robot) {
   const io = require('socket.io-client');
   const socket = io(api_url, {
     autoConnect: true,
-    reconnection: false,
+    reconnection: true,
     transportOptions: {
       polling: {
         extraHeaders: {
