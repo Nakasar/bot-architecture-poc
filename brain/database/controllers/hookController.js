@@ -80,11 +80,12 @@ module.exports.get_hook = function(hookId) {
 
 module.exports.delete_hook = function(hookId) {
   return new Promise((resolve, reject) => {
-    if (hooks[hookId]) {
-      delete hooks[hookId];
+    Hook.remove({ _id: hookId }, (err) => {
+      if (err) {
+        return reject(err);
+      }
       return resolve();
-    }
-    return resolve();
+    });
   })
 }
 

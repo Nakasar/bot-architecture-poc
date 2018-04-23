@@ -44,7 +44,7 @@ module.exports = function(socket) {
     }
 
     let [word, ...params] = command.split(" ");
-
+    
     hub.handleCommand(word, params.join(" "), data).then((response) => {
       return res(null, { success: response.success, message: response.message, source: command });
     }).catch((error) => {

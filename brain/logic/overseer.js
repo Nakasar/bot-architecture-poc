@@ -10,5 +10,6 @@ module.exports.StorageManager = {
 };;
 module.exports.HookManager = {
   create: (skill) => hub.HookManager.create(skill),
+  remove: (hookId) => hub.HookManager.remove(hookId),
   execute: (hookId, message) => hub.HookManager.execute(hookId, message)
 }
