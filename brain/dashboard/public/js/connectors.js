@@ -118,19 +118,19 @@ function cancelIp(button) {
 }
 
 function toggleConnector(button) {
-  let connector = $(button).data('connector');
-  let status = $(button).data('active');
-
+  let connector = $(button).attr('data-connector');
+  let status = $(button).attr('data-active');
+  console.log(status)
   // Toggle Connector status
   $.ajax({
     type: "POST",
     baseUrl: base_url,
-    url: `/connectors/${connector}/toggle/${status ? "off" : "on"}`,
+    url: `/connectors/${connector}/toggle/${status == "on" ? "off" : "on"}`,
     dataType: "json",
     success: (json) => {
-      if (json.connector.active) {
-        $(button).attr('data-active', true);
-        $(button).data('active', true);
+      console.log(json);
+      if (json.connector.status) {
+        $(button).attr('data-active', "on");
         $(button)
           .find('[data-fa-i2svg]')
           .toggleClass("fa-toggle-on")
@@ -141,8 +141,7 @@ function toggleConnector(button) {
         $(button).attr('title', 'Deactivate connector');
         $(button).attr('aria-label', 'Deactivate connector');
       } else {
-        $(button).attr('data-active', false);
-        $(button).data('active', false);
+        $(button).attr('data-active', "off");
         $(button)
           .find('[data-fa-i2svg]')
           .toggleClass("fa-toggle-off")

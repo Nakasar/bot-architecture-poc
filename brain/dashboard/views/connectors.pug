@@ -39,9 +39,9 @@ block content
                 role="button"
                 title=( connector.active ? "Deactivate connector" : "Activate connector")
                 style="margin-left: 1em;"
-                aria-label=( connector.active ? "Deactivate connector" : "Activate skill")
+                aria-label=( connector.active ? "Deactivate connector" : "Activate connector")
                 class=( connector.active ? "text-success" : "text-danger")
-                data-connector=connector._id data-active=(`${connector.active}`) onClick="toggleConnector(this)"
+                data-connector=connector._id data-active=(`${connector.active ? "on" : "off"}`) onClick="toggleConnector(this)"
                 )
                 if connector.active
                   i.fas.fa-toggle-on
