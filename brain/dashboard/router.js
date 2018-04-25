@@ -9,10 +9,17 @@ const users = require('../database/controllers/userController');
 module.exports = function(io) {
   let router = express.Router();
 
-  // Dashboard middleware
+  // Dashboard Main Middleware
   router.use((req, res, next) => {
     next();
   });
+
+  ///////////////////////////////////////////////////////////////////////////////
+  //                      UNSECURED ENDPOINTS
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // Setup for admin account. Will be ignored if there is at least one user in the database.
 
   /**
    * @api {get} /dashboard/setup Setup admin account.
@@ -30,29 +37,34 @@ module.exports = function(io) {
             return res.json({ success: true, message: "Admin user added.", user: obj.user });
           }).catch((err) => {
             console.log(err);
-            return res.json({ success: false, message: "Could not setup admin user." });
+            return res.status(500).json({ success: false, message: "Could not setup admin user." });
           });
         }).catch((err) => {
           console.log(err);
-          return res.json({ success: false, message: "Could not setup admin user." });
+          return res.status(500).json({ success: false, message: "Could not setup admin user." });
         });
       } else {
-        return res.json({ success: false, message: "Could not setup admin user." });
+        return res.status(403).json({ success: false, message: "The user database is not empty." });
       }
     }).catch((err) => {
       console.log(err);
-      return res.json({ success: false, message: "Could not setup admin user." });
+      return res.status(500).json({ success: false, message: "Could not setup admin user." });
     });
   });
+
+  //
+  ///////////////////////////////////////////////////////////////////////////////
 
   router.use('/static', express.static(path.join(__dirname, './public')));
 
   // Login Page
   router.get('/login', (req, res) => {
     return res.render('login');
-  })
+  });
 
+  ///////////////////////////////////////////////////////////////////////////////
   // Login endpoint
+
   /**
    * @api {post} /dashboard/login Login to dashboard
    * @apiName DashboardLogin
@@ -74,6 +86,9 @@ module.exports = function(io) {
     });
   });
 
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
   // MIDDLEWARE FOR DASHBOARD AUTH
   router.use(function(req, res, next) {
     let token = req.body.token || req.query.token || req.get("x-access-token") || req.cookies['user_token'];
@@ -92,7 +107,13 @@ module.exports = function(io) {
     });
   });
 
+  ///////////////////////////////////////////////////////////////////////////////
+  //                      AUTHED ENDPOINTS
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
   // Dashboard index
+
   router.get('/', (req, res, next) => {
     hub.ConnectorManager.getConnectorByName("Dashboard").then((connector) => {
       hub.getSkills().then((skills) => {
@@ -122,8 +143,12 @@ module.exports = function(io) {
       });
     })
   });
+  //
+  ///////////////////////////////////////////////////////////////////////////////
 
+  ///////////////////////////////////////////////////////////////////////////////
   // Dashboard Skills administration
+
   router.get('/skills', (req, res) => {
     hub.getSkills().then((skills) => {
       res.render('skills', {
@@ -136,7 +161,12 @@ module.exports = function(io) {
     });
   });
 
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
   // Dashboard Skills administration
+
   router.get('/skills/new', (req, res) => {
     res.render('skill_edit', {
       title: 'Add Skill - Bot',
@@ -144,7 +174,12 @@ module.exports = function(io) {
     });
   });
 
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
   // Dashboard Skills administration
+
   router.get('/skills/:skill/edit', (req, res) => {
     hub.getSkill(req.params.skill).then((skill) => {
       if (skill) {
@@ -172,6 +207,12 @@ module.exports = function(io) {
     });
   });
 
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // Connectors administration
+
   router.get('/connectors', (req, res) => {
     hub.ConnectorManager.getConnectors()
       .then((connectors) => {
@@ -186,6 +227,12 @@ module.exports = function(io) {
       });
   });
 
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // User account settings
+
   router.get('/settings', (req, res) => {
     users.get_user(req.decoded.user.id).then((user) => {
       return res.render('settings', {
@@ -197,6 +244,12 @@ module.exports = function(io) {
       return next();
     })
   });
+
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // Modify username
 
   router.put('/settings/username', (req, res) => {
     let usernameRegex = /^[0-9a-zA-Z\u00E0-\u00FC -_]{3,30}$/;
@@ -214,6 +267,12 @@ module.exports = function(io) {
       return res.status(400).json({ success: false, message: "Username must contains only letters (accentued), digits, '-', '_', and whitespaces, from 3 to 30 characters." });
     }
   });
+
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
+  // Modify password
 
   router.put('/settings/password', (req, res) => {
     if (!req.body.current_password) {
@@ -235,6 +294,9 @@ module.exports = function(io) {
       return res.status(400).json({ success: false, message: "new_password must contains only letters, digits, some special characters, from 8 to 30 characters." });
     }
   });
+  
+  //
+  ///////////////////////////////////////////////////////////////////////////////
 
   // Dashboard 404 Error
   router.get('*', (req, res) => {
