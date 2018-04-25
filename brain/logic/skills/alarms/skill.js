@@ -37,7 +37,7 @@ let interactions = {
 
 // dependencies of the skill.
 /* <SKILL DEPENDENCIES> */
-let dependencies = ['node-shedule'];
+let dependencies = ['node-schedule'];
 /* </SKILL DEPENDENCIES> */
 
 // Exposing the skill definition.

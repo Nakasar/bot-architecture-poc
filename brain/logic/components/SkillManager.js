@@ -416,10 +416,9 @@ exports.SkillManager = class SkillManager {
   validateSkillCode(code) {
     return new Promise((resolve, reject) => {
       // TODO: Validate skill code.
-      let [matched, name, author, date, commands, intents, interactions, dependencies, logic, ...Rest] = new RegExp(skillTemplateRegex, "g").exec(code) || [null, null, null, null, null, null, null, null, null, null];
-
+      
+      let [matched, name, author, date, commands, intents, interactions, dependencies, logic, ...rest] = new RegExp(skillTemplateRegex, "g").exec(code) || [null, null, null, null, null, null, null, null, null, null];
       if (matched == null || matched.length == 0) {
-        console.log("Not matched");
         return resolve(false, "Skill template didn't match.");
       }
 
@@ -436,7 +435,9 @@ exports.SkillManager = class SkillManager {
   saveSkillCode(skillName, code) {
     return new Promise((resolve, reject) => {
       this.validateSkillCode(code).then((success, reason) => {
-        if (success) {
+        // TODO: Validate skill code instead of TRUE...
+        
+        if (true) {
           console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
           fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
             if (err) {

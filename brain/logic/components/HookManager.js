@@ -49,6 +49,7 @@ class HookManager {
     return new Promise((resolve, reject) => {
       this.get(hookId).then((hook) => {
         if (!hook) {
+          console.log(`> [WARNING] A skill tried to execute an unkown hook ${hookId}.`);
           return reject(this.codes.NO_HOOK);
         }
         if (this.io && this.io.sockets) {
@@ -59,6 +60,7 @@ class HookManager {
             socket[0].emit('hook', hook._id, {
               message
             });
+            console.log(`Executed hook ${hookId}.`);
             return resolve();
           } else {
             return reject(this.codes.NO_CONNECTOR_LINKED);
@@ -67,6 +69,7 @@ class HookManager {
           return reject(this.codes.NO_CONNECTOR_ONLINE);
         }
       }).catch((err) => {
+        console.log(err);
         return reject(err);
       });
     });
