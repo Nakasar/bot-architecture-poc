@@ -1,9 +1,15 @@
 'use strict';
 
 class HookManager {
+
   constructor() {
     this.hookController = require("./../../database/controllers/hookController");
     this.io = null;
+    this.codes = {
+      NO_HOOK: 1,
+      NO_CONNECTOR_LINKED: 2,
+      NO_CONNECTOR_ONLINE: 3
+    }
   }
 
   /**
@@ -42,6 +48,9 @@ class HookManager {
   execute(hookId, message) {
     return new Promise((resolve, reject) => {
       this.get(hookId).then((hook) => {
+        if (!hook) {
+          return reject(this.codes.NO_HOOK);
+        }
         if (this.io && this.io.sockets) {
           const socket = Object.values(this.io.sockets.sockets).filter((socket) => {
             return socket.connector.id == hook.connector
@@ -52,10 +61,10 @@ class HookManager {
             });
             return resolve();
           } else {
-            return reject(new Error(`No connector linked to this hook currently online.`));
+            return reject(this.codes.NO_CONNECTOR_LINKED);
           }
         } else {
-          return reject(new Error('No sockets instancied, hook can not be executed.'));
+          return reject(this.codes.NO_CONNECTOR_ONLINE);
         }
       }).catch((err) => {
         return reject(err);
@@ -73,6 +82,22 @@ class HookManager {
   }
 
   /**
+   * Clear hooks for given skill.
+   * @param {String} skill - Name of the skill to purge.
+   */
+  clearForSkill(skill) {
+    return this.hookController.purge_for_skill(skill);
+  }
+
+  /**
+   * Get hooks by skill name.
+   * @param {String} skill - name of the skill to get hooks of.
+   */
+  getForSkill(skill) {
+    return this.hookController.get_by_skill(skill);
+  }
+
+  /**
    * Get a hook.
    * @param {String} hookId
    * @return {Promise} Promise to the hook : { _id, skill, connector }
@@ -80,9 +105,13 @@ class HookManager {
   get(hookId) {
    return this.hookController.get_hook(hookId);
   }
-
+  
+  /**
+   * Get hooks of connector by id.
+   * @param {String} connectorId - Id of connector to get hooks of.
+   */
   getForConnector(connectorId) {
-   return null;
+   return this.hookController.get_by_connector(connectorId);
   }
 }
 

@@ -178,6 +178,42 @@ module.exports = function(io) {
   ///////////////////////////////////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////////////////////////////////
+  // Skill Monitoring
+
+  router.get('/skills/:skill', (req, res, next) => {
+    hub.getSkill(req.params.skill).then((skillFound) => {
+      if (skillFound) {
+        let skill = Object.assign({}, skillFound);
+        skill.name = req.params.skill;
+
+        Promise.all([hub.HookManager.getForSkill(req.params.skill), hub.StorageManager.getForSkill(req.params.skill)]).then(([ hooks, storage ]) => {
+          skill.hooks = hooks;
+          skill.storage = storage;
+
+          res.render('skill', {
+            title: skill.name,
+            nav_link: 'nav-skills',
+            skill
+          });
+        }).catch((err) => {
+          console.log(err);
+          return next({ code: 500 });
+        });
+      } else {
+        res.render('skill', {
+          title: 'Skill not found',
+          nav_link: 'nav-skills'
+        });
+      }
+    }).catch((err) => {
+      next(err);
+    });
+  });
+
+  //
+  ///////////////////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////
   // Dashboard Skills administration
 
   router.get('/skills/:skill/edit', (req, res) => {

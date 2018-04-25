@@ -5,7 +5,7 @@ block content
     .text-center
       img(src="/dashboard/static/imgs/error.svg" width="200px" alt="error" style="margin: auto;")
       h1 Oups :'(
-      p.lead Looks like you are going where no one did before, you should really turn back adventurer!
+      p.lead=(displaymessage || 'Looks like you are going where no one did before, you should really turn back adventurer!')
   else if code && code == 403
     .text-center
       img(src="/dashboard/static/imgs/angry.svg" width="200px" alt="error" style="margin: auto;")

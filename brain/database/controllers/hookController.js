@@ -72,8 +72,9 @@ module.exports.get_hook = function(hookId) {
       }
       if (hook) {
         return resolve(hook);
+      } else {
+        return resolve(null);
       }
-      return reject(new Error(`No hook with id ${hookId}.`));
     });
   });
 }
@@ -98,5 +99,45 @@ module.exports.purge_hooks = function() {
       }
       return resolve();
     })
+  });
+}
+
+module.exports.purge_for_skill = function(skill) {
+  return new Promise((resolve, reject) => {
+    Hook.remove({ skill }, (err) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve();
+    });
+  });
+}
+
+/**
+ * Get hooks for connector by id.
+ * @param {String} connector - Id of connector to retrieve hooks of.
+ */
+module.exports.get_by_connector = function(connector) {
+  return new Promise((resolve, reject) => {
+    Hook.find({ connector }, (err, hooks) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(hooks);
+    });
+  });
+}
+
+module.exports.get_by_skill = function(skill) {
+  return new Promise((resolve, reject) => {
+    Hook.find({ skill }, (err, hooks) => {
+      if (err) {
+        console.log(err);
+        return reject(err);
+      }
+      return resolve(hooks);
+    });
   });
 }

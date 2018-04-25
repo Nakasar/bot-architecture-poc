@@ -64,6 +64,7 @@ overseer.StorageManager.getItem("alarms", "alarms").then((alarms) => {
 
   for (let alarm of alarms) {
     const alarmDate = new Date(alarm.date);
+
     if (alarmDate > today) {
       schedule.scheduleJob(alarmDate, () => {
         overseer.HookManager.execute(alarm.hook, {
@@ -72,7 +73,18 @@ overseer.StorageManager.getItem("alarms", "alarms").then((alarms) => {
             text: alarm.text,
             hook_id: alarm.hook
           }
-        })
+        }).catch((err) => {
+          if (err == overseer.HookManager.codes.NO_HOOK) {
+            overseer.StorageManager.getItem("alarms", "alarms").then((storage) => {
+              let alarms = [];
+              if (storage) {
+                alarms = storage.filter((a) => a.hook !== alarm.hook);
+              }
+      
+              overseer.StorageManager.storeItem("alarms", "alarms", alarms).then().catch((err) => console.log(err));
+            }).catch((err) => console.log(err));
+          }
+        });
       });
 
       alarmsToKeep.push(alarm);
@@ -95,9 +107,10 @@ function alarmHandler({ phrase, data }) {
   return new Promise((resolve, reject) => {
     let time = new Date();
     let text = "";
+
     try {
-      let [timeString, textString] = phrase.split(" ");
-      text = textString;
+      let [timeString, ...textString] = phrase.split(" ");
+      text = textString ? textString.join(" ") : "";
       // Checking time format.
       let [hours, minutes] = timeString.split(/[:h\-]/i);
       hours = parseInt(hours, 10);
@@ -110,6 +123,7 @@ function alarmHandler({ phrase, data }) {
       }
       time.setHours(hours, minutes, 0, 0);
     } catch(e) {
+      console.log(e);
       // Invalid time format.
       return resolve({
         message: {
@@ -118,7 +132,7 @@ function alarmHandler({ phrase, data }) {
         }
       })
     }
-
+  
     overseer.ThreadManager.addThread({
         timestamp: new Date(),
         source: phrase,
@@ -173,7 +187,18 @@ function handleConfirmation(thread, { phrase, data }) {
             text: text,
             hook_id: hook._id
           }
-        })
+        }).catch((err) => {
+          if (err == overseer.HookManager.codes.NO_HOOK) {
+            overseer.StorageManager.getItem("alarms", "alarms").then((storage) => {
+              let alarms = [];
+              if (storage) {
+                alarms = storage.filter((a) => a.hook !== hook._id);
+              }
+      
+              overseer.StorageManager.storeItem("alarms", "alarms", alarms).then().catch((err) => console.log(err));
+            }).catch((err) => console.log(err));
+          }
+        });
       });
       overseer.StorageManager.getItem("alarms", "alarms").then((storage) => {
         let alarms = [];

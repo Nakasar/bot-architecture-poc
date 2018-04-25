@@ -346,6 +346,32 @@ module.exports = function(io) {
     }
   });
 
+  router.delete('/skills/:skill/hooks', (req, res) => {
+    if (hub.hasSkill(req.params.skill)) {
+      hub.HookManager.clearForSkill(req.params.skill).then(() => {
+        return res.json({ success: true, message: `Hooks cleared for skill ${req.params.skill}.`});  
+      }).catch((err) => {
+        console.log(err);
+        return res.status(500).json({ success: false, message: `Could not clear hooks of skill ${req.params.skill}.`});  
+      });
+    } else {
+      return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+    }
+  });
+
+  router.delete('/skills/:skill/storage', (req, res) => {
+    if (hub.hasSkill(req.params.skill)) {
+      hub.StorageManager.clearForSkill(req.params.skill).then(() => {
+        return res.json({ success: true, message: `Storage cleared for skill ${req.params.skill}.`});  
+      }).catch((err) => {
+        console.log(err);
+        return res.status(500).json({ success: false, message: `Could not clear storage of skill ${req.params.skill}.`});  
+      });
+    } else {
+      return res.json({ success: false, message: `Skill ${req.params.skill} does not exists.`});
+    }
+  });
+
   // Get list of connectors (without token)
   /**
    * @api {get} /connectors Get list of connectors registered for this bot, and their status.

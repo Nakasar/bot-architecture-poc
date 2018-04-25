@@ -14,7 +14,7 @@ function parser(room, message) {
     channel: room,
     attachments: []
   };
-  if (message.text) {
+  if (message.text != undefined) {
     let attachment = {
       text: message.text
     };

@@ -25,9 +25,25 @@ exports.StorageManager = class StorageManager {
   }
 
   /**
+   * Get the storage for the given skill name.
+   * @param {String} skill
+   */
+  getForSkill(skill) {
+    return this.storageController.get_storage_for_skill(skill);
+  }
+
+  /**
    * Clear the storage.
    */
   clear() {
     return this.storageController.clear_storage();
+  }
+
+  /**
+   * Clear the storage for the given skill name.
+   * @param {String} skill 
+   */
+  clearForSkill(skill) {
+    return this.storageController.clear_storage_for_skill(skill);
   }
 }

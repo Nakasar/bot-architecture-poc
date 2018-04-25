@@ -12,8 +12,8 @@ const StorageSchema = new Schema({
     required: true
   },
   value: {
-    type: String,
-    default: JSON.stringify({})
+    type: Schema.Types.Mixed,
+    default: {}
   }
 });
 
