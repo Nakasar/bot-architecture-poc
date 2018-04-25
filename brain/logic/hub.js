@@ -60,6 +60,10 @@ function handleCommand(commandName, phrase = "", data = {}) {
   })
 };
 
+/**
+ * Fully reload all the skills.
+ * @return {Promise} promise object that resolves if success.
+ */
 function reloadBrain() {
   return new Promise((resolve, reject) => {
     try {

@@ -618,6 +618,11 @@ exports.SkillManager = class SkillManager {
     }
   };
 
+  /**
+   * Get secrets for a skill.
+   * @param {String} skillName - The name of the skill to get secret of.
+   * @return {Promise} Promise to the secret array of key-value pair.
+   */
   getSkillSecret(skillName) {
     return new Promise((resolve, reject) => {
       if (this.skills.has(skillName)) {
@@ -637,6 +642,12 @@ exports.SkillManager = class SkillManager {
     });
   };
 
+  /**
+   * Update a skill's secrets.
+   * 
+   * @param {String} skillName - The name of the skill to update secret of.
+   * @param {Array} secrets - Key-value apir array.
+   */
   updateSkillSecret(skillName, secrets) {
     return new Promise((resolve, reject) => {
       if (this.skills.has(skillName)) {
@@ -665,7 +676,7 @@ exports.SkillManager = class SkillManager {
           });
         });
       } else {
-        return reject({ code: 404, message: "No skill name " + skillName });
+        return reject({ code: 404, message: "No skill named " + skillName });
       }
     });
   };
