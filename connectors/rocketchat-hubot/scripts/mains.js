@@ -79,7 +79,7 @@ function parser(room, message) {
 module.exports = function (robot) {
   console.log("Init socket with brain.")
   const io = require('socket.io-client');
-  const socket = io('http://localhost:5012', {
+  const socket = io(api_url, {
     autoConnect: true,
     reconnection: true,
     transportOptions: {
@@ -104,14 +104,11 @@ module.exports = function (robot) {
   });
 
   robot.hear(/!(.*)/, function (message) {
-    let command = message.match[1];
+    let phrase = message.match[1];
     var uri = "/command";
-    thread.checkThread(command, message.message.room)
+    thread.checkThread(message.message.room)
       .then((thread_id) => {
         if (thread_id) {
-          var phrase = command.split(' ');
-          phrase.splice(0, 1);
-          phrase = phrase.join(' ');
           if (phrase === '') {
             return message.send("> Entrez votre message après la commande");
           }
@@ -124,7 +121,7 @@ module.exports = function (robot) {
               return message.send("An error occured :'(");
             }
 
-            thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, body.message.interactive)
               .then(() => {
                 if (body.message.request_hook) {
                   HookManager.createHook(body.message.hook_id, message.message.room);
@@ -148,11 +145,12 @@ module.exports = function (robot) {
             socket.open();
             return message.send("> Impossible de joindre le cerveau.\n_(Si le problème persiste, contactez un administrateur.)_")
           }
-          socket.emit('command', { command, data: { channel: message.message.room } }, (err, body) => {
+          console.log("Message envoyé : "+phrase);
+          socket.emit('command', { command: phrase, data: { channel: message.message.room } }, (err, body) => {
             if (err) {
               message.send("An error occured :'(");
             }
-            thread.handleThread(thread_id, body.message.thread_id, message.message.room, command, body.message.interactive)
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, body.message.interactive)
               .then(() => {
                 if (body.message.request_hook) {
                   HookManager.createHook(body.message.hook_id, message.message.room);
@@ -174,11 +172,10 @@ module.exports = function (robot) {
 
   robot.respond(/(.*)/, function (message) {
     let phrase = message.match[1];
-
     if (phrase.startsWith("!")) {
       return;
     }
-    thread.checkThread('nlp nlp', message.message.room)
+    thread.checkThread(message.message.room)
       .then((thread_id) => {
         if(thread_id){
           if (!socket.connected) {
@@ -189,7 +186,7 @@ module.exports = function (robot) {
             if (err) {
               return message.send("An error occured :'(");
             }
-            thread.handleThread(thread_id, body.message.thread_id, message.message.room, phrase, body.message.interactive)
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, body.message.interactive)
               .then(() => {
                 if (body.message.request_hook) {
                   HookManager.createHook(body.message.hook_id, message.message.room);
@@ -215,7 +212,7 @@ module.exports = function (robot) {
             if (err) {
               message.send("An error occured :'(");
             }
-            thread.handleThread(thread_id, body.message.thread_id, message.message.room, phrase, body.message.interactive)
+            thread.handleThread(thread_id, body.message.thread_id, message.message.room, body.message.interactive)
               .then(() => {
                 if (body.message.request_hook) {
                   HookManager.createHook(body.message.hook_id, message.message.room);
