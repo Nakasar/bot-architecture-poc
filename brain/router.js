@@ -5,6 +5,7 @@ let hub = require('./logic/hub');
 const jwt = require('jsonwebtoken');
 const config = require('./secret');
 
+// Main router for the brain. Will load te dashboard router and the bot router.
 module.exports = function(io) {
   let router = express.Router();
 
@@ -37,14 +38,6 @@ module.exports = function(io) {
   ///////////////////////////////////////////////////////////////////////////////
   //                      AUTHED ENDPOINTS
   ///////////////////////////////////////////////////////////////////////////////
-
-  // MIDDLEWARE FOR AUTH
-  /**
-    Check token of user.
-  */
-  router.use(function (req, res, next) {
-    next();
-  });
 
   ///////////////////////////////////////////////////////////////////////////////
   // BOT ENDPOINTS
@@ -507,6 +500,15 @@ module.exports = function(io) {
       .catch((err) => res.status(err.code || 500).json({ error: err.code || 500, message: err.message || "Internal server error while refreshing connector token." }));
   });
 
+  // Clear storage
+  /**
+   * @api {delete} /storage Full clear the bot storage.
+   * @apiName ClearStorage
+   * @apiGroup Storage
+   *
+   * @apiSuccess {Boolean} success Success of operation.
+   * @apiSuccess {String} message Message from the api.
+   */
   router.delete('/storage', (req, res) => {
     hub.StorageManager.clear()
       .then(() => res.json({ success: true, message: "Storage fully cleared." }))

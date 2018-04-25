@@ -152,34 +152,49 @@ module.exports = function(io) {
     });
   });
 
+  /*
+    Attach socket manager to ConnectorManager
+    The connector manager will be able to kill sockets of revoked connectors. 
+   */
   hub.ConnectorManager.attachIo(io);
+  /*
+    Attach socket manager to HookManagerr
+    The hook manager will be able to emit messages to connected connectors.
+   */
   hub.HookManager.attachIo(io);
+
+  /*
+    Socket middleware. Unauthorized sockets connection attemps from
+    an unkown or a deactivated connector will be rejected.
+   */
   io.use((socket, next) => {
     let token = socket.handshake.headers['x-access-token'];
 
     if (!token) {
       console.log("> [WARNING] A connector attempted to connect without a token.")
-      socket.disconnect();
+      socket.disconnect(); // Force disconnection to allow connector to retry link without being automatically rejected.
       return next(new Error('authentication error'));
     }
 
     hub.ConnectorManager.checkConnectorToken(token)
       .then((connector) => {
         if (connector && connector.active) {
-          socket.connector = { name: connector.name, id: connector._id };
+          socket.connector = { name: connector.name, id: connector._id }; // Socket will now bear the connector info. This is used to check if a connector is online or not.
           return next();
         } else {
-          socket.disconnect();
+          socket.disconnect(); // Force disconnection to allow connector to retry link without being automatically rejected.
           console.log("> [WARNING] A rejected connector attempted to connect.")
           return next(new Error('authentication error'));
         }
       })
       .catch((err) => {
-        socket.disconnect();
+        socket.disconnect(); // Force disconnection to allow connector to retry link without being automatically rejected.
         console.log(err);
         return next(new Error('authentication error'));
       });
   });
+
+  // Load socket events listeners.
   io.on('connection', require('./socket'));
 
   return router;
