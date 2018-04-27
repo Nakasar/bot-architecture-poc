@@ -7,6 +7,7 @@
 
 ## IMPORTANT
 ### Known issues
+> This is the **PRERELEASE** branch for 1.0.0.
 > Installing with Node 10.x will crash due to bcrypt not having added node v10.x to its build configuration files yet.
 
 ## Install
