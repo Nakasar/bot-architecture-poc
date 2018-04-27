@@ -5,9 +5,13 @@
 [Install with NPM](#classical-installation)  
 [Install with Docker](#docker-install)
 
+## IMPORTANT
+### Known issues
+> Installing with Node 10.x will crash due to bcrypt not having added node v10.x to its build configuration files yet.
+
 ## Install
 ### Classical installation
-- You must have a local installation of [NodeJS](https://nodejs.org) _(Tested for v9.9.0)_ with npm.
+- You must have a local installation of [NodeJS](https://nodejs.org) _(Tested for LTS 8 and v9.9.0)_ with npm.
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
