@@ -50,6 +50,7 @@ Adapter can pass data to the brain using the `data: {}` object in body. Data wil
 
 #### Sockets / HTTP API
 You may implement a connector that use the HTTP API of the brain or use websockets (socket-io). Socket events emitted by the adapter are: 
+
 | event         | HTTP equivalent | params                          | callback    | description                                 |
 | ------------- | --------------- | ------------------------------- | ----------- | ------------------------------------------- |
 | `nlp`         | `/nlp`          | { phrase, data: {} }            | (err, body) | Send a phrase to be analyzed by the brain.  |
@@ -58,6 +59,7 @@ You may implement a connector that use the HTTP API of the brain or use websocke
 | `hook-accept` | `/hooks`        | hook_id                         | (error)     | Accept the creation of a hook.              |
 
 Socket events received by the adapter are:
+
 | event  | callback        | description                                                           |
 | ------ | --------------- | --------------------------------------------------------------------- |
 | `hook` | (hook_id, body) | Hook triggered by the brain, body will contain the message to display |
