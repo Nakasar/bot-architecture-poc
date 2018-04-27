@@ -33,7 +33,7 @@ module.exports.add_connector = function (hookId, connectorId) {
           message: "No hook with id " + hookId
         });
       }
-      if (hook.connector && hooks.connector.length > 0) {
+      if (hook.connector && hook.connector.length > 0) {
         return reject({
           code: 500,
           message: `Hook ${hookId} is already linked to a connector.`

@@ -176,7 +176,7 @@ function answerHandler(thread, { phrase }) {
   --------
     entities (Object)
 */
-function handleQuizz({ entities: {}, phrase, data }) {
+function handleQuizz({ entities = {}, phrase, data }) {
   return quizz({ phrase });
 }
 /* </SKILL LOGIC> */

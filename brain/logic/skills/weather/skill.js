@@ -95,7 +95,7 @@ function getWeather({ phrase }) {
       }
     });
   });
-};
+}
 
 function handleWeather({ entities: {location: location = ""} }) {
   let finalLocation = location[0];

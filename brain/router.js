@@ -97,7 +97,7 @@ module.exports = function(io) {
    */
   router.get('/skills', (req, res) => {
     hub.getSkills().then((skills) => {
-      let skillsToReturn = JSON.parse(JSON.stringify(skills));;
+      let skillsToReturn = JSON.parse(JSON.stringify(skills));
 
       // Be sure to send handle and execute names instead of function object
       for (let skill in skills) {

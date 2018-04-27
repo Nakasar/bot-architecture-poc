@@ -237,7 +237,6 @@ module.exports = function(io) {
           res.redirect('/dashboard/skills');
         });
       } else {
-        console.log(err);
         res.redirect('/dashboard/skills');
       }
     });
@@ -249,7 +248,7 @@ module.exports = function(io) {
   ///////////////////////////////////////////////////////////////////////////////
   // Connectors administration
 
-  router.get('/connectors', (req, res) => {
+  router.get('/connectors', (req, res, next) => {
     hub.ConnectorManager.getConnectors()
       .then((connectors) => {
         res.render('connectors', {
@@ -282,7 +281,7 @@ module.exports = function(io) {
   ///////////////////////////////////////////////////////////////////////////////
   // User account settings
 
-  router.get('/settings', (req, res) => {
+  router.get('/settings', (req, res, next) => {
     users.get_user(req.decoded.user.id).then((user) => {
       return res.render('settings', {
         title: "Dashboard Settings - Bot",
@@ -328,7 +327,7 @@ module.exports = function(io) {
       return res.status(400).json({ sucess: false, message: "No current password to confirm security operation." });
     }
 
-    let passwordRegex = /^[0-9a-zA-Z\u00E0-\u00FC!@#{}~"'\(\[|\\^=+\]\)-_]{8,30}$/;
+    let passwordRegex = /^[0-9a-zA-Z\u00E0-\u00FC!@#{}~"'\(\[|\\^=+\]\)-_]{8,30}$/; // eslint-disable-line no-useless-escape
     if (req.body.new_password && passwordRegex.test(req.body.new_password)) {
       users.update_password(req.decoded.user.id, req.body.current_password, req.body.new_password).then(() => {
         return res.status(200).json({ success: true, message: "Password updated." });

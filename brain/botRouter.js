@@ -28,7 +28,7 @@ function checkConnectorToken(req, res, next) {
       console.log(err);
       return res.status(500).json({ success: false, error: 501, message: "Internal server error while checking token."});
     });
-};
+}
 
 module.exports = function(io) {
   let router = express.Router();
@@ -144,7 +144,7 @@ module.exports = function(io) {
       return res.status(400).json({ success: false, message: { text: 'No hook_id in body/query. The hook_id was given when you recieved the message that requested the creation of a hook.' }});
     }
 
-    hub.HookManager.finalize(hookId, req.decoded.connector.id).then(() => {
+    hub.HookManager.finalize(req.body.hookId, req.decoded.connector.id).then(() => {
       return res.json({ success: true, message: "Hook finalized and registered." })
     }).catch((err) => {
       console.log(err);

@@ -300,7 +300,7 @@ exports.SkillManager = class SkillManager {
     console.log(`> [INFO] Loaded Skills: ${this.skills.list.join(", ")}`);
     console.log(`> [INFO] Plugged Intents: ${this.intents.list.join(", ")}`);
     console.log(`> [INFO] Available Commands: ${this.commands.list.join(", ")}`);
-  };
+  }
 
   /**
    *  Get list of directories at a given path.
@@ -358,7 +358,7 @@ exports.SkillManager = class SkillManager {
         return reject();
       });
     });
-  };
+  }
 
   /**
    * Deactivate a skill.
@@ -437,7 +437,7 @@ exports.SkillManager = class SkillManager {
       this.validateSkillCode(code).then((success, reason) => {
         // TODO: Validate skill code instead of TRUE...
         
-        if (true) {
+        if (true) { // eslint-disable-line no-constant-condition
           console.log(`> [INFO] Saving code of skill \x1b[33m${skillName}\x1b[0m...`);
           fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/skill.js`), code, 'utf8', (err) => {
             if (err) {
@@ -512,7 +512,7 @@ exports.SkillManager = class SkillManager {
         return reject({ title: "Could not validate skill code.", message: "Could not validate skill code." });
       });
     });
-  };
+  }
 
   /**
    * Remove a skill.
@@ -610,14 +610,14 @@ exports.SkillManager = class SkillManager {
       fs.readdirSync(path).forEach(function(file, index){
         var curPath = path + "/" + file;
         if (fs.lstatSync(curPath).isDirectory()) { // recurse
-          deleteFolderRecursive(curPath);
+          this.deleteFolderRecursive(curPath);
         } else { // delete file
           fs.unlinkSync(curPath);
         }
       });
       fs.rmdirSync(path);
     }
-  };
+  }
 
   /**
    * Get secrets for a skill.
@@ -641,7 +641,7 @@ exports.SkillManager = class SkillManager {
         return resolve(null);
       }
     });
-  };
+  }
 
   /**
    * Update a skill's secrets.
@@ -680,5 +680,5 @@ exports.SkillManager = class SkillManager {
         return reject({ code: 404, message: "No skill named " + skillName });
       }
     });
-  };
+  }
 }

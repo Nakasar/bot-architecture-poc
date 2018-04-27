@@ -14,11 +14,9 @@ function handleIntent(intentName, entities = {}, data = {}) {
     console.log(`> [INFO] Handling intent "\x1b[4m${intentName}\x1b[0m"`);
     if (SkillManager.intents.has(intentName) && SkillManager.intents.get(intentName).active) {
       let intent = SkillManager.intents.get(intentName);
-      let foundAllEntities = true;
 
       for (let entity of intent.expected_entities) {
         if (!Object.keys(entities).includes(entity)) {
-          foundAllEntities = false;
           return resolve({ success: false, message: { text: `I understand the intent is ${intentName}, but I'm missing some entities. I expect : ${intent.expected_entities.join(", ")}.` }});
         }
       }
@@ -33,7 +31,7 @@ function handleIntent(intentName, entities = {}, data = {}) {
       return resolve({ success: true, message: { text: `I can't handle your intention, yet I think it is *${intentName}*. Maybe it was disabled :/` }});
     }
   })
-};
+}
 
 /**
  * Handle a command. Find the related skill and call it.
@@ -58,7 +56,7 @@ function handleCommand(commandName, phrase = "", data = {}) {
       return resolve({ success: true, message: { text: `I can't handle your command because I don't know it. Maybe it was disabled :/ If not, you can teach me by adding new skills!` }});
     }
   })
-};
+}
 
 /**
  * Fully reload all the skills.
@@ -73,7 +71,7 @@ function reloadBrain() {
       return reject(e);
     }
   });
-};
+}
 
 // Create a new SkillManager
 const skillComponent = require('./components/SkillManager');

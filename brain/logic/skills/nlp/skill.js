@@ -59,7 +59,7 @@ function analyzeText({ phrase = "" }) {
     }
     console.log(`> [INFO] {nlp} - Analyze "${phrase}".`);
     client.analyseText(phrase).then((res) => {
-      analyzed = { };
+      let analyzed = { };
       analyzed.intent = res.intent() ? res.intent().slug : null;
       analyzed.entities = {};
       for (let entityName in res.entities) {
@@ -78,7 +78,7 @@ function analyzeText({ phrase = "" }) {
       return reject(err);
     });
   });
-};
+}
 /* </SKILL LOGIC> */
 
 // You may define other logic function unexposed here. Try to keep the skill code slim.
