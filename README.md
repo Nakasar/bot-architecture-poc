@@ -7,7 +7,6 @@
 
 ## IMPORTANT
 ### Known issues
-> This is the **PRERELEASE** branch for 1.0.0.
 > Installing with Node 10.x will crash due to bcrypt not having added node v10.x to its build configuration files yet.
 
 ## Install
@@ -47,9 +46,26 @@
 
 ### Bot Connectors
 Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests. Token must authenticate themselves through a valid token generated on the dashboard (in request header `x-access-token` or in body `token`).  
-Adapter can pass data to the brain using the `data: {}` object in body. Data will be passed to skill handlers.
+Adapter can pass data to the brain using the `data: {}` object in body. Data will be passed to skill handlers. It is good practise to send an unique channel identifier and the name of the user that entered the command.
 
-Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/).
+#### Sockets / HTTP API
+You may implement a connector that use the HTTP API of the brain or use websockets (socket-io). Socket events emitted by the adapter are: 
+| event         | HTTP equivalent | params                          | callback    | description                                 |
+| ------------- | --------------- | ------------------------------- | ----------- | ------------------------------------------- |
+| `nlp`         | `/nlp`          | { phrase, data: {} }            | (err, body) | Send a phrase to be analyzed by the brain.  |
+| `command`     | `/command`      | { command, data: {} }           | (err, body) | Send a command to be executed by the brain. |
+| `converse`    | `/converse`     | { thread_id, phrase, data: {} } | (err, body) | Send a phrase to be analyzed to the brain.  |
+| `hook-accept` | `/hooks`        | hook_id                         | (error)     | Accept the creation of a hook.              |
+
+Socket events received by the adapter are:
+| event  | callback        | description                                                           |
+| ------ | --------------- | --------------------------------------------------------------------- |
+| `hook` | (hook_id, body) | Hook triggered by the brain, body will contain the message to display |
+
+#### Example
+Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/) and HTTP API. It will not handle threads and hooks.
+
+> See the full implementation in the [connectors folder](/connectors/rocketchat-hubot/scripts). It uses a socket-io link with the brain.
 
 ```javascript
 const request = require('request');
@@ -194,6 +210,35 @@ Skills can notify the hub that their response is awaiting one from the user (lik
 
 ![The Conversation Mode Diagram](/docs_resources/quizz_workflow.png)
 
+### Hooks
+Skills can anchor hooks with adapters that implements them. They can register a new Hook with the _HookManager_ accessible via the _overseer_: `overseer.HookManager.create("skill_name")`. This will return a Promise to the created hook. The hook will no be valid, and the adapter must confirm before it can be executed. To request a hook, the `message` object returned by the skill must contain `request_hook: true` and `hook_id: <hook_id>`. Adapters should understand the request when parsing the message, and will validate the hook. Then, the skill will be able to execute the hook with `overseer.HookManager.execute(hook_id, message)` (which is a Promise).
+
+> Nota Bene: It is the responsability of the skill to handle Promise rejections with personnalized error messages.
+
+When executing a hook, in case of an error, you will recieve an error code that you can use to update your skill's storage. For instance, if you catch `overseer.HookManager.codes.NO_HOOK`, it means the Hook was deleted by the hub, or `NO_CONNECTOR_LINKED` if no connector accepted the hook, or `NO_CONNECTOR_ONLINE` if the linked connector could not be reached.
+
+#### example
+```javascript
+overseer.HookManager.create("skill_name").then((hook) => {
+  let alarm = new Date(new Date() + 5*60000); // Set a alarm in 5 minutes.
+  schedule(alarm, () => {
+    overseer.HookManager.execute(hook._id, {
+      message: {
+        title: "Ring!",
+        text: "That's an alarm, folks!"
+      }
+    }).catch(); // You may want to update your skill storage in case of a rejection (eg. removing the hook from your storage.)
+  });
+}).catch((err) => {
+  return resolve({
+    message: {
+      title: "Oups :(",
+      text: "I can't do that, I'm sorry!"
+    }
+  });
+});
+```
+
 ### Requesting other skill commands
 Skills can execute other skill's commands via the overseer they can require (some skill may restrict what skills can access their commands via an auth system):
 ```javascript
@@ -222,7 +267,7 @@ The simpliest message a skill may return from one of its Promise is the followin
 resolve({ message: { text: "This is a very simple message." } });
 ```
 
-You may add some additionnal information to the message object, like a title, or change the message avatar (using the image url instead of bot avatar, or the give emoji, not supported y all adapter!) :
+You may add some additionnal information to the message object, like a title, or change the message avatar (using the image url instead of bot avatar, or the give emoji, not supported by all adapter!) :
 ```javascript
 resolve({
   message: {
