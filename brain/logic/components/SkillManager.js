@@ -628,6 +628,7 @@ exports.SkillManager = class SkillManager {
     return new Promise((resolve, reject) => {
       if (this.skills.has(skillName)) {
         if (fs.existsSync(path.join(this.skillsDirectory, `/${skillName}/secret.js`))) {
+          delete require.cache[require.resolve(path.join(this.skillsDirectory, `/${skillName}/secret`))];
           const secrets = require(path.join(this.skillsDirectory, `/${skillName}/secret`));
           let secret = [];
           for (let [key, value] of Object.entries(secrets)) {
@@ -661,14 +662,16 @@ exports.SkillManager = class SkillManager {
         }
 
         console.log(`> [INFO] Saving secret of skill \x1b[33m${skillName}\x1b[0m...`);
-        fs.writeFile(path.join(this.skillsDirectory, `/${skillName}/secret.js`), `module.exports = ${JSON.stringify(secret)};`, 'utf8', (err) => {
-          if (err) {
-            console.log(err.stack);
+        let filePath = path.join(this.skillsDirectory, `/${skillName}/secret.js`);
+        let stream = fs.createWriteStream(filePath);
+        stream.on("error", (error) => {
+            console.log(error);
             return reject();
-          }
-
+        });
+        stream.on("finish", () => {
           console.log(`\t... Reload skill.`);
 
+          delete require.cache[require.resolve(filePath)];
           this.reloadSkill(skillName).then(() => {
             return resolve();
           }).catch((err) => {
@@ -676,6 +679,8 @@ exports.SkillManager = class SkillManager {
             return reject();
           });
         });
+        stream.write(`module.exports = ${JSON.stringify(secret)};`, 'utf8');
+        stream.end();
       } else {
         return reject({ code: 404, message: "No skill named " + skillName });
       }
