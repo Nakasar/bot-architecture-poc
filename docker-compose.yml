@@ -1,0 +1,54 @@
+version : "2"
+services:
+  brain:
+    build: ./brain
+    ports:
+      - "3012:8080"
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - HOST=${BRAIN_HOST}
+      - PORT=${BRAIN_PORT}
+    networks:
+      - botnetwork
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:3.4.0
+    restart: on-failure
+    volumes:
+      - db-data:/data/db
+    networks:
+      - botnetwork
+    command: mongod --smallfiles --oplogSize 128
+
+  rocketchat:
+    image: rocketchat/rocket.chat:latest
+    restart: on-failure
+    environment:
+      - PORT=3000
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+    depends_on:
+      - mongo
+    networks:
+      - botnetwork
+    ports:
+      - 3000:3000
+
+  rocketchat-hubot:
+    build: ./connectors/rocketchat-hubot
+    environment:
+      - BOT_URL=${BOT_URL}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - HUBOT_NAME=${HUBOT_NAME}
+      - ROCKETCHAT_USER=${ROCKETCHAT_USER}
+      - ROCKETCHAT_PASSWORD=${ROCKETCHAT_PASSWORD}
+    networks:
+      - botnetwork
+    restart: on-failure
+
+networks:
+  botnetwork:
+
+volumes:
+  db-data:

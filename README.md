@@ -3,6 +3,7 @@
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
 [Install with NPM](#classical-installation)  
+[Full Easy Install with Docker](#docker-full-install)  
 [Install with Docker](#docker-install)
 
 ## IMPORTANT
@@ -15,8 +16,8 @@
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
-- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `DB_HOST` (see below).
-- Run the brain with `npm start`, or with environment variables : `SET DB_HOST="mongodb://localhost/botbrain" && SET PORT=8080 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
+- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `MONGO_URL` (see below).
+- Run the brain with `npm start`, or with environment variables : `SET MONGO_URL="mongodb://localhost/botbrain" && SET PORT=8080 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
 > You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard). Setup admin user with [localhost:8080/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
@@ -26,11 +27,44 @@
 > You can set the running port using `SET PORT=5012 && node brain.js` instead of `npm start`.
 
 ![Docker install](/docs_resources/docker.png)
+### Docker full install
+> Using the docker-compose file at the root of the project, you can run the brain, a mongo server, a rocketchat server and the adapter with a few commands, then start building skills.
+
+- Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc` then checkout a release branch (or keep master). Or download a release from github website.
+- Edit or create a .env file at the root of the project: `cd bot-architecture-poc` then `nano .env`. Let the BOT_TOKEN empty as you can't create one yet.
+```
+###
+# ADAPTER
+###
+BOT_URL=http://brain:8080
+BOT_TOKEN=
+HUBOT_NAME=superbot
+ROCKETCHAT_USER=superbot
+ROCKETCHAT_PASSWORD=password
+
+###
+# BRAIN
+###
+# Url of the brain.
+MONGO_URL=mongodb://mongo:27017/brain
+BRAIN_HOST=0.0.0.0
+BRAIN_PORT=8080
+```
+- Run the containers with `docker-compose up -d`.
+- The bot adapter should crash in loop. You have to connect to [http://localhost:3000](http://localhost:3000) and create a user named `superbot` with password `password`.
+- Setup the dashboard admin account at [http://localhost:3012/dashboard/setup](http://localhost:3012/dashboard/setup)
+- Login to the dashboard as admin: [http://localhost:3012/dashboard/login](http://localhost:3012/dashboard/login). Username is `Nakasar` and password is `Password0`.
+- Go to the connectors pannel [http://localhost:3012/dashboard/connectors](http://localhost:3012/dashboard/connectors) and create a new connector. Copy its token.
+- Edit the BOT_TOKEN variable in the .env file with the token you just copied.
+- Stop all containers with `docker-compose stop` and run them again with `docker-compose up -d --build`.
+- Here you are! You can create other account on rocketchat and have fun with the bot!
+
+> Note Bene: To use the natural language, you must edit the skill named _nlp_ and add a secret with key `recastai_token` and the recast.ai token as value, or create a new skill with a command named "analyzed".
+
 ### Docker install
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
-- Modify the `BASE_URL` environment variable in the rain Dockerfile to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` otherwhise (or whatever will be the address of the brain api) or set it when running container.
-- Configure the `DB_HOST` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb) or set it when running container.
-- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_. You can set environment variables with the extended command instead: `docker run -d -e DB_HOST='mongodb://localhost/botbrain' -e BASE_URL='127.0.0.1:3012' -p 49160:8080 nakasar/botbrain`.
+- Configure the `MONGO_URL` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb) or set it when running container.
+- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_. You can set environment variables with the extended command instead: `docker run -d -e MONGO_URL='mongodb://localhost/botbrain' -p 49160:8080 nakasar/botbrain`.
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 
 > You can access the administration dashboard at [127.0.0.1:49160/dashboard](127.0.0.1:49160/dashboard). Setup admin user with [127.0.0.1:49160/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
