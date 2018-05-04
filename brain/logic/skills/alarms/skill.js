@@ -112,7 +112,7 @@ function alarmHandler({ phrase, data }) {
       let [timeString, ...textString] = phrase.split(" ");
       text = textString ? textString.join(" ") : "";
       // Checking time format.
-      let [hours, minutes] = timeString.split(/[:h\-]/i);
+      let [hours, minutes] = timeString.split(/[:h\-]/i); // eslint-disable-line no-useless-escape
       hours = parseInt(hours, 10);
       minutes = parseInt(minutes, 10);
       if (isNaN(hours) || hours < 0 || hours > 24) {

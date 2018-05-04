@@ -40,8 +40,6 @@ block content
                       div
                         span= intentName
                         em= ` (${intent.slug})`
-                      a.action.mb-1(role="button" title="Configure intent." data-skill=skillName data-type="intent" data-command=intentName)
-                        i.fas.fa-pencil-alt
             else
               p.font-weight-light.font-italic There are no intents associated with this skill.
             h5 Commands
@@ -52,8 +50,6 @@ block content
                     .d-flex.w-100.justify-content-between
                       div
                         span= commandName
-                      a.action.mb-1(role="button" title="Configure command." data-skill=skillName data-type="command" data-command=commandName)
-                        i.fas.fa-pencil-alt
             else
               p.font-weight-light.font-italic There are no commands for this skill.
 

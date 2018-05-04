@@ -125,6 +125,7 @@ module.exports = function(socket) {
     hub.ThreadManager.handleThread(thread_id, phrase, data).then((response) => {
       return res(null, { success: true, message: response.message, source: phrase, thread_id });
     }).catch((error) => {
+      console.log(error);
       return res({ status: 500 }, { success: false, message: { text: 'Unkown error while handling conversation in thread.' }, source: phrase, thread_id });
     });
   });

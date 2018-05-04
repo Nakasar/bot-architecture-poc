@@ -21,11 +21,10 @@ RUN npm rebuild bcrypt --build-from-source
 # Bundle app source
 COPY . .
 
-ENV PORT='8080'
+ENV PORT='80'
 ENV HOST='0.0.0.0'
-ENV BASE_URL='127.0.0.1:3012'
-ENV DB_HOST=''
+ENV MONGO_URL=''
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD [ "npm", "start" ]

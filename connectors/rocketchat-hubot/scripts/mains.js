@@ -1,8 +1,6 @@
 const request = require('request');
-const api_host = process.env.API_HOST || "localhost";
-const api_port = process.env.API_PORT || "8080";
 const socket_port = process.env.SOCKET_PORT || "4205";
-const api_url = `http://${api_host}:${api_port}`;
+const api_url = process.env.BOT_URL || "http://localhost:8080";
 const bot_token = process.env.BOT_TOKEN || "";
 
 const thread = require('./thread');

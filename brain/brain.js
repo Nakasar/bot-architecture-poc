@@ -14,7 +14,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 // Create missing secret.js file if not present.
 if (!fs.existsSync(path.join(__dirname, "/secret.js"))) {
   console.log("> [WARNING] brain/secret.js file does not exists. We'll create a new one for you with a random secret value!");
-  let secret = Math.random().toString(16).substring(2,);
+  let secret = Math.random().toString(16).substring(2);
   let content = `module.exports = { secret: "${secret}" };`;
   fs.writeFileSync(path.join(__dirname, "/secret.js"), content);
 }

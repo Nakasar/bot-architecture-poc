@@ -36,11 +36,11 @@ exports.ConnectorManager = class ConnectorManager {
 
   regenerateConnectorToken(id) {
     return this.connectorController.regenerateConnectorToken(id);
-  };
+  }
 
   checkConnectorToken(token) {
     return this.connectorController.checkConnectorToken(token);
-  };
+  }
 
   toggleConnector(id, status) {
     return new Promise((resolve, reject) => {
@@ -61,5 +61,5 @@ exports.ConnectorManager = class ConnectorManager {
         return reject(err);
       });
     })
-  };
+  }
 }

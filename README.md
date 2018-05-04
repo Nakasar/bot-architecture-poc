@@ -3,6 +3,7 @@
 > Proof of Concept of a Bot Architecture using microservices and skills.
 
 [Install with NPM](#classical-installation)  
+[Full Easy Install with Docker](#docker-full-install)  
 [Install with Docker](#docker-install)
 
 ## IMPORTANT
@@ -15,8 +16,8 @@
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
 - Move into the brain folder: `cd bot-architecture-poc/brain`.
 - Install npm modules with `npm install`.
-- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `DB_HOST` (see below).
-- Run the brain with `npm start`, or with environment variables : `SET DB_HOST="mongodb://localhost/botbrain" && SET PORT=8080 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
+- Add the connect information to the database in `brain/database/secret.js`, exporting a valid `host` string for mongodb (atlas, or even local if you have mongodb running on your computer) **OR** set the mongodb connexion string as an environment variable `MONGO_URL` (see below).
+- Run the brain with `npm start`, or with environment variables : `SET MONGO_URL="mongodb://localhost/botbrain" && SET PORT=8080 && node brain.js` _(Baware ! you must escape specific character, like `&`, in environment variables values !)_
 - _Optional : run microservices at will using `npm install` and `npm start`._
 
 > You can access the administration dashboard at [localhost:8080/dashboard](localhost:8080/dashboard). Setup admin user with [localhost:8080/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
@@ -26,11 +27,44 @@
 > You can set the running port using `SET PORT=5012 && node brain.js` instead of `npm start`.
 
 ![Docker install](/docs_resources/docker.png)
+### Docker full install
+> Using the docker-compose file at the root of the project, you can run the brain, a mongo server, a rocketchat server and the adapter with a few commands, then start building skills.
+
+- Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc` then checkout a release branch (or keep master). Or download a release from github website.
+- Edit or create a .env file at the root of the project: `cd bot-architecture-poc` then `nano .env`. Let the BOT_TOKEN empty as you can't create one yet.
+```
+###
+# ADAPTER
+###
+BOT_URL=http://brain:8080
+BOT_TOKEN=
+HUBOT_NAME=superbot
+ROCKETCHAT_USER=superbot
+ROCKETCHAT_PASSWORD=password
+
+###
+# BRAIN
+###
+# Url of the brain.
+MONGO_URL=mongodb://mongo:27017/brain
+BRAIN_HOST=0.0.0.0
+BRAIN_PORT=8080
+```
+- Run the containers with `docker-compose up -d`.
+- The bot adapter should crash in loop. You have to connect to [http://localhost:3000](http://localhost:3000) and create a user named `superbot` with password `password`.
+- Setup the dashboard admin account at [http://localhost:3012/dashboard/setup](http://localhost:3012/dashboard/setup)
+- Login to the dashboard as admin: [http://localhost:3012/dashboard/login](http://localhost:3012/dashboard/login). Username is `Nakasar` and password is `Password0`.
+- Go to the connectors pannel [http://localhost:3012/dashboard/connectors](http://localhost:3012/dashboard/connectors) and create a new connector. Copy its token.
+- Edit the BOT_TOKEN variable in the .env file with the token you just copied.
+- Stop all containers with `docker-compose stop` and run them again with `docker-compose up -d --build`.
+- Here you are! You can create other account on rocketchat and have fun with the bot!
+
+> Note Bene: To use the natural language, you must edit the skill named _nlp_ and add a secret with key `recastai_token` and the recast.ai token as value, or create a new skill with a command named "analyzed".
+
 ### Docker install
 - Clone this repository using `git clone https://github.com/Nakasar/bot-architecture-poc`.
-- Modify the `BASE_URL` environment variable in the rain Dockerfile to: `127.0.0.1:3012` if you are running docker in a VM, `127.0.0.1:49160` otherwhise (or whatever will be the address of the brain api) or set it when running container.
-- Configure the `DB_HOST` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb) or set it when running container.
-- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_. You can set environment variables with the extended command instead: `docker run -d -e DB_HOST='mongodb://localhost/botbrain' -e BASE_URL='127.0.0.1:3012' -p 49160:8080 nakasar/botbrain`.
+- Configure the `MONGO_URL` variable in the docker file with the appropriate connection string to your provider (eventually local mongodb) or set it when running container.
+- Build the Brain image using the Dockerfile, then run it : _(in brain/)_ `docker build . -t nakasar/botbrain` then `docker run -d -p 49160:8080 nakasar/botbrain` _(don't forget to expose port 49160 to access dashboard and brain API!)_. You can set environment variables with the extended command instead: `docker run -d -e MONGO_URL='mongodb://localhost/botbrain' -p 49160:8080 nakasar/botbrain`.
 - Run rocketchat server and rocket chat adapter with docker-compose (in `connectors` folder, run `docker-compose up -d`).
 
 > You can access the administration dashboard at [127.0.0.1:49160/dashboard](127.0.0.1:49160/dashboard). Setup admin user with [127.0.0.1:49160/dashboard/setup](localhost:8080/dashboard/setup), username is _Nakasar_ and password is _Password0_.
@@ -46,9 +80,28 @@
 
 ### Bot Connectors
 Connectors are basically just pipelines to transfer messages from the chat itself to the bot's brain. All they do is basically handling their own permissions (and self-commands like `join`) and differencing direct commands from natural language requests. Token must authenticate themselves through a valid token generated on the dashboard (in request header `x-access-token` or in body `token`).  
-Adapter can pass data to the brain using the `data: {}` object in body. Data will be passed to skill handlers.
+Adapter can pass data to the brain using the `data: {}` object in body. Data will be passed to skill handlers. It is good practise to send an unique channel identifier and the name of the user that entered the command.
 
-Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/).
+#### Sockets / HTTP API
+You may implement a connector that use the HTTP API of the brain or use websockets (socket-io). Socket events emitted by the adapter are: 
+
+| event         | HTTP equivalent | params                          | callback    | description                                 |
+| ------------- | --------------- | ------------------------------- | ----------- | ------------------------------------------- |
+| `nlp`         | `/nlp`          | { phrase, data: {} }            | (err, body) | Send a phrase to be analyzed by the brain.  |
+| `command`     | `/command`      | { command, data: {} }           | (err, body) | Send a command to be executed by the brain. |
+| `converse`    | `/converse`     | { thread_id, phrase, data: {} } | (err, body) | Send a phrase to be analyzed to the brain.  |
+| `hook-accept` | `/hooks`        | hook_id                         | (error)     | Accept the creation of a hook.              |
+
+Socket events received by the adapter are:
+
+| event  | callback        | description                                                           |
+| ------ | --------------- | --------------------------------------------------------------------- |
+| `hook` | (hook_id, body) | Hook triggered by the brain, body will contain the message to display |
+
+#### Example
+Here is an example of a simple adapter using [Hubot](https://hubot.github.com/) for [RocketChat](https://rocket.chat/) and HTTP API. It will not handle threads and hooks.
+
+> See the full implementation in the [connectors folder](/connectors/rocketchat-hubot/scripts). It uses a socket-io link with the brain.
 
 ```javascript
 const request = require('request');
@@ -193,6 +246,35 @@ Skills can notify the hub that their response is awaiting one from the user (lik
 
 ![The Conversation Mode Diagram](/docs_resources/quizz_workflow.png)
 
+### Hooks
+Skills can anchor hooks with adapters that implements them. They can register a new Hook with the _HookManager_ accessible via the _overseer_: `overseer.HookManager.create("skill_name")`. This will return a Promise to the created hook. The hook will no be valid, and the adapter must confirm before it can be executed. To request a hook, the `message` object returned by the skill must contain `request_hook: true` and `hook_id: <hook_id>`. Adapters should understand the request when parsing the message, and will validate the hook. Then, the skill will be able to execute the hook with `overseer.HookManager.execute(hook_id, message)` (which is a Promise).
+
+> Nota Bene: It is the responsability of the skill to handle Promise rejections with personnalized error messages.
+
+When executing a hook, in case of an error, you will recieve an error code that you can use to update your skill's storage. For instance, if you catch `overseer.HookManager.codes.NO_HOOK`, it means the Hook was deleted by the hub, or `NO_CONNECTOR_LINKED` if no connector accepted the hook, or `NO_CONNECTOR_ONLINE` if the linked connector could not be reached.
+
+#### example
+```javascript
+overseer.HookManager.create("skill_name").then((hook) => {
+  let alarm = new Date(new Date() + 5*60000); // Set a alarm in 5 minutes.
+  schedule(alarm, () => {
+    overseer.HookManager.execute(hook._id, {
+      message: {
+        title: "Ring!",
+        text: "That's an alarm, folks!"
+      }
+    }).catch(); // You may want to update your skill storage in case of a rejection (eg. removing the hook from your storage.)
+  });
+}).catch((err) => {
+  return resolve({
+    message: {
+      title: "Oups :(",
+      text: "I can't do that, I'm sorry!"
+    }
+  });
+});
+```
+
 ### Requesting other skill commands
 Skills can execute other skill's commands via the overseer they can require (some skill may restrict what skills can access their commands via an auth system):
 ```javascript
@@ -221,7 +303,7 @@ The simpliest message a skill may return from one of its Promise is the followin
 resolve({ message: { text: "This is a very simple message." } });
 ```
 
-You may add some additionnal information to the message object, like a title, or change the message avatar (using the image url instead of bot avatar, or the give emoji, not supported y all adapter!) :
+You may add some additionnal information to the message object, like a title, or change the message avatar (using the image url instead of bot avatar, or the give emoji, not supported by all adapter!) :
 ```javascript
 resolve({
   message: {
