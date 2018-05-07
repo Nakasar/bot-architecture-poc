@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "hubot": "latest",
-    "hubot-rocketchat": "latest",
+    "hubot-rocketchat": "^1.0.12",
     "request": "^2.85.0",
     "socket.io-client": "^2.1.0"
   }
